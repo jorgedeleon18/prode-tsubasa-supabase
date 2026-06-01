@@ -2474,12 +2474,12 @@ async function confirmarReg(){
   try{
     console.log('[REG] ejecutando Supabase signUp para', email);
 
-    // Mantengo la lógica original que sí enviaba el correo.
-    // No forzamos redirectTo desde el HTML: Supabase usa Site URL / Redirect URLs.
+    const redirectBase=window.location.origin;
     const {data,error}=await SB.auth.signUp({
       email,
       password:pass,
       options:{
+        emailRedirectTo:redirectBase,
         data:{nombre:nom,equipo,avatar}
       }
     });
