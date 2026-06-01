@@ -58,10 +58,15 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
   box-shadow:0 12px 48px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.2);
   text-align:center;backdrop-filter:blur(24px);
 }
-/* Logo Prode estilo institucional */
-.aub-logo-wrap{margin-bottom:18px}
+/* Emblema 7Grandes en login */
+.aub-logo-wrap{margin-bottom:18px;display:flex;flex-direction:column;align-items:center}
+.login-emblem{
+  width:128px;height:128px;object-fit:contain;display:block;margin:0 auto 13px;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.45));
+}
+.login-brand-title{font-family:'Encode Sans',sans-serif;font-weight:800;font-size:28px;color:#fff;letter-spacing:.7px;line-height:1.05}
 .aub-logo-svg{display:block;margin:0 auto 6px}
-.aub-logo-sub{font-size:9px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:3px;text-transform:uppercase}
+.aub-logo-sub{font-size:9px;font-weight:700;color:rgba(255,255,255,.62);letter-spacing:3px;text-transform:uppercase}
 /* Separador mundialero */
 .l-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:30px;padding:5px 14px;font-size:10px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px}
 .l-ball{font-size:38px;display:block;margin:4px 0 8px;animation:bounce 2s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,255,255,.4))}
@@ -560,12 +565,12 @@ body.dark .elim-pts-banner{background:rgba(18,28,36,.9)}
     <span class="ls" style="top:88%;left:16%;animation-delay:1.5s;font-size:22px">⭐</span>
   </div>
   <div class="card-l">
-    <!-- Logo Prode Mundial 2026 -->
+    <!-- Emblema 7Grandes -->
     <div class="aub-logo-wrap">
-      <div style="font-family:'Encode Sans',sans-serif;font-weight:800;font-size:30px;color:#fff;letter-spacing:1px;line-height:1.05">Prode Tsubasa 2026</div>
+      <img class="login-emblem" src="assets/emblema-7grandes.png" alt="Emblema 7Grandes">
+      <div class="login-brand-title">Prode Tsubasa 2026</div>
       <div class="aub-logo-sub">7G · DREAM PRODE</div>
     </div>
-    <span class="l-ball">⚽</span>
     <span class="l-badge">⚽ Comunidad Captain Tsubasa</span>
     <div class="l-sub">Entrá con email y contraseña para cargar tus pronósticos</div>
     <hr class="l-hr">
