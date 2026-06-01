@@ -756,6 +756,124 @@ body.dark .elim-pts-banner{background:rgba(18,28,36,.9)}
   .elim-grid-1{max-width:100%}
 }
 
+
+/* ─── THEME OVERRIDE 7GRANDES — rojo/negro ─── */
+:root{
+  --aub:#ef1b1b;
+  --aub-dark:#b80000;
+  --aub-darker:#7f0d0d;
+  --aub-light:#fee2e2;
+  --sb-bg:#080808;
+}
+body.dark{
+  --aub:#ff3333;
+  --aub-dark:#ef1b1b;
+  --aub-darker:#fecaca;
+  --aub-light:#220606;
+  --sb-bg:#070707;
+}
+
+/* Sidebar rojo/negro — mantiene responsive intacto */
+.sidebar-bg,
+.sidebar{
+  background:
+    radial-gradient(circle at 0% 0%,rgba(255,0,0,.20),transparent 34%),
+    linear-gradient(180deg,#130404 0%,#070707 46%,#030303 100%);
+}
+.sb-brand{
+  background:linear-gradient(135deg,#160303 0%,#310707 58%,#110101 100%);
+  border-bottom:1px solid rgba(255,40,40,.24);
+}
+.sb-ball{
+  filter:drop-shadow(0 0 8px rgba(255,0,0,.35));
+}
+.sb-bs{
+  color:rgba(255,255,255,.38);
+}
+.sb-sec{
+  color:rgba(255,255,255,.28);
+}
+.sb-item{
+  color:rgba(255,255,255,.58);
+}
+.sb-item:hover{
+  background:rgba(255,32,32,.10);
+  color:rgba(255,255,255,.92);
+}
+.sb-item.active{
+  background:linear-gradient(90deg,rgba(239,27,27,.42),rgba(239,27,27,.16));
+  border-left-color:#ff2a2a;
+  color:#fff;
+  box-shadow:inset 0 0 18px rgba(255,0,0,.10);
+}
+.sb-up{
+  color:#ff3b3b;
+}
+.sb-av{
+  background:linear-gradient(135deg,#ff2a2a,#8f0000);
+  box-shadow:0 0 0 2px rgba(255,255,255,.10),0 0 16px rgba(255,0,0,.22);
+}
+.sb-out:hover{
+  border-color:rgba(255,40,40,.45);
+  background:rgba(255,0,0,.12);
+  color:#fff;
+}
+
+/* Header superior con acento rojo suave */
+body:not(.dark) .topbar{
+  background:rgba(255,255,255,.92);
+  border-bottom:1px solid rgba(239,27,27,.14);
+}
+body.dark .topbar{
+  background:rgba(10,8,8,.92);
+  border-bottom:1px solid rgba(255,40,40,.18);
+}
+
+/* Botones y acentos principales en rojo */
+.btn-sv,
+.btn-reg,
+.btn-guardar-grupo,
+.etgl.on{
+  background:linear-gradient(135deg,#ff2020,#b80000);
+}
+.btn-sv:hover:not(:disabled),
+.btn-reg:hover,
+.btn-guardar-grupo:hover:not(:disabled){
+  background:linear-gradient(135deg,#ff3838,#9f0000);
+}
+.gtab:hover{
+  border-color:#ef1b1b;
+  color:#ef1b1b;
+  background:#fee2e2;
+}
+body.dark .gtab:hover{
+  background:#220606;
+  color:#ff4b4b;
+}
+.gtab.active{
+  background:#ef1b1b;
+  border-color:#ef1b1b;
+}
+.pg-fecha-num{
+  background:#ef1b1b;
+}
+.pg-fecha-line{
+  background:linear-gradient(to bottom,#ef1b1b,transparent);
+}
+.btn-as-edit{
+  border-color:#ef1b1b;
+  color:#ef1b1b;
+}
+.btn-as-edit:hover{
+  background:#ef1b1b;
+  color:#fff;
+}
+
+/* Limpieza: ya no se muestra texto técnico debajo del login */
+.l-hint{
+  display:none!important;
+}
+
 </style>
 </head>
 <body>
@@ -795,7 +913,6 @@ body.dark .elim-pts-banner{background:rgba(18,28,36,.9)}
         <button class="btn-sec" onclick="resetPassword()">Olvidé mi contraseña</button>
       </div>
     </div>
-    <div class="l-hint">Auth por Supabase · Sin SharePoint · Sin Power Automate</div>
   </div>
 </div>
 
