@@ -107,12 +107,52 @@ body.dark .avatar-card{background:#111827;border-color:#374151}
 .reg-card{max-width:520px}
 
 @media(max-width:520px){
-  #loginScreen{justify-content:center;padding:16px;background-position:58% center}
-  .card-l{max-width:100%;padding:28px 22px;border-radius:22px}
-  .login-emblem{width:116px;height:116px}
-  .login-brand-title{font-size:25px}
-  .aub-logo-sub{font-size:8px;letter-spacing:2.6px}
-  .login-actions{grid-template-columns:1fr}
+  #loginScreen{
+    min-height:100svh;
+    align-items:flex-start;
+    justify-content:center;
+    overflow-y:auto;
+    padding:
+      max(12px,env(safe-area-inset-top))
+      12px
+      max(22px,env(safe-area-inset-bottom));
+    background-position:62% bottom;
+  }
+  .ao{
+    background:
+      linear-gradient(180deg,rgba(0,0,0,.36) 0%,rgba(0,9,14,.58) 42%,rgba(0,0,0,.66) 100%),
+      linear-gradient(90deg,rgba(0,0,0,.42) 0%,rgba(0,15,24,.32) 52%,rgba(0,0,0,.30) 100%);
+  }
+  .card-l{
+    width:100%;
+    max-width:420px;
+    padding:18px 20px 20px;
+    border-radius:22px;
+    margin:0 auto;
+  }
+  .aub-logo-wrap{margin-bottom:13px}
+  .login-emblem{width:82px;height:82px;margin-bottom:10px}
+  .login-brand-title{font-size:25px;line-height:1.08;letter-spacing:.3px}
+  .aub-logo-sub{font-size:8px;letter-spacing:2.5px;margin-top:4px}
+  .l-badge{font-size:9px;padding:6px 13px;margin-bottom:12px}
+  .l-sub{font-size:11px;line-height:1.35;margin-bottom:13px}
+  .l-hr{margin-bottom:12px}
+  .adf{gap:7px}
+  .lf label{font-size:9px;margin-bottom:3px}
+  .lf input{padding:10px 12px;border-radius:10px;font-size:13px}
+  .btn-ing{padding:12px;border-radius:11px;margin-top:4px}
+  .login-actions{grid-template-columns:1fr;gap:8px;margin-top:8px}
+  .btn-sec{padding:11px;border-radius:10px}
+  .l-hint{font-size:8px;margin-top:12px}
+}
+
+@media(max-width:380px){
+  .card-l{padding:16px 16px 18px}
+  .login-emblem{width:74px;height:74px}
+  .login-brand-title{font-size:22px}
+  .l-badge{font-size:8px;padding:5px 11px}
+  .lf input{padding:9px 11px}
+  .btn-ing,.btn-sec{padding:10px}
 }
 
 
