@@ -757,43 +757,6 @@ body.dark .elim-pts-banner{background:rgba(18,28,36,.9)}
 }
 
 
-
-/* ─── REGISTRO: estado de envío / confirmación email ─── */
-.btn-reg.loading{
-  opacity:.72;
-  cursor:not-allowed;
-  transform:scale(.98);
-  filter:saturate(.85);
-}
-.btn-reg.loading::after{
-  content:'';
-  display:inline-block;
-  width:13px;
-  height:13px;
-  margin-left:8px;
-  border:2px solid rgba(255,255,255,.45);
-  border-top-color:#fff;
-  border-radius:50%;
-  vertical-align:-2px;
-  animation:spinReg .8s linear infinite;
-}
-@keyframes spinReg{to{transform:rotate(360deg)}}
-.reg-success{text-align:center;padding:8px 2px 0}
-.reg-success-ico{
-  width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  margin:0 auto 15px;font-size:34px;background:linear-gradient(135deg,#ff2020,#8f0000);
-  box-shadow:0 0 28px rgba(255,0,0,.28);
-}
-.reg-success-title{font-size:22px;font-weight:800;color:#ff3333;margin-bottom:8px}
-.reg-success-text{font-size:13px;line-height:1.55;color:var(--gray);margin-bottom:14px}
-.reg-success-box{
-  text-align:left;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
-  border-radius:13px;padding:13px 14px;margin:14px 0 16px;font-size:12px;color:var(--gray-dark);line-height:1.7;
-}
-body.dark .reg-success-box{background:rgba(0,0,0,.18)}
-.reg-success-mail{color:#ff3333;font-weight:800;word-break:break-word}
-.reg-countdown{font-size:11px;color:var(--gray);margin-top:10px}
-
 /* ─── THEME OVERRIDE 7GRANDES — rojo/negro ─── */
 :root{
   --aub:#ef1b1b;
@@ -970,6 +933,19 @@ body.dark .gtab:hover{
   }
 }
 
+/* ─── REGISTRO: estado de envío / confirmación email ─── */
+.btn-reg.loading{opacity:.72;cursor:not-allowed;transform:scale(.98);filter:saturate(.85)}
+.btn-reg.loading::after{content:'';display:inline-block;width:13px;height:13px;margin-left:8px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;vertical-align:-2px;animation:spinReg .8s linear infinite}
+@keyframes spinReg{to{transform:rotate(360deg)}}
+.reg-success{text-align:center;padding:8px 2px 0}
+.reg-success-ico{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;font-size:34px;background:linear-gradient(135deg,#ff2020,#8f0000);box-shadow:0 0 28px rgba(255,0,0,.28)}
+.reg-success-title{font-size:22px;font-weight:800;color:#ff3333;margin-bottom:8px}
+.reg-success-text{font-size:13px;line-height:1.55;color:var(--gray);margin-bottom:14px}
+.reg-success-box{text-align:left;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:13px 14px;margin:14px 0 16px;font-size:12px;color:var(--gray-dark);line-height:1.7}
+body.dark .reg-success-box{background:rgba(0,0,0,.18)}
+.reg-success-mail{color:#ff3333;font-weight:800;word-break:break-word}
+.reg-countdown{font-size:11px;color:var(--gray);margin-top:10px}
+
 </style>
 </head>
 <body>
@@ -1036,7 +1012,7 @@ body.dark .gtab:hover{
       <input type="hidden" id="rAvatar" value="hyuga">
       <div class="avatar-grid" id="avatarGrid"></div>
     </div>
-    <button class="btn-reg" id="btnRegSubmit" onclick="confirmarReg()">⚽ Crear cuenta y empezar</button>
+    <button class="btn-reg" onclick="confirmarReg()">⚽ Crear cuenta y empezar</button>
     <button class="btn-reg" style="background:var(--gray);margin-top:8px" onclick="volverLogin()">Volver al login</button>
   </div>
 </div>
@@ -2464,6 +2440,7 @@ async function handleLogin(){
   await cargarPerfilDesdeSesion(data.session);
 }
 async function confirmarReg(){
+  console.log('[REG] confirmarReg llamado');
   const n=document.getElementById('rN').value.trim();
   const a=document.getElementById('rA').value.trim();
   const email=(document.getElementById('rEmail').value||'').trim().toLowerCase();
@@ -2477,29 +2454,24 @@ async function confirmarReg(){
   if(pass.length<6){showErr('regErr','La contraseña debe tener al menos 6 caracteres.');return;}
 
   hideErr('regErr');
-  if(btn){
-    btn.disabled=true;
-    btn.classList.add('loading');
-    btn.textContent='Creando cuenta';
-  }
+  if(btn){btn.disabled=true;btn.classList.add('loading');btn.textContent='Creando cuenta';}
 
   const nom=a+', '+n;
   const redirectTo=window.location.origin;
 
   try{
+    console.log('[REG] ejecutando Supabase signUp para', email);
     const {data,error}=await SB.auth.signUp({
-      email,
+      email:email,
       password:pass,
       options:{
-        data:{nombre:nom,equipo,avatar},
+        data:{nombre:nom,equipo:equipo,avatar:avatar},
         emailRedirectTo:redirectTo
       }
     });
-
+    console.log('[REG] respuesta signUp', {data,error});
     if(error)throw error;
 
-    // Si Supabase devuelve sesión, el mail ya estaba confirmado o Confirm email está desactivado.
-    // En ese caso se crea el perfil y entra directo.
     if(data?.session && data?.user){
       await upsertPerfilUsuario({id:data.user.id,nombre:nom,email,avatar,rol:'jugador',equipo});
       if(btn){btn.disabled=false;btn.classList.remove('loading');btn.textContent='⚽ Crear cuenta y empezar';}
@@ -2507,18 +2479,10 @@ async function confirmarReg(){
       return;
     }
 
-    // Con Confirm email activado normalmente no hay sesión. Reforzamos reenviando el link
-    // por si el correo ya existía sin confirmar o Supabase no disparó el primer email visible.
-    try{
-      await SB.auth.resend({
-        type:'signup',
-        email,
-        options:{emailRedirectTo:redirectTo}
-      });
-    }catch(_e){}
-
+    // Si Confirm email está activado, no entra directo: mostramos cartel.
     mostrarConfirmacionEmail(email);
   }catch(error){
+    console.error('[REG] error creando cuenta', error);
     if(btn){btn.disabled=false;btn.classList.remove('loading');btn.textContent='⚽ Crear cuenta y empezar';}
     showErr('regErr','No se pudo crear la cuenta: '+(error?.message||error));
   }
@@ -2540,7 +2504,7 @@ function mostrarConfirmacionEmail(email){
         ✅ Revisá también Correo no deseado / Spam.<br>
         ✅ Después abrí el enlace y volvé a ingresar.
       </div>
-      <button class="btn-reg" onclick="volverLogin()">Volver al login</button>
+      <button type="button" class="btn-reg" onclick="volverLogin()">Volver al login</button>
       <div class="reg-countdown" id="regCountdown">Volviendo al login en 8...</div>
     </div>`;
   let n=8;
@@ -2551,6 +2515,19 @@ function mostrarConfirmacionEmail(email){
     if(n<=0){clearInterval(t);volverLogin();}
   },1000);
 }
+
+function vincularBotonRegistro(){
+  const btn=document.getElementById('btnRegSubmit');
+  if(!btn)return;
+  btn.onclick=function(ev){
+    ev.preventDefault();
+    console.log('[REG] click botón crear cuenta');
+    confirmarReg();
+  };
+}
+window.addEventListener('DOMContentLoaded',vincularBotonRegistro);
+setTimeout(vincularBotonRegistro,300);
+
 async function cargarPerfilDesdeSesion(session){
   const {data:{user}}=await SB.auth.getUser();
   if(!user)return;
