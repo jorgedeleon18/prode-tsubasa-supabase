@@ -1141,7 +1141,7 @@ const PES={
   'México':'México','Mexico':'México',
   'South Africa':'Sudáfrica',
   'Korea Republic':'Corea del Sur',
-  'Czechia':'Rep. Checa',
+  'Czechia':'Chequia',
   'Canada':'Canadá',
   'Bosnia and Herzegovina':'Bosnia y Herz.',
   'Qatar':'Qatar',
@@ -1329,14 +1329,27 @@ function calcPts(p,pr){
   return{pts:0,lbl:'Sin puntos',cls:'ptb-0'};
 }
 
-// ══════ CIERRE: medianoche del día del partido (23:59:59 del día anterior) ══════
-function abierto(p){const[y,m,d]=p.fecha.split('-').map(Number);return new Date()<new Date(y,m-1,d,0,0,0);}
+// ══════ CIERRE: Supabase manda el cierre real por partido (public.partidos.cierra_en) ══════
+function cierreDate(p){
+  const db=CIERRES_PARTIDOS[p.id];
+  if(db){
+    const d=new Date(db);
+    if(!isNaN(d.getTime()))return d;
+  }
+  const[y,m,d]=p.fecha.split('-').map(Number);
+  return new Date(y,m-1,d,0,0,0);
+}
+function abierto(p){return new Date()<cierreDate(p);}
 function finalizado(p){return p.gl!==undefined&&p.gl!==null&&p.gl!=='';}
 function fechaCorta(f){const[y,m,d]=f.split('-');return`${d}/${m}/${y}`;}
-function cierreStr(p){const[y,m,d]=p.fecha.split('-').map(Number);const ant=new Date(y,m-1,d-1);return`${String(ant.getDate()).padStart(2,'0')}/${String(ant.getMonth()+1).padStart(2,'0')} 23:59`;}
+function cierreStr(p){
+  const d=cierreDate(p);
+  const txt=`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  return txt;
+}
 
 // ══════ ESTADO ══════
-let USR=null,PRONOS={},BONUS={cam:'',fin:'',gol:''},RANK=[],GA='A',ADMA='A',DARK=localStorage.getItem('pd')==='1';
+let USR=null,PRONOS={},BONUS={cam:'',fin:'',gol:''},RANK=[],GA='A',ADMA='A',DARK=localStorage.getItem('pd')==='1',CIERRES_PARTIDOS={};
 
 // ══ EQUIPOS ELIMINATORIAS: nombres reales de equipos, persistidos en localStorage ══
 let EQUIPOS_ELIM={};
@@ -1755,7 +1768,7 @@ async function svProno(id,ex=false){
 const SELECCIONES_ES=[
   'Argentina','Alemania','Arabia Saudita','Australia','Austria',
   'Bélgica','Bosnia y Herz.','Brasil','Canadá','Cabo Verde',
-  'Rep. Checa','Corea del Sur','Colombia','Congo RD','Costa de Marfil',
+  'Chequia','Corea del Sur','Colombia','Congo RD','Costa de Marfil',
   'Croacia','Curaçao','Ecuador','Egipto','Escocia',
   'España','EE.UU.','Francia','Ghana','Haití',
   'Holanda','Inglaterra','Irak','Irán','Japón',
@@ -1768,7 +1781,7 @@ const SELECCIONES_ES=[
 const SEL_OPTS=[
   'Argentina','Alemania','Arabia Saudita','Australia','Austria',
   'Bélgica','Bosnia y Herz.','Brasil','Canadá','Cabo Verde',
-  'Rep. Checa','Corea del Sur','Colombia','Congo RD','Costa de Marfil',
+  'Chequia','Corea del Sur','Colombia','Congo RD','Costa de Marfil',
   'Croacia','Curaçao','Ecuador','Egipto','Escocia',
   'España','EE.UU.','Francia','Ghana','Haití',
   'Inglaterra','Irak','Irán','Japón','Jordania',
@@ -2194,7 +2207,7 @@ const ERONDAS=[
 
 let EPRONOS={};
 
-function abiertoE(p){const[y,m,d]=p.fecha.split('-').map(Number);return new Date()<new Date(y,m-1,d,0,0,0);}
+function abiertoE(p){return new Date()<cierreDate(p);}
 
 function eCard(p,color){
   const ep=EPRONOS[p.id]||{};
@@ -2471,6 +2484,18 @@ async function logout(){
   document.getElementById('iU').value='';document.getElementById('iP').value='';
 }
 async function cargarResultadosSP(){return cargarResultadosDB();}
+async function cargarPartidosDB(){
+  try{
+    const {data,error}=await SB.from('partidos').select('id,cierra_en');
+    if(error)throw error;
+    CIERRES_PARTIDOS={};
+    (data||[]).forEach(p=>{
+      if(p.id&&p.cierra_en)CIERRES_PARTIDOS[p.id]=p.cierra_en;
+    });
+  }catch(e){
+    console.warn('Error cargando cierres de partidos:',e);
+  }
+}
 async function cargarResultadosDB(){
   try{
     const {data,error}=await SB.from('resultados').select('*');
@@ -2490,6 +2515,7 @@ async function cargarApp(){
   updSB();initCF();
   document.getElementById('mc').innerHTML='<div class="loading">Cargando pronósticos...</div>';
   PRONOS={}; EPRONOS={};
+  await cargarPartidosDB();
   try{
     const {data,error}=await SB.from('pronosticos').select('*').eq('usuario_id',USR.id);
     if(error)throw error;
@@ -2519,7 +2545,7 @@ async function guardarGrupoCompleto(){
   btn.classList.add('saving');btn.textContent='Guardando...';btn.disabled=true;
   const {error}=await SB.from('pronosticos').upsert(filas,{onConflict:'usuario_id,partido_id'});
   btn.classList.remove('saving');btn.disabled=false;
-  if(error){toast('Error guardando: '+error.message,'err');return;}
+  if(error){toast('No se pudo guardar. Puede que algún partido ya esté cerrado.','err');return;}
   toast(`✓ ${filas.length} pronóstico(s) del Grupo ${GA} guardados`);
   btn.textContent=`✅ Grupo ${GA} guardado`; btn.classList.add('all-saved');
 }
