@@ -28,75 +28,238 @@ body.dark{
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 
-/* ─── LOGIN — Identidad visual Prode ─── */
+/* ─── LOGIN — Identidad visual Prode 7Grandes ─── */
 #loginScreen{
-  min-height:100vh;display:flex;align-items:center;justify-content:flex-start;
-  position:relative;overflow:hidden;
-  padding:24px 24px 24px clamp(28px,8vw,150px);
-  background:#05090d url('assets/tsubasafondo.jpg') center bottom/cover no-repeat;
-}
-/* Fondo login: imagen externa en assets, sin Base64 */
-.as{position:absolute;inset:0;display:none}
-.as div{flex:1}
-.as div:nth-child(1){background:#00AEC3}
-.as div:nth-child(2){background:#fff}
-.as div:nth-child(3){background:#00AEC3}
-.ao{
-  position:absolute;inset:0;
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+  padding:28px 18px;
   background:
-    radial-gradient(circle at 72% 58%,rgba(0,200,224,.10),transparent 35%),
-    linear-gradient(90deg,rgba(0,0,0,.82) 0%,rgba(0,16,24,.54) 38%,rgba(0,0,0,.20) 66%,rgba(0,0,0,.46) 100%),
-    linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,.30) 46%,rgba(0,0,0,.56) 100%);
+    radial-gradient(circle at center,rgba(180,0,0,.12) 0%,rgba(0,0,0,0) 42%),
+    #000;
 }
-/* Sin grilla extra: dejamos respirar la imagen de fondo */
+.as{display:none}
+.ao{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 8%,rgba(255,0,0,.14),transparent 34%),
+    radial-gradient(circle at 50% 100%,rgba(160,0,0,.12),transparent 38%),
+    linear-gradient(180deg,#000 0%,#050505 52%,#000 100%);
+  pointer-events:none;
+}
 .login-bg-pattern{display:none}
 .ls-wrap{display:none}
-.ls{position:absolute;color:#F6C90E;opacity:.22;animation:tw 4s ease-in-out infinite;text-shadow:0 0 10px rgba(246,201,14,.5)}
-@keyframes tw{0%,100%{opacity:.05;transform:scale(1)}50%{opacity:.14;transform:scale(1.1)}}
-/* Card con glassmorphism */
+.ls{display:none}
+
+/* Card central rojo/negro */
 .card-l{
-  position:relative;z-index:2;
-  background:linear-gradient(180deg,rgba(9,25,34,.80),rgba(3,10,16,.88));
-  border:1px solid rgba(0,200,224,.42);
-  border-radius:24px;padding:30px 30px;
-  width:100%;max-width:410px;
-  box-shadow:0 22px 70px rgba(0,0,0,.68),0 0 34px rgba(0,200,224,.14),inset 0 1px 0 rgba(255,255,255,.16);
-  text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:560px;
+  padding:42px 40px 36px;
+  border-radius:28px;
+  text-align:center;
+  background:
+    radial-gradient(circle at 50% 18%,rgba(255,255,255,.08),transparent 28%),
+    linear-gradient(180deg,rgba(24,24,24,.96),rgba(5,5,5,.98));
+  border:1.5px solid rgba(255,24,24,.92);
+  box-shadow:
+    0 0 0 1px rgba(255,0,0,.10),
+    0 0 42px rgba(255,0,0,.18),
+    0 24px 80px rgba(0,0,0,.88),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
 }
-/* Emblema 7Grandes en login */
-.aub-logo-wrap{margin-bottom:18px;display:flex;flex-direction:column;align-items:center}
+
+/* Emblema 7Grandes */
+.aub-logo-wrap{
+  margin-bottom:22px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
 .login-emblem{
-  width:116px;height:116px;object-fit:contain;display:block;margin:0 auto 12px;
-  filter:drop-shadow(0 12px 20px rgba(0,0,0,.62));
+  width:150px;
+  height:150px;
+  object-fit:contain;
+  display:block;
+  margin:0 auto 18px;
+  filter:
+    drop-shadow(0 16px 22px rgba(0,0,0,.72))
+    drop-shadow(0 0 14px rgba(255,0,0,.18));
 }
-.login-brand-title{font-family:'Encode Sans',sans-serif;font-weight:800;font-size:29px;color:#fff;letter-spacing:.7px;line-height:1.05;text-shadow:0 3px 12px rgba(0,0,0,.6)}
-.aub-logo-svg{display:block;margin:0 auto 6px}
-.aub-logo-sub{font-size:10px;font-weight:700;color:rgba(255,255,255,.74);letter-spacing:3.5px;text-transform:uppercase;margin-top:5px}
-/* Separador mundialero */
-.l-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,200,224,.11);border:1px solid rgba(0,200,224,.55);border-radius:30px;padding:7px 17px;font-size:10px;font-weight:800;color:#35eaff;letter-spacing:.5px;text-transform:uppercase;margin-bottom:16px;box-shadow:0 0 16px rgba(0,200,224,.14)}
-.l-ball{font-size:38px;display:block;margin:4px 0 8px;animation:bounce 2s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,255,255,.4))}
+.login-brand-title{
+  font-family:'Encode Sans',sans-serif;
+  font-weight:800;
+  font-size:38px;
+  color:#fff;
+  letter-spacing:.4px;
+  line-height:1.04;
+  text-shadow:0 4px 18px rgba(0,0,0,.8);
+}
+.login-brand-title .red{
+  color:#e11d1d;
+  text-shadow:0 0 18px rgba(255,0,0,.22);
+}
+.aub-logo-sub{
+  font-size:12px;
+  font-weight:800;
+  color:rgba(255,255,255,.68);
+  letter-spacing:5px;
+  text-transform:uppercase;
+  margin-top:12px;
+}
+.aub-logo-sub::first-letter{color:#e11d1d}
+.aub-logo-svg{display:none}
+
+/* Badge */
+.l-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  background:rgba(0,0,0,.38);
+  border:1px solid rgba(255,24,24,.9);
+  border-radius:999px;
+  padding:11px 28px;
+  font-size:13px;
+  font-weight:800;
+  color:#ff3535;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin:0 auto 26px;
+  box-shadow:0 0 18px rgba(255,0,0,.14);
+}
+.l-ball{display:none}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .l-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:.5px;display:block;margin-bottom:3px;font-family:'Encode Sans',sans-serif}
-.l-sub{font-size:12px;color:rgba(255,255,255,.74);margin-bottom:17px}
-.l-hr{height:1px;background:rgba(255,255,255,.15);border:none;margin-bottom:14px}
-.btn-ms{width:100%;padding:11px;border-radius:9px;border:none;cursor:pointer;background:rgba(255,255,255,.95);color:#222;font-size:13px;font-weight:700;font-family:var(--fn);display:flex;align-items:center;justify-content:center;gap:9px;transition:background .2s;margin-bottom:12px}
-.btn-ms:hover{background:#fff}.btn-ms:disabled{opacity:.6;cursor:not-allowed}
-.ms-ico{width:18px;height:18px;flex-shrink:0}
-.sep-o{text-align:center;color:rgba(255,255,255,.33);font-size:10px;margin:9px 0;position:relative}
-.sep-o::before,.sep-o::after{content:'';position:absolute;top:50%;width:36%;height:1px;background:rgba(255,255,255,.14)}
-.sep-o::before{left:0}.sep-o::after{right:0}
-.adf{display:flex;flex-direction:column;gap:6px;text-align:left}
-.lf label{display:block;font-size:10px;font-weight:800;color:rgba(255,255,255,.64);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
-.lf input{width:100%;padding:12px 13px;border-radius:10px;border:1px solid rgba(255,255,255,.20);background:rgba(8,20,30,.55);color:#fff;font-size:13px;font-family:var(--fn);outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
-.lf input::placeholder{color:rgba(255,255,255,.34)}.lf input:focus{border-color:rgba(0,200,224,.85);box-shadow:0 0 0 3px rgba(0,200,224,.12)}
-.btn-ing{width:100%;padding:13px;border-radius:11px;border:none;cursor:pointer;background:linear-gradient(135deg,#00C8E0,#00759A);color:#fff;font-size:14px;font-weight:800;font-family:var(--fn);transition:all .2s;margin-top:6px;box-shadow:0 8px 22px rgba(0,174,195,.28)}
-.btn-ing:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 28px rgba(0,174,195,.38)}.btn-ing:disabled{opacity:.6;cursor:not-allowed}
-.err-m{background:rgba(220,38,38,.2);border:1px solid rgba(220,38,38,.38);color:#fca5a5;border-radius:7px;padding:7px 11px;font-size:11px;margin-bottom:7px;display:none;text-align:left}
-.l-hint{font-size:9px;color:rgba(255,255,255,.28);margin-top:11px}
-.login-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.l-sub{
+  font-size:16px;
+  color:rgba(255,255,255,.78);
+  margin-bottom:26px;
+  line-height:1.45;
+}
+.l-hr{
+  height:1px;
+  background:rgba(255,255,255,.18);
+  border:none;
+  margin:0 0 24px;
+}
+
+/* Formulario */
+.adf{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  text-align:left;
+}
+.lf label{
+  display:block;
+  font-size:13px;
+  font-weight:800;
+  color:rgba(255,255,255,.76);
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  margin-bottom:8px;
+}
+.lf input{
+  width:100%;
+  height:58px;
+  padding:0 18px;
+  border-radius:14px;
+  border:1.5px solid rgba(255,255,255,.28);
+  background:rgba(14,14,14,.68);
+  color:#fff;
+  font-size:16px;
+  font-family:var(--fn);
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  transition:border-color .18s,box-shadow .18s,background .18s;
+}
+.lf input::placeholder{color:rgba(255,255,255,.38)}
+.lf input:focus{
+  border-color:#ff1f1f;
+  background:rgba(18,18,18,.86);
+  box-shadow:0 0 0 3px rgba(255,0,0,.13),inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.btn-ing{
+  width:100%;
+  min-height:62px;
+  padding:16px;
+  border-radius:14px;
+  border:none;
+  cursor:pointer;
+  background:linear-gradient(135deg,#ff1a1a,#b60000);
+  color:#fff;
+  font-size:20px;
+  font-weight:800;
+  font-family:var(--fn);
+  transition:all .2s;
+  margin-top:8px;
+  box-shadow:0 12px 28px rgba(255,0,0,.28);
+}
+.btn-ing::before{content:'↪ ';font-weight:800;margin-right:8px}
+.btn-ing:hover:not(:disabled){
+  transform:translateY(-1px);
+  box-shadow:0 14px 34px rgba(255,0,0,.38);
+  filter:brightness(1.05);
+}
+.btn-ing:disabled{opacity:.6;cursor:not-allowed}
+
+.login-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-top:14px;
+}
 .login-actions .btn-ing{margin-top:0}
-.btn-sec{width:100%;padding:11px;border-radius:10px;border:1px solid rgba(0,200,224,.48);cursor:pointer;background:rgba(8,20,30,.42);color:#fff;font-size:12px;font-weight:800;font-family:var(--fn);transition:all .2s}
-.btn-sec:hover{background:rgba(0,200,224,.13);border-color:rgba(0,200,224,.8)}
+.btn-sec{
+  width:100%;
+  min-height:54px;
+  padding:13px 14px;
+  border-radius:13px;
+  border:1.5px solid rgba(255,24,24,.95);
+  cursor:pointer;
+  background:rgba(0,0,0,.34);
+  color:#fff;
+  font-size:15px;
+  font-weight:800;
+  font-family:var(--fn);
+  transition:all .2s;
+}
+.btn-sec:hover{
+  background:rgba(255,0,0,.12);
+  box-shadow:0 0 18px rgba(255,0,0,.16);
+}
+.err-m{
+  background:rgba(220,38,38,.20);
+  border:1px solid rgba(255,50,50,.55);
+  color:#fecaca;
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:12px;
+  margin-bottom:14px;
+  display:none;
+  text-align:left;
+}
+.l-hint{
+  font-size:13px;
+  color:rgba(255,255,255,.42);
+  margin-top:28px;
+}
+.l-hint::before{content:'🔒 ';opacity:.75}
+
+.btn-ms,.ms-ico,.sep-o{display:none}
+
+/* Avatares registro */
 .avatar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 12px}
 .avatar-card{border:2px solid var(--gray-border);background:#fff;border-radius:14px;padding:8px 5px;cursor:pointer;text-align:center;transition:all .15s}
 .avatar-card:hover,.avatar-card.sel{border-color:var(--aub);box-shadow:0 0 0 3px rgba(0,174,195,.14)}
@@ -106,55 +269,49 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 body.dark .avatar-card{background:#111827;border-color:#374151}
 .reg-card{max-width:520px}
 
-@media(max-width:520px){
+@media(max-width:620px){
   #loginScreen{
-    min-height:100svh;
-    align-items:flex-start;
+    align-items:center;
     justify-content:center;
     overflow-y:auto;
     padding:
-      max(12px,env(safe-area-inset-top))
-      12px
-      max(22px,env(safe-area-inset-bottom));
-    background-position:62% bottom;
-  }
-  .ao{
-    background:
-      linear-gradient(180deg,rgba(0,0,0,.36) 0%,rgba(0,9,14,.58) 42%,rgba(0,0,0,.66) 100%),
-      linear-gradient(90deg,rgba(0,0,0,.42) 0%,rgba(0,15,24,.32) 52%,rgba(0,0,0,.30) 100%);
+      max(16px,env(safe-area-inset-top))
+      14px
+      max(24px,env(safe-area-inset-bottom));
+    background:#000;
   }
   .card-l{
-    width:100%;
-    max-width:420px;
-    padding:18px 20px 20px;
-    border-radius:22px;
-    margin:0 auto;
+    max-width:430px;
+    padding:28px 22px 26px;
+    border-radius:24px;
   }
-  .aub-logo-wrap{margin-bottom:13px}
-  .login-emblem{width:82px;height:82px;margin-bottom:10px}
-  .login-brand-title{font-size:25px;line-height:1.08;letter-spacing:.3px}
-  .aub-logo-sub{font-size:8px;letter-spacing:2.5px;margin-top:4px}
-  .l-badge{font-size:9px;padding:6px 13px;margin-bottom:12px}
-  .l-sub{font-size:11px;line-height:1.35;margin-bottom:13px}
-  .l-hr{margin-bottom:12px}
-  .adf{gap:7px}
-  .lf label{font-size:9px;margin-bottom:3px}
-  .lf input{padding:10px 12px;border-radius:10px;font-size:13px}
-  .btn-ing{padding:12px;border-radius:11px;margin-top:4px}
-  .login-actions{grid-template-columns:1fr;gap:8px;margin-top:8px}
-  .btn-sec{padding:11px;border-radius:10px}
-  .l-hint{font-size:8px;margin-top:12px}
+  .aub-logo-wrap{margin-bottom:18px}
+  .login-emblem{width:118px;height:118px;margin-bottom:14px}
+  .login-brand-title{font-size:30px;line-height:1.05}
+  .aub-logo-sub{font-size:10px;letter-spacing:3.5px;margin-top:9px}
+  .l-badge{font-size:11px;padding:9px 18px;margin-bottom:20px;letter-spacing:.6px}
+  .l-sub{font-size:14px;margin-bottom:20px}
+  .l-hr{margin-bottom:18px}
+  .adf{gap:12px}
+  .lf label{font-size:11px;margin-bottom:6px}
+  .lf input{height:52px;border-radius:13px;font-size:15px}
+  .btn-ing{min-height:56px;font-size:17px;border-radius:13px}
+  .login-actions{grid-template-columns:1fr;gap:10px;margin-top:10px}
+  .btn-sec{min-height:50px;font-size:15px}
+  .l-hint{font-size:11px;margin-top:20px}
 }
 
 @media(max-width:380px){
-  .card-l{padding:16px 16px 18px}
-  .login-emblem{width:74px;height:74px}
-  .login-brand-title{font-size:22px}
-  .l-badge{font-size:8px;padding:5px 11px}
-  .lf input{padding:9px 11px}
-  .btn-ing,.btn-sec{padding:10px}
+  .card-l{padding:24px 18px 22px}
+  .login-emblem{width:104px;height:104px}
+  .login-brand-title{font-size:26px}
+  .aub-logo-sub{font-size:9px;letter-spacing:3px}
+  .l-badge{font-size:10px;padding:8px 14px}
+  .l-sub{font-size:13px}
+  .lf input{height:48px}
+  .btn-ing{min-height:52px}
+  .btn-sec{min-height:48px}
 }
-
 
 /* REGISTRO */
 #regScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#022D40,#00AEC3)}
@@ -622,7 +779,7 @@ body.dark .elim-pts-banner{background:rgba(18,28,36,.9)}
     <!-- Emblema 7Grandes -->
     <div class="aub-logo-wrap">
       <img class="login-emblem" src="assets/emblema-7grandes.png" alt="Emblema 7Grandes">
-      <div class="login-brand-title">Prode Tsubasa 2026</div>
+      <div class="login-brand-title">Prode <span class="red">Tsubasa</span> 2026</div>
       <div class="aub-logo-sub">7G · DREAM PRODE</div>
     </div>
     <span class="l-badge">⚽ Comunidad Captain Tsubasa</span>
