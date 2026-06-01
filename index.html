@@ -32,18 +32,26 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 #loginScreen{
   min-height:100vh;display:flex;align-items:center;justify-content:center;
   position:relative;overflow:hidden;
+  padding:24px;
+  background:#071018 url('assets/tsubasafondo.jpg') center center/cover no-repeat;
 }
-/* Franjas celeste/blanco argentino */
-.as{position:absolute;inset:0;display:flex;flex-direction:column}
+/* Fondo login: imagen externa en assets, sin Base64 */
+.as{position:absolute;inset:0;display:none}
 .as div{flex:1}
 .as div:nth-child(1){background:#00AEC3}
 .as div:nth-child(2){background:#fff}
 .as div:nth-child(3){background:#00AEC3}
-.ao{position:absolute;inset:0;background:rgba(0,45,64,.58)}
+.ao{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(0,200,224,.18),transparent 34%),
+    linear-gradient(90deg,rgba(0,0,0,.78),rgba(0,25,35,.46) 48%,rgba(0,0,0,.82)),
+    linear-gradient(180deg,rgba(0,0,0,.52),rgba(0,0,0,.78));
+}
 /* Patrón sutil */
-.login-bg-pattern{position:absolute;inset:0;opacity:.04;pointer-events:none;
-  background-image:repeating-linear-gradient(0deg,#fff 0,#fff 1px,transparent 1px,transparent 48px),
-    repeating-linear-gradient(90deg,#fff 0,#fff 1px,transparent 1px,transparent 48px);
+.login-bg-pattern{position:absolute;inset:0;opacity:.08;pointer-events:none;
+  background-image:repeating-linear-gradient(0deg,#fff 0,#fff 1px,transparent 1px,transparent 52px),
+    repeating-linear-gradient(90deg,#fff 0,#fff 1px,transparent 1px,transparent 52px);
 }
 .ls-wrap{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 .ls{position:absolute;color:#F6C90E;opacity:.22;animation:tw 4s ease-in-out infinite;text-shadow:0 0 10px rgba(246,201,14,.5)}
@@ -51,28 +59,28 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 /* Card con glassmorphism */
 .card-l{
   position:relative;z-index:2;
-  background:rgba(255,255,255,.13);
-  border:1px solid rgba(255,255,255,.25);
-  border-radius:20px;padding:36px 32px;
-  width:100%;max-width:390px;
-  box-shadow:0 12px 48px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.2);
-  text-align:center;backdrop-filter:blur(24px);
+  background:linear-gradient(180deg,rgba(12,28,38,.72),rgba(5,13,20,.82));
+  border:1px solid rgba(0,200,224,.42);
+  border-radius:24px;padding:34px 32px;
+  width:100%;max-width:430px;
+  box-shadow:0 22px 70px rgba(0,0,0,.62),0 0 30px rgba(0,200,224,.13),inset 0 1px 0 rgba(255,255,255,.18);
+  text-align:center;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
 }
 /* Emblema 7Grandes en login */
 .aub-logo-wrap{margin-bottom:18px;display:flex;flex-direction:column;align-items:center}
 .login-emblem{
-  width:128px;height:128px;object-fit:contain;display:block;margin:0 auto 13px;
-  filter:drop-shadow(0 10px 18px rgba(0,0,0,.45));
+  width:132px;height:132px;object-fit:contain;display:block;margin:0 auto 14px;
+  filter:drop-shadow(0 12px 20px rgba(0,0,0,.62));
 }
-.login-brand-title{font-family:'Encode Sans',sans-serif;font-weight:800;font-size:28px;color:#fff;letter-spacing:.7px;line-height:1.05}
+.login-brand-title{font-family:'Encode Sans',sans-serif;font-weight:800;font-size:31px;color:#fff;letter-spacing:.7px;line-height:1.05;text-shadow:0 3px 12px rgba(0,0,0,.6)}
 .aub-logo-svg{display:block;margin:0 auto 6px}
-.aub-logo-sub{font-size:9px;font-weight:700;color:rgba(255,255,255,.62);letter-spacing:3px;text-transform:uppercase}
+.aub-logo-sub{font-size:10px;font-weight:700;color:rgba(255,255,255,.74);letter-spacing:3.5px;text-transform:uppercase;margin-top:5px}
 /* Separador mundialero */
-.l-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:30px;padding:5px 14px;font-size:10px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px}
+.l-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,200,224,.11);border:1px solid rgba(0,200,224,.55);border-radius:30px;padding:7px 17px;font-size:10px;font-weight:800;color:#35eaff;letter-spacing:.5px;text-transform:uppercase;margin-bottom:16px;box-shadow:0 0 16px rgba(0,200,224,.14)}
 .l-ball{font-size:38px;display:block;margin:4px 0 8px;animation:bounce 2s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,255,255,.4))}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .l-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:.5px;display:block;margin-bottom:3px;font-family:'Encode Sans',sans-serif}
-.l-sub{font-size:11px;color:rgba(255,255,255,.55);margin-bottom:16px}
+.l-sub{font-size:12px;color:rgba(255,255,255,.74);margin-bottom:17px}
 .l-hr{height:1px;background:rgba(255,255,255,.15);border:none;margin-bottom:14px}
 .btn-ms{width:100%;padding:11px;border-radius:9px;border:none;cursor:pointer;background:rgba(255,255,255,.95);color:#222;font-size:13px;font-weight:700;font-family:var(--fn);display:flex;align-items:center;justify-content:center;gap:9px;transition:background .2s;margin-bottom:12px}
 .btn-ms:hover{background:#fff}.btn-ms:disabled{opacity:.6;cursor:not-allowed}
@@ -81,17 +89,17 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 .sep-o::before,.sep-o::after{content:'';position:absolute;top:50%;width:36%;height:1px;background:rgba(255,255,255,.14)}
 .sep-o::before{left:0}.sep-o::after{right:0}
 .adf{display:flex;flex-direction:column;gap:6px;text-align:left}
-.lf label{display:block;font-size:9px;font-weight:700;color:rgba(255,255,255,.48);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
-.lf input{width:100%;padding:8px 10px;border-radius:7px;border:1px solid rgba(255,255,255,.17);background:rgba(255,255,255,.07);color:#fff;font-size:12px;font-family:var(--fn);outline:none}
-.lf input::placeholder{color:rgba(255,255,255,.28)}.lf input:focus{border-color:var(--aub)}
-.btn-ing{width:100%;padding:10px;border-radius:8px;border:none;cursor:pointer;background:rgba(255,255,255,.17);color:#fff;font-size:13px;font-weight:700;font-family:var(--fn);transition:background .2s;margin-top:3px}
-.btn-ing:hover:not(:disabled){background:rgba(255,255,255,.26)}.btn-ing:disabled{opacity:.6;cursor:not-allowed}
+.lf label{display:block;font-size:10px;font-weight:800;color:rgba(255,255,255,.64);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.lf input{width:100%;padding:12px 13px;border-radius:10px;border:1px solid rgba(255,255,255,.20);background:rgba(8,20,30,.55);color:#fff;font-size:13px;font-family:var(--fn);outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.lf input::placeholder{color:rgba(255,255,255,.34)}.lf input:focus{border-color:rgba(0,200,224,.85);box-shadow:0 0 0 3px rgba(0,200,224,.12)}
+.btn-ing{width:100%;padding:13px;border-radius:11px;border:none;cursor:pointer;background:linear-gradient(135deg,#00C8E0,#00759A);color:#fff;font-size:14px;font-weight:800;font-family:var(--fn);transition:all .2s;margin-top:6px;box-shadow:0 8px 22px rgba(0,174,195,.28)}
+.btn-ing:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 28px rgba(0,174,195,.38)}.btn-ing:disabled{opacity:.6;cursor:not-allowed}
 .err-m{background:rgba(220,38,38,.2);border:1px solid rgba(220,38,38,.38);color:#fca5a5;border-radius:7px;padding:7px 11px;font-size:11px;margin-bottom:7px;display:none;text-align:left}
 .l-hint{font-size:9px;color:rgba(255,255,255,.28);margin-top:11px}
 .login-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .login-actions .btn-ing{margin-top:0}
-.btn-sec{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.22);cursor:pointer;background:rgba(255,255,255,.07);color:#fff;font-size:12px;font-weight:700;font-family:var(--fn);transition:background .2s}
-.btn-sec:hover{background:rgba(255,255,255,.16)}
+.btn-sec{width:100%;padding:11px;border-radius:10px;border:1px solid rgba(0,200,224,.48);cursor:pointer;background:rgba(8,20,30,.42);color:#fff;font-size:12px;font-weight:800;font-family:var(--fn);transition:all .2s}
+.btn-sec:hover{background:rgba(0,200,224,.13);border-color:rgba(0,200,224,.8)}
 .avatar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 12px}
 .avatar-card{border:2px solid var(--gray-border);background:#fff;border-radius:14px;padding:8px 5px;cursor:pointer;text-align:center;transition:all .15s}
 .avatar-card:hover,.avatar-card.sel{border-color:var(--aub);box-shadow:0 0 0 3px rgba(0,174,195,.14)}
@@ -100,6 +108,15 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 .avatar-rarity{font-size:8px;color:var(--gray)}
 body.dark .avatar-card{background:#111827;border-color:#374151}
 .reg-card{max-width:520px}
+
+@media(max-width:520px){
+  #loginScreen{padding:16px;background-position:62% center}
+  .card-l{max-width:100%;padding:28px 22px;border-radius:22px}
+  .login-emblem{width:116px;height:116px}
+  .login-brand-title{font-size:25px}
+  .aub-logo-sub{font-size:8px;letter-spacing:2.6px}
+  .login-actions{grid-template-columns:1fr}
+}
 
 
 /* REGISTRO */
