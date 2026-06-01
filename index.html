@@ -28,150 +28,65 @@ body.dark{
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 
-/* ─── LOGIN — Prode 7G Estadio ─── */
+/* ─── LOGIN — Identidad visual Prode ─── */
 #loginScreen{
   min-height:100vh;display:flex;align-items:center;justify-content:center;
   position:relative;overflow:hidden;
-  /* Fondo de estadio via Unsplash (libre) */
-  background-image:url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1400&q=80');
-  background-size:cover;background-position:center top;
 }
-/* Overlay oscuro degradado para legibilidad */
-.ao{
-  position:absolute;inset:0;
-  background:linear-gradient(160deg,rgba(0,10,5,.55) 0%,rgba(0,18,8,.40) 40%,rgba(0,10,5,.72) 100%);
+/* Franjas celeste/blanco argentino */
+.as{position:absolute;inset:0;display:flex;flex-direction:column}
+.as div{flex:1}
+.as div:nth-child(1){background:#00AEC3}
+.as div:nth-child(2){background:#fff}
+.as div:nth-child(3){background:#00AEC3}
+.ao{position:absolute;inset:0;background:rgba(0,45,64,.58)}
+/* Patrón sutil */
+.login-bg-pattern{position:absolute;inset:0;opacity:.04;pointer-events:none;
+  background-image:repeating-linear-gradient(0deg,#fff 0,#fff 1px,transparent 1px,transparent 48px),
+    repeating-linear-gradient(90deg,#fff 0,#fff 1px,transparent 1px,transparent 48px);
 }
-/* Viñeta radial extra en bordes */
-.as{position:absolute;inset:0;
-  background:radial-gradient(ellipse at center,transparent 30%,rgba(0,5,2,.65) 100%);
-  pointer-events:none;
-}
-.login-bg-pattern{display:none}
-.ls-wrap{display:none}
-
-/* ── Card principal ── */
+.ls-wrap{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.ls{position:absolute;color:#F6C90E;opacity:.22;animation:tw 4s ease-in-out infinite;text-shadow:0 0 10px rgba(246,201,14,.5)}
+@keyframes tw{0%,100%{opacity:.05;transform:scale(1)}50%{opacity:.14;transform:scale(1.1)}}
+/* Card con glassmorphism */
 .card-l{
   position:relative;z-index:2;
-  background:linear-gradient(175deg,rgba(5,18,10,.91) 0%,rgba(2,12,6,.95) 100%);
-  border:1px solid rgba(49,198,83,.30);
-  border-radius:22px;
-  padding:30px 28px 32px;
-  width:100%;max-width:400px;
-  box-shadow:0 24px 80px rgba(0,0,0,.60),0 0 36px rgba(38,210,80,.10),inset 0 1px 0 rgba(255,255,255,.09);
-  text-align:center;backdrop-filter:blur(20px);
+  background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:20px;padding:36px 32px;
+  width:100%;max-width:390px;
+  box-shadow:0 12px 48px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.2);
+  text-align:center;backdrop-filter:blur(24px);
 }
-
-/* ── Escudo / logo ── */
-.login-shield{
-  width:100px;height:100px;margin:0 auto 14px;
-  background:linear-gradient(145deg,#1a3a22,#0d2016);
-  border:2.5px solid rgba(49,198,83,.45);
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:52px;line-height:1;
-  box-shadow:0 8px 28px rgba(0,0,0,.5),0 0 20px rgba(49,198,83,.18);
-  overflow:hidden;
-}
-.login-shield img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-
-/* ── Título ── */
-.aub-logo-wrap{margin-bottom:4px}
-.login-brand-title{
-  font-family:'Encode Sans',sans-serif;
-  font-size:32px;font-weight:800;color:#fff;
-  letter-spacing:1.5px;line-height:1;text-transform:uppercase;
-}
-.login-brand-title span{color:#31c653}
-.aub-logo-sub{
-  font-size:11px;font-weight:700;color:rgba(255,255,255,.55);
-  letter-spacing:5px;text-transform:uppercase;margin-top:6px;display:block;
-}
-
-/* ── Subtítulo sesión ── */
-.login-section-title{
-  font-size:14px;font-weight:700;color:#31c653;margin:16px 0 2px;
-}
-.l-sub{font-size:11px;color:rgba(255,255,255,.50);margin-bottom:14px}
-.l-hr{
-  height:2px;width:70px;margin:0 auto 18px;
-  background:linear-gradient(90deg,transparent,#31c653,transparent);
-  border:none;
-}
-.l-ball{display:none}
-.l-badge{display:none}
-
-/* ── Inputs con ícono ── */
-.adf{display:flex;flex-direction:column;gap:10px;text-align:left}
-.lf{position:relative}
-.lf label{display:none}
-.lf .lf-ico{
-  position:absolute;left:13px;top:50%;transform:translateY(-50%);
-  font-size:14px;opacity:.55;pointer-events:none;
-}
-.lf input{
-  width:100%;padding:12px 14px 12px 38px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.07);
-  color:#fff;font-size:13px;font-family:var(--fn);outline:none;
-  transition:border-color .2s,box-shadow .2s;
-}
-.lf input::placeholder{color:rgba(255,255,255,.32)}
-.lf input:focus{
-  border-color:#31c653;
-  box-shadow:0 0 0 3px rgba(49,198,83,.16);
-}
-
-/* ── Checkbox recordarme ── */
-.login-remember{
-  display:flex;align-items:center;justify-content:space-between;
-  font-size:12px;color:rgba(255,255,255,.55);margin-top:2px;
-}
-.login-remember label{display:flex;align-items:center;gap:6px;cursor:pointer}
-.login-remember input[type=checkbox]{
-  accent-color:#31c653;width:14px;height:14px;cursor:pointer;
-}
-.login-forgot{
-  font-size:12px;color:#31c653;cursor:pointer;
-  background:none;border:none;font-family:var(--fn);
-  text-decoration:none;padding:0;
-}
-.login-forgot:hover{text-decoration:underline}
-
-/* ── Botones ── */
-.btn-ing{
-  width:100%;padding:13px;
-  border-radius:10px;border:none;cursor:pointer;
-  background:linear-gradient(135deg,#3fd45a,#16a34a);
-  color:#fff;font-size:14px;font-weight:700;font-family:var(--fn);
-  transition:all .2s;margin-top:4px;
-  box-shadow:0 8px 24px rgba(22,163,74,.30);
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.btn-ing:hover:not(:disabled){
-  background:linear-gradient(135deg,#55e670,#1fba55);
-  box-shadow:0 10px 30px rgba(22,163,74,.45);transform:translateY(-1px);
-}
-.btn-ing:disabled{opacity:.55;cursor:not-allowed;transform:none}
-
-.login-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
-.btn-sec{
-  width:100%;padding:11px;border-radius:10px;
-  border:1px solid rgba(49,198,83,.35);cursor:pointer;
-  background:rgba(49,198,83,.07);color:rgba(255,255,255,.75);
-  font-size:13px;font-weight:600;font-family:var(--fn);
-  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;
-}
-.btn-sec:hover{background:rgba(49,198,83,.16);color:#fff;border-color:rgba(49,198,83,.6)}
-
-/* ── Hint inferior ── */
-.err-m{background:rgba(220,38,38,.18);border:1px solid rgba(248,113,113,.38);color:#fca5a5;border-radius:8px;padding:8px 12px;font-size:11px;margin-bottom:8px;display:none;text-align:left}
-.l-hint{font-size:9px;color:rgba(255,255,255,.22);margin-top:14px}
-
-/* Compatibilidad — ocultar elementos viejos */
-.sep-o{display:none}
-.btn-ms{display:none}
-.ms-ico{display:none}
+/* Logo Prode estilo institucional */
+.aub-logo-wrap{margin-bottom:18px}
+.aub-logo-svg{display:block;margin:0 auto 6px}
+.aub-logo-sub{font-size:9px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:3px;text-transform:uppercase}
+/* Separador mundialero */
+.l-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:30px;padding:5px 14px;font-size:10px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px}
+.l-ball{font-size:38px;display:block;margin:4px 0 8px;animation:bounce 2s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,255,255,.4))}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.l-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:.5px;display:block;margin-bottom:3px;font-family:'Encode Sans',sans-serif}
+.l-sub{font-size:11px;color:rgba(255,255,255,.55);margin-bottom:16px}
+.l-hr{height:1px;background:rgba(255,255,255,.15);border:none;margin-bottom:14px}
+.btn-ms{width:100%;padding:11px;border-radius:9px;border:none;cursor:pointer;background:rgba(255,255,255,.95);color:#222;font-size:13px;font-weight:700;font-family:var(--fn);display:flex;align-items:center;justify-content:center;gap:9px;transition:background .2s;margin-bottom:12px}
+.btn-ms:hover{background:#fff}.btn-ms:disabled{opacity:.6;cursor:not-allowed}
+.ms-ico{width:18px;height:18px;flex-shrink:0}
+.sep-o{text-align:center;color:rgba(255,255,255,.33);font-size:10px;margin:9px 0;position:relative}
+.sep-o::before,.sep-o::after{content:'';position:absolute;top:50%;width:36%;height:1px;background:rgba(255,255,255,.14)}
+.sep-o::before{left:0}.sep-o::after{right:0}
+.adf{display:flex;flex-direction:column;gap:6px;text-align:left}
+.lf label{display:block;font-size:9px;font-weight:700;color:rgba(255,255,255,.48);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.lf input{width:100%;padding:8px 10px;border-radius:7px;border:1px solid rgba(255,255,255,.17);background:rgba(255,255,255,.07);color:#fff;font-size:12px;font-family:var(--fn);outline:none}
+.lf input::placeholder{color:rgba(255,255,255,.28)}.lf input:focus{border-color:var(--aub)}
+.btn-ing{width:100%;padding:10px;border-radius:8px;border:none;cursor:pointer;background:rgba(255,255,255,.17);color:#fff;font-size:13px;font-weight:700;font-family:var(--fn);transition:background .2s;margin-top:3px}
+.btn-ing:hover:not(:disabled){background:rgba(255,255,255,.26)}.btn-ing:disabled{opacity:.6;cursor:not-allowed}
+.err-m{background:rgba(220,38,38,.2);border:1px solid rgba(220,38,38,.38);color:#fca5a5;border-radius:7px;padding:7px 11px;font-size:11px;margin-bottom:7px;display:none;text-align:left}
+.l-hint{font-size:9px;color:rgba(255,255,255,.28);margin-top:11px}
+.login-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.login-actions .btn-ing{margin-top:0}
+.btn-sec{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.22);cursor:pointer;background:rgba(255,255,255,.07);color:#fff;font-size:12px;font-weight:700;font-family:var(--fn);transition:background .2s}
+.btn-sec:hover{background:rgba(255,255,255,.16)}
 .avatar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 12px}
 .avatar-card{border:2px solid var(--gray-border);background:#fff;border-radius:14px;padding:8px 5px;cursor:pointer;text-align:center;transition:all .15s}
 .avatar-card:hover,.avatar-card.sel{border-color:var(--aub);box-shadow:0 0 0 3px rgba(0,174,195,.14)}
@@ -629,57 +544,42 @@ body.dark .elim-pts-banner{background:rgba(18,28,36,.9)}
 </head>
 <body>
 
-<!-- ── LOGIN — Prode 7G ── -->
+<!-- ── LOGIN — Identidad Prode ── -->
 <div id="loginScreen">
-  <div class="as"></div>
+  <div class="as"><div></div><div></div><div></div></div>
   <div class="ao"></div>
   <div class="login-bg-pattern"></div>
-  <div class="ls-wrap"></div>
+  <div class="ls-wrap">
+    <span class="ls" style="top:8%;left:6%;animation-delay:0s;font-size:22px">⭐</span>
+    <span class="ls" style="top:14%;left:87%;animation-delay:.7s;font-size:18px">⭐</span>
+    <span class="ls" style="top:72%;left:7%;animation-delay:1.2s;font-size:26px">🏆</span>
+    <span class="ls" style="top:82%;left:90%;animation-delay:.4s;font-size:22px">🏆</span>
+    <span class="ls" style="top:42%;left:3%;animation-delay:1.8s;font-size:20px">⭐</span>
+    <span class="ls" style="top:58%;left:93%;animation-delay:.9s;font-size:20px">⭐</span>
+    <span class="ls" style="top:22%;left:93%;animation-delay:2.1s;font-size:26px">🏆</span>
+    <span class="ls" style="top:88%;left:16%;animation-delay:1.5s;font-size:22px">⭐</span>
+  </div>
   <div class="card-l">
-
-    <!-- Escudo con emoji de personaje -->
-    <div class="login-shield">⚽</div>
-
-    <!-- Título PRODE 7G -->
+    <!-- Logo Prode Mundial 2026 -->
     <div class="aub-logo-wrap">
-      <div class="login-brand-title">PRODE <span>7G</span></div>
-      <span class="aub-logo-sub">MUNDIAL 2026</span>
+      <div style="font-family:'Encode Sans',sans-serif;font-weight:800;font-size:30px;color:#fff;letter-spacing:1px;line-height:1.05">Prode Tsubasa 2026</div>
+      <div class="aub-logo-sub">7G · DREAM PRODE</div>
     </div>
-
+    <span class="l-ball">⚽</span>
+    <span class="l-badge">⚽ Comunidad Captain Tsubasa</span>
+    <div class="l-sub">Entrá con email y contraseña para cargar tus pronósticos</div>
     <hr class="l-hr">
-
-    <div class="login-section-title">Iniciar Sesión</div>
-    <div class="l-sub">Ingresá tus credenciales para continuar</div>
-
     <div id="loginError" class="err-m"></div>
-
     <div class="adf">
-      <div class="lf">
-        <span class="lf-ico">✉️</span>
-        <input type="email" id="iU" placeholder="Email" autocomplete="username">
+      <div class="lf"><label>Email</label><input type="email" id="iU" placeholder="tu@email.com" autocomplete="username"></div>
+      <div class="lf"><label>Contraseña</label><input type="password" id="iP" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
+      <button class="btn-ing" id="btnIng" onclick="handleLogin()">Ingresar</button>
+      <div class="login-actions">
+        <button class="btn-sec" onclick="mostrarReg()">Crear cuenta</button>
+        <button class="btn-sec" onclick="resetPassword()">Olvidé mi contraseña</button>
       </div>
-      <div class="lf">
-        <span class="lf-ico">🔒</span>
-        <input type="password" id="iP" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()">
-      </div>
     </div>
-
-    <div class="login-remember" style="margin-top:10px">
-      <label><input type="checkbox" id="chkRemember"> Recordarme</label>
-      <button class="login-forgot" onclick="resetPassword()">¿Olvidaste tu contraseña?</button>
-    </div>
-
-    <button class="btn-ing" id="btnIng" onclick="handleLogin()" style="margin-top:14px">
-      <span>→</span> Iniciar Sesión
-    </button>
-
-    <div class="login-actions">
-      <button class="btn-sec" onclick="mostrarReg()">
-        👤 Registrarse
-      </button>
-    </div>
-
-    <div class="l-hint">Captain Tsubasa Prode · 7G Federation · Mundial 2026</div>
+    <div class="l-hint">Auth por Supabase · Sin SharePoint · Sin Power Automate</div>
   </div>
 </div>
 
@@ -719,7 +619,7 @@ body.dark .elim-pts-banner{background:rgba(18,28,36,.9)}
     <div class="sidebar-bg"><div class="sidebar" id="sidebar">
       <div class="sb-brand">
         <div class="sb-ball">⚽</div>
-        <div><div class="sb-bt">Prode 7G</div><div class="sb-bs">Mundial USA·CAN·MEX 2026</div></div>
+        <div><div class="sb-bt">Prode 2026</div><div class="sb-bs">Mundial USA·CAN·MEX</div></div>
       </div>
       <div class="sb-nav">
         <div class="sb-sec">Jugar</div>
