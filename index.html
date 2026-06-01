@@ -874,6 +874,65 @@ body.dark .gtab:hover{
   display:none!important;
 }
 
+/* ─── FIX MOBILE SIDEBAR USER / LOGOUT ─── */
+@media(max-width:768px){
+  .sidebar{
+    height:100dvh;
+    max-height:100dvh;
+    overflow-y:hidden;
+  }
+  .sb-nav{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    padding-bottom:8px;
+  }
+  .sb-user{
+    flex-shrink:0;
+    position:sticky;
+    bottom:0;
+    z-index:2;
+    background:
+      linear-gradient(180deg,rgba(20,3,3,.96),rgba(6,6,6,.98));
+    border-top:1px solid rgba(255,40,40,.28);
+    padding:10px 10px max(12px,env(safe-area-inset-bottom));
+    gap:8px;
+  }
+  .sb-un{
+    max-width:92px;
+  }
+  .sb-out{
+    flex-shrink:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:58px;
+    height:32px;
+    padding:0 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,55,55,.72);
+    background:rgba(255,0,0,.14);
+    color:#fff;
+    font-size:10px;
+    font-weight:800;
+  }
+}
+
+@media(max-width:380px){
+  .sidebar{
+    width:210px;
+    left:-210px;
+  }
+  .sb-un{
+    max-width:76px;
+  }
+  .sb-out{
+    min-width:52px;
+    padding:0 8px;
+    font-size:9px;
+  }
+}
+
 </style>
 </head>
 <body>
