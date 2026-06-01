@@ -30,10 +30,10 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 
 /* ─── LOGIN — Identidad visual Prode ─── */
 #loginScreen{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  min-height:100vh;display:flex;align-items:center;justify-content:flex-start;
   position:relative;overflow:hidden;
-  padding:24px;
-  background:#071018 url('assets/tsubasafondo.jpg') center center/cover no-repeat;
+  padding:24px 24px 24px clamp(28px,8vw,150px);
+  background:#05090d url('assets/tsubasafondo.jpg') center bottom/cover no-repeat;
 }
 /* Fondo login: imagen externa en assets, sin Base64 */
 .as{position:absolute;inset:0;display:none}
@@ -44,35 +44,32 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 .ao{
   position:absolute;inset:0;
   background:
-    radial-gradient(circle at 50% 45%,rgba(0,200,224,.18),transparent 34%),
-    linear-gradient(90deg,rgba(0,0,0,.78),rgba(0,25,35,.46) 48%,rgba(0,0,0,.82)),
-    linear-gradient(180deg,rgba(0,0,0,.52),rgba(0,0,0,.78));
+    radial-gradient(circle at 72% 58%,rgba(0,200,224,.10),transparent 35%),
+    linear-gradient(90deg,rgba(0,0,0,.82) 0%,rgba(0,16,24,.54) 38%,rgba(0,0,0,.20) 66%,rgba(0,0,0,.46) 100%),
+    linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,.30) 46%,rgba(0,0,0,.56) 100%);
 }
-/* Patrón sutil */
-.login-bg-pattern{position:absolute;inset:0;opacity:.08;pointer-events:none;
-  background-image:repeating-linear-gradient(0deg,#fff 0,#fff 1px,transparent 1px,transparent 52px),
-    repeating-linear-gradient(90deg,#fff 0,#fff 1px,transparent 1px,transparent 52px);
-}
-.ls-wrap{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+/* Sin grilla extra: dejamos respirar la imagen de fondo */
+.login-bg-pattern{display:none}
+.ls-wrap{display:none}
 .ls{position:absolute;color:#F6C90E;opacity:.22;animation:tw 4s ease-in-out infinite;text-shadow:0 0 10px rgba(246,201,14,.5)}
 @keyframes tw{0%,100%{opacity:.05;transform:scale(1)}50%{opacity:.14;transform:scale(1.1)}}
 /* Card con glassmorphism */
 .card-l{
   position:relative;z-index:2;
-  background:linear-gradient(180deg,rgba(12,28,38,.72),rgba(5,13,20,.82));
+  background:linear-gradient(180deg,rgba(9,25,34,.80),rgba(3,10,16,.88));
   border:1px solid rgba(0,200,224,.42);
-  border-radius:24px;padding:34px 32px;
-  width:100%;max-width:430px;
-  box-shadow:0 22px 70px rgba(0,0,0,.62),0 0 30px rgba(0,200,224,.13),inset 0 1px 0 rgba(255,255,255,.18);
-  text-align:center;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-radius:24px;padding:30px 30px;
+  width:100%;max-width:410px;
+  box-shadow:0 22px 70px rgba(0,0,0,.68),0 0 34px rgba(0,200,224,.14),inset 0 1px 0 rgba(255,255,255,.16);
+  text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
 }
 /* Emblema 7Grandes en login */
 .aub-logo-wrap{margin-bottom:18px;display:flex;flex-direction:column;align-items:center}
 .login-emblem{
-  width:132px;height:132px;object-fit:contain;display:block;margin:0 auto 14px;
+  width:116px;height:116px;object-fit:contain;display:block;margin:0 auto 12px;
   filter:drop-shadow(0 12px 20px rgba(0,0,0,.62));
 }
-.login-brand-title{font-family:'Encode Sans',sans-serif;font-weight:800;font-size:31px;color:#fff;letter-spacing:.7px;line-height:1.05;text-shadow:0 3px 12px rgba(0,0,0,.6)}
+.login-brand-title{font-family:'Encode Sans',sans-serif;font-weight:800;font-size:29px;color:#fff;letter-spacing:.7px;line-height:1.05;text-shadow:0 3px 12px rgba(0,0,0,.6)}
 .aub-logo-svg{display:block;margin:0 auto 6px}
 .aub-logo-sub{font-size:10px;font-weight:700;color:rgba(255,255,255,.74);letter-spacing:3.5px;text-transform:uppercase;margin-top:5px}
 /* Separador mundialero */
@@ -110,7 +107,7 @@ body.dark .avatar-card{background:#111827;border-color:#374151}
 .reg-card{max-width:520px}
 
 @media(max-width:520px){
-  #loginScreen{padding:16px;background-position:62% center}
+  #loginScreen{justify-content:center;padding:16px;background-position:58% center}
   .card-l{max-width:100%;padding:28px 22px;border-radius:22px}
   .login-emblem{width:116px;height:116px}
   .login-brand-title{font-size:25px}
