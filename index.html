@@ -3,14 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Prode Mundial 2026</title>
+<title>Prode Tsubasa 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<script>
-// MSAL stub en caso de que no cargue el CDN
-if(typeof msal==='undefined'){window.msal={PublicClientApplication:function(){return{initialize:()=>Promise.resolve(),loginPopup:()=>Promise.reject('no msal')};}}}
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js" onerror="console.warn('MSAL no cargó')"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --aub:#00AEC3;--aub-dark:#00759A;--aub-darker:#024560;
@@ -87,99 +83,18 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 .btn-ing:hover:not(:disabled){background:rgba(255,255,255,.26)}.btn-ing:disabled{opacity:.6;cursor:not-allowed}
 .err-m{background:rgba(220,38,38,.2);border:1px solid rgba(220,38,38,.38);color:#fca5a5;border-radius:7px;padding:7px 11px;font-size:11px;margin-bottom:7px;display:none;text-align:left}
 .l-hint{font-size:9px;color:rgba(255,255,255,.28);margin-top:11px}
-
-/* ─── LOGIN 7G — fondo estadio + escudo PNG ─── */
-#loginScreen{
-  background-image:linear-gradient(90deg,rgba(2,10,20,.86) 0%,rgba(2,10,20,.28) 28%,rgba(2,10,20,.12) 50%,rgba(2,10,20,.55) 100%);
-  background-size:cover;
-  background-position:center center;
-  background-repeat:no-repeat;
-}
-#loginScreen .as{display:none}
-#loginScreen .ao{background:radial-gradient(circle at center,rgba(0,0,0,.08) 0%,rgba(0,0,0,.20) 42%,rgba(0,0,0,.66) 100%)}
-#loginScreen .login-bg-pattern{display:none}
-#loginScreen .ls-wrap{display:none}
-.card-l{
-  max-width:430px;
-  padding:32px 34px 34px;
-  background:linear-gradient(180deg,rgba(5,22,36,.88),rgba(3,15,25,.93));
-  border:1px solid rgba(73,216,94,.28);
-  border-radius:20px;
-  box-shadow:0 22px 70px rgba(0,0,0,.52),0 0 28px rgba(38,202,77,.12),inset 0 1px 0 rgba(255,255,255,.12);
-  backdrop-filter:blur(18px);
-}
-.login-crest{
-  width:128px;
-  height:128px;
-  object-fit:contain;
-  display:block;
-  margin:0 auto 14px;
-  filter:drop-shadow(0 10px 18px rgba(0,0,0,.42));
-}
-.aub-logo-wrap{margin-bottom:12px}
-.aub-logo-wrap .brand-title{
-  font-family:'Encode Sans',sans-serif;
-  font-weight:800;
-  font-size:42px;
-  color:#fff;
-  letter-spacing:1px;
-  line-height:1;
-  text-transform:uppercase;
-}
-.aub-logo-wrap .brand-title strong{color:#31c653}
-.aub-logo-sub{font-size:14px;color:rgba(255,255,255,.82);letter-spacing:7px;margin-top:8px}
-.l-ball{display:none}
-.l-badge{display:none}
-.l-sub{font-size:13px;color:rgba(255,255,255,.74);margin-bottom:20px}
-.l-hr{height:2px;width:86px;margin:0 auto 22px;background:linear-gradient(90deg,transparent,#31c653,transparent);border:none}
-.adf{gap:12px}
-.lf label{font-size:10px;color:rgba(255,255,255,.58)}
-.lf input{
-  padding:14px 14px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(0,0,0,.18);
-  color:#fff;
-  font-size:14px;
-}
-.lf input:focus{border-color:#31c653;box-shadow:0 0 0 3px rgba(49,198,83,.14)}
-.btn-ing{
-  margin-top:6px;
-  padding:14px;
-  border-radius:10px;
-  background:linear-gradient(135deg,#3fd45a,#16a34a);
-  color:#fff;
-  font-size:15px;
-  box-shadow:0 10px 26px rgba(22,163,74,.28);
-}
-.btn-ing:hover:not(:disabled){background:linear-gradient(135deg,#55e66f,#20b957)}
-.btn-sec{
-  padding:12px;
-  border-radius:10px;
-  border:1px solid rgba(49,198,83,.45);
-  background:rgba(0,0,0,.12);
-  color:#d8ffe0;
-}
-.btn-sec:hover{background:rgba(49,198,83,.12)}
-.l-hint{color:rgba(255,255,255,.28);margin-top:15px}
-.err-m{background:rgba(220,38,38,.20);border-color:rgba(248,113,113,.45);color:#fecaca}
-#regScreen{
-  background-image:linear-gradient(90deg,rgba(2,10,20,.84),rgba(2,10,20,.34),rgba(2,10,20,.76)),none !important;
-  background-size:cover !important;
-  background-position:center center !important;
-  background-repeat:no-repeat !important;
-}
-.reg-card{
-  background:linear-gradient(180deg,rgba(5,22,36,.90),rgba(3,15,25,.95)) !important;
-  border:1px solid rgba(73,216,94,.28);
-  color:#fff;
-  box-shadow:0 22px 70px rgba(0,0,0,.52),0 0 28px rgba(38,202,77,.12);
-}
-.reg-t{color:#fff !important}
-.reg-s,.rf label{color:rgba(255,255,255,.65)}
-.rf input,.rf select{background:rgba(0,0,0,.20) !important;border-color:rgba(255,255,255,.18) !important;color:#fff !important}
-.rf input:focus,.rf select:focus{border-color:#31c653 !important;box-shadow:0 0 0 3px rgba(49,198,83,.14)}
-.btn-reg{background:linear-gradient(135deg,#3fd45a,#16a34a)}
+.login-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.login-actions .btn-ing{margin-top:0}
+.btn-sec{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.22);cursor:pointer;background:rgba(255,255,255,.07);color:#fff;font-size:12px;font-weight:700;font-family:var(--fn);transition:background .2s}
+.btn-sec:hover{background:rgba(255,255,255,.16)}
+.avatar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 12px}
+.avatar-card{border:2px solid var(--gray-border);background:#fff;border-radius:14px;padding:8px 5px;cursor:pointer;text-align:center;transition:all .15s}
+.avatar-card:hover,.avatar-card.sel{border-color:var(--aub);box-shadow:0 0 0 3px rgba(0,174,195,.14)}
+.avatar-face{width:46px;height:46px;border-radius:50%;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:25px;background:linear-gradient(135deg,#e0f2fe,#fff7ed);border:2px solid rgba(0,0,0,.05)}
+.avatar-name{font-size:9px;font-weight:800;color:var(--gray-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.avatar-rarity{font-size:8px;color:var(--gray)}
+body.dark .avatar-card{background:#111827;border-color:#374151}
+.reg-card{max-width:520px}
 
 
 /* REGISTRO */
@@ -647,25 +562,24 @@ body.dark .elim-pts-banner{background:rgba(18,28,36,.9)}
   <div class="card-l">
     <!-- Logo Prode Mundial 2026 -->
     <div class="aub-logo-wrap">
-      <div style="font-family:'Encode Sans',sans-serif;font-weight:800;font-size:30px;color:#fff;letter-spacing:1px;line-height:1.05">Prode Mundial 2026</div>
-      <div class="aub-logo-sub">USA · CAN · MEX</div>
+      <div style="font-family:'Encode Sans',sans-serif;font-weight:800;font-size:30px;color:#fff;letter-spacing:1px;line-height:1.05">Prode Tsubasa 2026</div>
+      <div class="aub-logo-sub">7G · DREAM PRODE</div>
     </div>
     <span class="l-ball">⚽</span>
-    <span class="l-badge">🇦🇷 Torneo de pronósticos</span>
-    <div class="l-sub">Ingresá y cargá tus pronósticos del Mundial</div>
+    <span class="l-badge">⚽ Comunidad Captain Tsubasa</span>
+    <div class="l-sub">Entrá con email y contraseña para cargar tus pronósticos</div>
     <hr class="l-hr">
     <div id="loginError" class="err-m"></div>
-    <button class="btn-ms" id="btnMS" onclick="handleMS()">
-      <svg class="ms-ico" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
-      <span id="btnMSTxt">Ingresar con cuenta Microsoft</span>
-    </button>
-    <div class="sep-o">o acceso directo</div>
     <div class="adf">
-      <div class="lf"><label>Usuario</label><input type="text" id="iU" placeholder="usuario / admin" autocomplete="username"></div>
+      <div class="lf"><label>Email</label><input type="email" id="iU" placeholder="tu@email.com" autocomplete="username"></div>
       <div class="lf"><label>Contraseña</label><input type="password" id="iP" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
       <button class="btn-ing" id="btnIng" onclick="handleLogin()">Ingresar</button>
+      <div class="login-actions">
+        <button class="btn-sec" onclick="mostrarReg()">Crear cuenta</button>
+        <button class="btn-sec" onclick="resetPassword()">Olvidé mi contraseña</button>
+      </div>
     </div>
-    <div class="l-hint">Acceso con usuario y contraseña · Admin: <strong style="color:rgba(255,255,255,.52)">Admin / Aubasa2026</strong></div>
+    <div class="l-hint">Auth por Supabase · Sin SharePoint · Sin Power Automate</div>
   </div>
 </div>
 
@@ -680,17 +594,21 @@ body.dark .elim-pts-banner{background:rgba(18,28,36,.9)}
       <div class="rf"><label>Nombre</label><input type="text" id="rN" placeholder="Ej: Juan"></div>
       <div class="rf"><label>Apellido</label><input type="text" id="rA" placeholder="Ej: García"></div>
     </div>
-    <div class="rf">
-      <label>Sector / Área</label>
-      <select id="rS">
-        <option value="">— Seleccioná tu área —</option>
-        <option>Sistemas</option><option>Técnicos IT</option><option>Técnicos</option>
-        <option>Comercial</option><option>Administración</option><option>Tesorería</option>
-        <option>RRHH</option><option>Maestranza</option><option>Operaciones</option>
-        <option>Gerencia</option><option>Legales</option><option>Otro</option>
-      </select>
+    <div class="rf-row">
+      <div class="rf"><label>Email</label><input type="email" id="rEmail" placeholder="tu@email.com"></div>
+      <div class="rf"><label>Contraseña</label><input type="password" id="rPass" placeholder="mínimo 6 caracteres"></div>
     </div>
-    <button class="btn-reg" onclick="confirmarReg()">⚽ ¡Empezar a jugar!</button>
+    <div class="rf">
+      <label>Equipo / Grupo</label>
+      <input type="text" id="rS" placeholder="Ej: 7Grandes / Amigos / Viernes">
+    </div>
+    <div class="rf">
+      <label>Avatar estilo Tsubasa</label>
+      <input type="hidden" id="rAvatar" value="hyuga">
+      <div class="avatar-grid" id="avatarGrid"></div>
+    </div>
+    <button class="btn-reg" onclick="confirmarReg()">⚽ Crear cuenta y empezar</button>
+    <button class="btn-reg" style="background:var(--gray);margin-top:8px" onclick="volverLogin()">Volver al login</button>
   </div>
 </div>
 
@@ -743,18 +661,23 @@ body.dark .elim-pts-banner{background:rgba(18,28,36,.9)}
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════ CONFIG ══════
-const CLIENT_ID='TU_CLIENT_ID_AZURE';
-const TENANT_ID='TU_TENANT_ID';
-const REDIRECT=window.location.href.split('?')[0];
-const FU='https://default9444ead097714ed8a608802faff70d.4f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/134f395136814568a8ae316824ca0dc1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=XrutI6FGygrYfvFZbGB6FrtTAM42_vadlXrvkAddCYM';
-const FP='https://default9444ead097714ed8a608802faff70d.4f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/c8b725687f2e4f688776370cb3ebebf2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=zzfqDm9DFdiw5KC7FR31CUxp-75QCCsX5TZnQjp3rb0';
-const FG='https://default9444ead097714ed8a608802faff70d.4f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6a288d25bb124c65aedf18a9b3ef4b99/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=27jMgOf5MIBEg4hUCUpXBmFO4mMoBUHeAyh3z0kB9Mg';
-const FR='https://default9444ead097714ed8a608802faff70d.4f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6119875d76d64bda87d6995f1c063ebb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=EaEk13ooM0VqGpzQ_k85OlbQIYyx_KmEU8R8vumw0W8';
-const FRR='https://default9444ead097714ed8a608802faff70d.4f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a44e8a920ada4589b7fba71fd4f67142/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=yPN2U23nLsg2rvY1DqFmg7jikKJppdGFSMUWFLv5jAY';
-const FREG='https://default9444ead097714ed8a608802faff70d.4f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/c5e107c7f90845cb8312f585ebeaa90a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=nGeRpMWRwPkEyg7NYzG3T_0onsK0Ao-oNts7KgIUkvo';
-const FRES='https://default9444ead097714ed8a608802faff70d.4f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff7a71c1d03b41ebb7dbebbf0cbdd04e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-zvRCh4ZvDPJcgN1QmQ0Q7zIW5faGtdNGtIdkiGj-jc';
-const ADMINS={'admin':{pass:'Aubasa2026',nombre:'Administrador',sector:'Sistemas',rol:'admin'},'prode':{pass:'Mundial2026',nombre:'Organizador',sector:'Sistemas',rol:'admin'}};
+// ══════ CONFIG SUPABASE ══════
+// Completá estos dos datos desde Supabase > Project Settings > API
+const SUPABASE_URL='https://cflbawgjckkguuvowqzj.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_tmHiwZnxc3tgOGPGr_5K6g_l-zJ_-O5';
+const SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Avatares iniciales. Cuando subas PNGs al Storage, reemplazamos icono por URL.
+const AVATARES=[
+  {id:'tsubasa',nombre:'Tsubasa',rareza:'Legendario',icono:'⚽'},
+  {id:'hyuga',nombre:'Hyuga',rareza:'Épico',icono:'🐯'},
+  {id:'misaki',nombre:'Misaki',rareza:'Raro',icono:'🎨'},
+  {id:'wakabayashi',nombre:'Wakabayashi',rareza:'Épico',icono:'🧤'},
+  {id:'schneider',nombre:'Schneider',rareza:'Legendario',icono:'🔥'},
+  {id:'matsuyama',nombre:'Matsuyama',rareza:'Raro',icono:'🦅'},
+  {id:'natureza',nombre:'Natureza',rareza:'Legendario',icono:'🌪️'},
+  {id:'santana',nombre:'Santana',rareza:'Épico',icono:'💫'}
+];
 
 // ══════ BANDERAS ══════
 // Emojis de bandera por nombre (funciona sin internet, igual que WhatsApp)
@@ -1021,7 +944,7 @@ function fechaCorta(f){const[y,m,d]=f.split('-');return`${d}/${m}/${y}`;}
 function cierreStr(p){const[y,m,d]=p.fecha.split('-').map(Number);const ant=new Date(y,m-1,d-1);return`${String(ant.getDate()).padStart(2,'0')}/${String(ant.getMonth()+1).padStart(2,'0')} 23:59`;}
 
 // ══════ ESTADO ══════
-let USR=null,PRONOS={},BONUS={cam:'',fin:'',gol:''},RANK=[],GA='A',ADMA='A',DARK=localStorage.getItem('pd')==='1',MSAL=null;
+let USR=null,PRONOS={},BONUS={cam:'',fin:'',gol:''},RANK=[],GA='A',ADMA='A',DARK=localStorage.getItem('pd')==='1';
 
 // ══ EQUIPOS ELIMINATORIAS: nombres reales de equipos, persistidos en localStorage ══
 let EQUIPOS_ELIM={};
@@ -1076,7 +999,6 @@ async function cargarResultadosSP(){
     try{localStorage.setItem('prode_resultados',JSON.stringify(RESULTADOS));}catch(e){}
   }catch(e){console.warn('Error cargando resultados de SharePoint:',e);}
 }
-try{MSAL=new msal.PublicClientApplication({auth:{clientId:CLIENT_ID,authority:'https://login.microsoftonline.com/'+TENANT_ID,redirectUri:REDIRECT},cache:{cacheLocation:'sessionStorage'}});}catch(e){}
 
 // ══════ HELPERS ══════
 function toggleDark(){DARK=!DARK;localStorage.setItem('pd',DARK?'1':'0');applyD();}
@@ -1878,7 +1800,7 @@ const ERONDAS=[
   ]},
 ];
 
-const EPRONOS={};
+let EPRONOS={};
 
 function abiertoE(p){const[y,m,d]=p.fecha.split('-').map(Number);return new Date()<new Date(y,m-1,d,0,0,0);}
 
@@ -2051,10 +1973,206 @@ function rEliminatorias(mc){
 }
 
 
+
+// ══════ ADAPTADOR SUPABASE — reemplaza SharePoint / Power Automate ══════
+function avatarObj(id){return AVATARES.find(a=>a.id===id)||AVATARES[0];}
+function avatarHTML(id,size=30){
+  const a=avatarObj(id);
+  return `<span title="${a.nombre}" style="font-size:${Math.round(size*.65)}px">${a.icono}</span>`;
+}
+
+async function upsertPerfilUsuario(perfil){
+  // Compatibilidad: si la tabla usuarios todavía no tiene columna equipo,
+  // intenta guardar como sector; si tampoco existe, guarda lo mínimo.
+  let payload={...perfil};
+  let {error}=await SB.from('usuarios').upsert(payload);
+  if(error && String(error.message||'').toLowerCase().includes('equipo')){
+    payload={...perfil,sector:perfil.equipo};
+    delete payload.equipo;
+    ({error}=await SB.from('usuarios').upsert(payload));
+  }
+  if(error && String(error.message||'').toLowerCase().includes('sector')){
+    payload={id:perfil.id,nombre:perfil.nombre,email:perfil.email,avatar:perfil.avatar,rol:perfil.rol};
+    ({error}=await SB.from('usuarios').upsert(payload));
+  }
+  return {error};
+}
+function renderAvatarGrid(){
+  const g=document.getElementById('avatarGrid'); if(!g)return;
+  const current=document.getElementById('rAvatar')?.value || 'hyuga';
+  g.innerHTML=AVATARES.map(a=>`<div class="avatar-card ${a.id===current?'sel':''}" onclick="selectAvatar('${a.id}')">
+    <div class="avatar-face">${a.icono}</div>
+    <div class="avatar-name">${a.nombre}</div>
+    <div class="avatar-rarity">${a.rareza}</div>
+  </div>`).join('');
+}
+function selectAvatar(id){const inp=document.getElementById('rAvatar'); if(inp)inp.value=id; renderAvatarGrid();}
+function volverLogin(){document.getElementById('regScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';}
+function mostrarReg(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('regScreen').style.display='flex';
+  const e=(document.getElementById('iU')?.value||'').trim();
+  if(e)document.getElementById('rEmail').value=e;
+  renderAvatarGrid();
+}
+async function resetPassword(){
+  hideErr('loginError');
+  const email=(document.getElementById('iU').value||'').trim();
+  if(!email){showErr('loginError','Ingresá tu email y volvé a tocar “Olvidé mi contraseña”.');return;}
+  const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:window.location.href.split('?')[0]});
+  if(error){showErr('loginError',error.message);return;}
+  toast('Te enviamos el mail para recuperar contraseña');
+}
+async function handleLogin(){
+  hideErr('loginError');
+  const email=(document.getElementById('iU').value||'').trim().toLowerCase();
+  const pass=document.getElementById('iP').value||'';
+  if(!email||!pass){showErr('loginError','Completá email y contraseña.');return;}
+  const btn=document.getElementById('btnIng'); btn.disabled=true; btn.textContent='Ingresando...';
+  const {data,error}=await SB.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false; btn.textContent='Ingresar';
+  if(error){showErr('loginError','No se pudo ingresar: '+error.message);return;}
+  await cargarPerfilDesdeSesion(data.session);
+}
+async function confirmarReg(){
+  const n=document.getElementById('rN').value.trim();
+  const a=document.getElementById('rA').value.trim();
+  const email=(document.getElementById('rEmail').value||'').trim().toLowerCase();
+  const pass=document.getElementById('rPass').value||'';
+  const equipo=(document.getElementById('rS').value||'').trim();
+  const avatar=document.getElementById('rAvatar').value||'hyuga';
+  if(!n||!a){showErr('regErr','Ingresá nombre y apellido.');return;}
+  if(!email||!pass){showErr('regErr','Ingresá email y contraseña.');return;}
+  if(pass.length<6){showErr('regErr','La contraseña debe tener al menos 6 caracteres.');return;}
+  hideErr('regErr');
+  const nom=a+', '+n;
+  const {data,error}=await SB.auth.signUp({email,password:pass,options:{data:{nombre:nom,equipo,avatar}}});
+  if(error){showErr('regErr','No se pudo crear la cuenta: '+error.message);return;}
+  const user=data.user;
+  if(!user){showErr('regErr','Cuenta creada. Revisá el email para confirmar el acceso.');return;}
+  await upsertPerfilUsuario({id:user.id,nombre:nom,email,avatar,rol:'jugador',equipo});
+  await cargarPerfilDesdeSesion(data.session);
+}
+async function cargarPerfilDesdeSesion(session){
+  const {data:{user}}=await SB.auth.getUser();
+  if(!user)return;
+  let {data:perfil}=await SB.from('usuarios').select('*').eq('id',user.id).maybeSingle();
+  if(!perfil){
+    perfil={id:user.id,email:user.email,nombre:user.user_metadata?.nombre||user.email.split('@')[0],avatar:user.user_metadata?.avatar||'hyuga',rol:'jugador',equipo:user.user_metadata?.equipo||''};
+    await upsertPerfilUsuario(perfil);
+  }
+  USR={id:user.id,email:user.email,nombre:perfil.nombre||user.email.split('@')[0],sector:perfil.equipo||'',avatar:perfil.avatar||'hyuga',inits:(perfil.nombre||user.email).slice(0,2).toUpperCase(),rol:perfil.rol==='admin'?'admin':'user',nuevo:false};
+  await cargarApp();
+}
+async function bootSupabase(){
+  applyD(); renderAvatarGrid();
+  if(!SUPABASE_ANON_KEY||SUPABASE_ANON_KEY.includes('PEGAR_ACA')){showErr('loginError','Falta pegar la SUPABASE_ANON_KEY en el HTML.');return;}
+  const {data:{session}}=await SB.auth.getSession();
+  if(session) await cargarPerfilDesdeSesion(session);
+}
+async function logout(){
+  await SB.auth.signOut();
+  USR=null;PRONOS={};RANK=[];BONUS={cam:'',fin:'',gol:''};
+  document.getElementById('appScreen').style.display='none';
+  document.getElementById('regScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('iU').value='';document.getElementById('iP').value='';
+}
+async function cargarResultadosSP(){return cargarResultadosDB();}
+async function cargarResultadosDB(){
+  try{
+    const {data,error}=await SB.from('resultados').select('*');
+    if(error)throw error;
+    RESULTADOS={};
+    (data||[]).forEach(r=>{RESULTADOS[r.partido_id]={gl:r.goles_local_real,gv:r.goles_visitante_real};aplicarResultadoAlFixture(r.partido_id,parseInt(r.goles_local_real),parseInt(r.goles_visitante_real));});
+  }catch(e){console.warn('Error cargando resultados:',e);}
+}
+async function cargarApp(){
+  applyD();
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('regScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  document.getElementById('sbAv').innerHTML=avatarHTML(USR.avatar,30);
+  document.getElementById('sbNom').textContent=USR.nombre;
+  document.getElementById('adm-nav').style.display=esAdm()?'block':'none';
+  updSB();initCF();
+  document.getElementById('mc').innerHTML='<div class="loading">Cargando pronósticos...</div>';
+  PRONOS={}; EPRONOS={};
+  try{
+    const {data,error}=await SB.from('pronosticos').select('*').eq('usuario_id',USR.id);
+    if(error)throw error;
+    (data||[]).forEach(item=>{
+      const target=(item.fase==='eliminatoria')?EPRONOS:PRONOS;
+      target[item.partido_id]={gL:String(item.goles_local??''),gV:String(item.goles_visitante??''),pts:item.puntos||0,sbId:item.id};
+    });
+  }catch(e){console.warn('Error cargando pronósticos:',e);}
+  try{const {data:b}=await SB.from('bonus').select('*').eq('usuario_id',USR.id).maybeSingle(); if(b)BONUS={cam:b.campeon||'',fin:b.subcampeon||'',gol:b.goleador||''};}catch(e){}
+  await cargarResultadosDB();
+  Object.keys(PRONOS).forEach(id=>{const p=TODOS.find(x=>x.id===id);if(!p||!finalizado(p))return;const r=calcPts(p,PRONOS[id]);if(r)PRONOS[id].pts=r.pts;});
+  updSB(); V('pronosticos');
+}
+async function guardarGrupoCompleto(){
+  const btn=document.getElementById('btnGuardarGrupo');
+  if(!btn||btn.disabled)return;
+  const partAbiertos=G[GA].partidos.filter(p=>abierto(p)&&!finalizado(p));
+  const filas=[]; let incompletos=0;
+  partAbiertos.forEach(p=>{
+    const gL=document.getElementById('gL_'+p.id)?.value;
+    const gV=document.getElementById('gV_'+p.id)?.value;
+    if(gL===''||gV===''||gL===undefined||gV===undefined){incompletos++;return;}
+    PRONOS[p.id]={...PRONOS[p.id],gL,gV};
+    filas.push({usuario_id:USR.id,partido_id:p.id,goles_local:parseInt(gL),goles_visitante:parseInt(gV),fase:'grupos',puntos:PRONOS[p.id]?.pts||0});
+  });
+  if(incompletos>0){toast(`Completá los ${incompletos} partido(s) sin resultado`,'err');return;}
+  btn.classList.add('saving');btn.textContent='Guardando...';btn.disabled=true;
+  const {error}=await SB.from('pronosticos').upsert(filas,{onConflict:'usuario_id,partido_id'});
+  btn.classList.remove('saving');btn.disabled=false;
+  if(error){toast('Error guardando: '+error.message,'err');return;}
+  toast(`✓ ${filas.length} pronóstico(s) del Grupo ${GA} guardados`);
+  btn.textContent=`✅ Grupo ${GA} guardado`; btn.classList.add('all-saved');
+}
+async function svBonus(){
+  let golVal=cbxGet('bGol');
+  if(golVal==='Otro / No está en la lista'){golVal=(document.getElementById('bGol_otro')||{}).value?.trim()||'';}
+  BONUS={cam:cbxGet('bCam')||BONUS.cam,fin:cbxGet('bFin')||BONUS.fin,gol:golVal||BONUS.gol};
+  const {error}=await SB.from('bonus').upsert({usuario_id:USR.id,campeon:BONUS.cam,subcampeon:BONUS.fin,goleador:BONUS.gol},{onConflict:'usuario_id'});
+  if(error){toast('Error guardando bonus: '+error.message,'err');return;} toast('✓ Bonus guardados');
+}
+async function rPosiciones(mc){
+  mc.innerHTML='<div class="loading">Cargando ranking</div>';
+  try{
+    const {data:users,error:uerr}=await SB.from('usuarios').select('*'); if(uerr)throw uerr;
+    const {data:prs,error:perr}=await SB.from('pronosticos').select('*'); if(perr)throw perr;
+    RANK=(users||[]).map(u=>{const ups=(prs||[]).filter(p=>p.usuario_id===u.id);const puntos=ups.reduce((a,p)=>a+(p.puntos||0),0);const exactos=ups.filter(p=>(p.puntos||0)===5).length;return {Email:u.email,Nombre:u.nombre,Sector:u.equipo||u.sector||'',Puntos:puntos,Exactos:exactos,Avatar:u.avatar,id:u.id};}).sort((a,b)=>(b.Puntos||0)-(a.Puntos||0)||(b.Exactos||0)-(a.Exactos||0));
+  }catch(e){mc.innerHTML=`<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-txt">No se pudo cargar ranking: ${e.message}</div></div>`;return;}
+  const md=['🥇','🥈','🥉'];
+  const rows=RANK.map((p,i)=>{const yo=p.id===USR.id;const rank=i<3?`<span style="font-size:16px">${md[i]}</span>`:`<span style="font-size:13px;font-weight:800;color:var(--gray)">${i+1}</span>`;return`<tr style="${yo?'background:rgba(0,174,195,.06)':''}"><td style="text-align:center;width:36px">${rank}</td><td><div style="display:flex;align-items:center;gap:7px"><div class="pav" style="${yo?'background:var(--verde)':''}">${avatarHTML(p.Avatar,26)}</div><div><div style="font-size:11px;font-weight:${yo?'700':'600'};color:${yo?'var(--aub)':'var(--gray-dark)'}">${p.Nombre||p.Email?.split('@')[0]}${yo?' (vos)':''}</div><div style="font-size:8px;color:var(--gray);margin-top:1px">${p.Exactos||0} exactos</div></div></div></td><td><span class="db">${p.Sector||'–'}</span></td><td style="text-align:right"><span class="pp">${p.Puntos||0}</span></td></tr>`;}).join('');
+  mc.innerHTML=`<div class="stats"><div class="sc sc-a"><div class="sc-lbl">Participantes</div><div class="sc-val">${RANK.length}</div><div class="sc-sub">jugando</div></div><div class="sc sc-g"><div class="sc-lbl">Líder</div><div class="sc-val" style="font-size:16px">${RANK[0]?.Nombre?.split(',')[0]||'–'}</div><div class="sc-sub">${RANK[0]?.Puntos||0} pts</div></div></div><div class="pw"><div class="pw-hdr"><div><div class="pw-t">🏆 Tabla de posiciones</div><div class="pw-s">Desempate por más exactos</div></div></div><table class="pt"><thead><tr><th style="width:36px;text-align:center">#</th><th>Participante</th><th>Equipo</th><th style="text-align:right">Puntos</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+async function svRes(id){
+  const gL=document.getElementById('adL_'+id)?.value;const gV=document.getElementById('adV_'+id)?.value;
+  if(gL===''||gV===''){toast('Ingresá los goles','err');return;}
+  aplicarResultadoAlFixture(id,parseInt(gL),parseInt(gV)); guardarResultadoLocal(id,gL,gV);
+  const {error}=await SB.from('resultados').upsert({partido_id:id,goles_local_real:parseInt(gL),goles_visitante_real:parseInt(gV),fase:'grupos'},{onConflict:'partido_id'});
+  if(error){toast('Error guardando resultado: '+error.message,'err');return;}
+  EDITANDO[id]=false;toast('✓ Resultado guardado');rAdmin(document.getElementById('mc'));
+}
+async function eGuardar(pid,desc){
+  const ep=EPRONOS[pid]||{};EPRONOS[pid]=ep;
+  const gl=document.getElementById('egl_'+pid)?.value; const gv=document.getElementById('egv_'+pid)?.value;
+  const sel=document.getElementById('epensel_'+pid); if(sel)ep.penGana=sel.value||null;
+  if(gl===''||gv===''){toast("Ingresá el resultado al 90'","err");return;}
+  ep.gL=gl;ep.gV=gv;
+  const {error}=await SB.from('pronosticos').upsert({usuario_id:USR.id,partido_id:pid,goles_local:parseInt(gl),goles_visitante:parseInt(gv),fase:'eliminatoria',puntos:0},{onConflict:'usuario_id,partido_id'});
+  if(error){toast('Error guardando: '+error.message,'err');return;}
+  toast('✓ Pronóstico guardado'); rEliminatorias(document.getElementById('mc'));
+}
+
 // ══════ INIT ══════
 cargarResultadosLocales();
 cargarEquiposElimLocales();
 applyD();
+bootSupabase();
 </script>
 </body>
 </html>
