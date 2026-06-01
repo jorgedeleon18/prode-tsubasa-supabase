@@ -933,6 +933,7 @@ body.dark .gtab:hover{
   }
 }
 
+
 /* ─── REGISTRO: estado de envío / confirmación email ─── */
 .btn-reg.loading{opacity:.72;cursor:not-allowed;transform:scale(.98);filter:saturate(.85)}
 .btn-reg.loading::after{content:'';display:inline-block;width:13px;height:13px;margin-left:8px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;vertical-align:-2px;animation:spinReg .8s linear infinite}
@@ -1012,7 +1013,7 @@ body.dark .reg-success-box{background:rgba(0,0,0,.18)}
       <input type="hidden" id="rAvatar" value="hyuga">
       <div class="avatar-grid" id="avatarGrid"></div>
     </div>
-    <button class="btn-reg" onclick="confirmarReg()">⚽ Crear cuenta y empezar</button>
+    <button class="btn-reg" id="btnRegSubmit" onclick="confirmarReg()">⚽ Crear cuenta y empezar</button>
     <button class="btn-reg" style="background:var(--gray);margin-top:8px" onclick="volverLogin()">Volver al login</button>
   </div>
 </div>
@@ -1342,14 +1343,27 @@ function calcPts(p,pr){
   return{pts:0,lbl:'Sin puntos',cls:'ptb-0'};
 }
 
-// ══════ CIERRE: medianoche del día del partido (23:59:59 del día anterior) ══════
-function abierto(p){const[y,m,d]=p.fecha.split('-').map(Number);return new Date()<new Date(y,m-1,d,0,0,0);}
+// ══════ CIERRE: Supabase manda el cierre real por partido (public.partidos.cierra_en) ══════
+function cierreDate(p){
+  const db=CIERRES_PARTIDOS[p.id];
+  if(db){
+    const d=new Date(db);
+    if(!isNaN(d.getTime()))return d;
+  }
+  const[y,m,d]=p.fecha.split('-').map(Number);
+  return new Date(y,m-1,d,0,0,0);
+}
+function abierto(p){return new Date()<cierreDate(p);}
 function finalizado(p){return p.gl!==undefined&&p.gl!==null&&p.gl!=='';}
 function fechaCorta(f){const[y,m,d]=f.split('-');return`${d}/${m}/${y}`;}
-function cierreStr(p){const[y,m,d]=p.fecha.split('-').map(Number);const ant=new Date(y,m-1,d-1);return`${String(ant.getDate()).padStart(2,'0')}/${String(ant.getMonth()+1).padStart(2,'0')} 23:59`;}
+function cierreStr(p){
+  const d=cierreDate(p);
+  const txt=`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  return txt;
+}
 
 // ══════ ESTADO ══════
-let USR=null,PRONOS={},BONUS={cam:'',fin:'',gol:''},RANK=[],GA='A',ADMA='A',DARK=localStorage.getItem('pd')==='1';
+let USR=null,PRONOS={},BONUS={cam:'',fin:'',gol:''},RANK=[],GA='A',ADMA='A',DARK=localStorage.getItem('pd')==='1',CIERRES_PARTIDOS={};
 
 // ══ EQUIPOS ELIMINATORIAS: nombres reales de equipos, persistidos en localStorage ══
 let EQUIPOS_ELIM={};
@@ -2207,7 +2221,7 @@ const ERONDAS=[
 
 let EPRONOS={};
 
-function abiertoE(p){const[y,m,d]=p.fecha.split('-').map(Number);return new Date()<new Date(y,m-1,d,0,0,0);}
+function abiertoE(p){return new Date()<cierreDate(p);}
 
 function eCard(p,color){
   const ep=EPRONOS[p.id]||{};
@@ -2440,7 +2454,6 @@ async function handleLogin(){
   await cargarPerfilDesdeSesion(data.session);
 }
 async function confirmarReg(){
-  console.log('[REG] confirmarReg llamado');
   const n=document.getElementById('rN').value.trim();
   const a=document.getElementById('rA').value.trim();
   const email=(document.getElementById('rEmail').value||'').trim().toLowerCase();
@@ -2457,29 +2470,39 @@ async function confirmarReg(){
   if(btn){btn.disabled=true;btn.classList.add('loading');btn.textContent='Creando cuenta';}
 
   const nom=a+', '+n;
-  const redirectTo=window.location.origin;
 
   try{
     console.log('[REG] ejecutando Supabase signUp para', email);
+
+    // Mantengo la lógica original que sí enviaba el correo.
+    // No forzamos redirectTo desde el HTML: Supabase usa Site URL / Redirect URLs.
     const {data,error}=await SB.auth.signUp({
-      email:email,
+      email,
       password:pass,
       options:{
-        data:{nombre:nom,equipo:equipo,avatar:avatar},
-        emailRedirectTo:redirectTo
+        data:{nombre:nom,equipo,avatar}
       }
     });
+
     console.log('[REG] respuesta signUp', {data,error});
     if(error)throw error;
 
-    if(data?.session && data?.user){
-      await upsertPerfilUsuario({id:data.user.id,nombre:nom,email,avatar,rol:'jugador',equipo});
+    // Si Confirm email está activado, normalmente hay user pero NO hay session.
+    // En ese caso mostramos el aviso y NO intentamos entrar todavía.
+    if(!data?.session){
+      mostrarConfirmacionEmail(email);
+      return;
+    }
+
+    // Si por configuración entra directo, recién ahí crea/actualiza perfil y entra.
+    const user=data.user;
+    if(user){
+      await upsertPerfilUsuario({id:user.id,nombre:nom,email,avatar,rol:'jugador',equipo});
       if(btn){btn.disabled=false;btn.classList.remove('loading');btn.textContent='⚽ Crear cuenta y empezar';}
       await cargarPerfilDesdeSesion(data.session);
       return;
     }
 
-    // Si Confirm email está activado, no entra directo: mostramos cartel.
     mostrarConfirmacionEmail(email);
   }catch(error){
     console.error('[REG] error creando cuenta', error);
@@ -2499,35 +2522,21 @@ function mostrarConfirmacionEmail(email){
       <div class="reg-success-box">
         <div>Enviamos el enlace de confirmación a:</div>
         <div class="reg-success-mail">${email}</div>
-        <br>
-        ✅ Revisá tu bandeja de entrada.<br>
-        ✅ Revisá también Correo no deseado / Spam.<br>
-        ✅ Después abrí el enlace y volvé a ingresar.
+        <div style="margin-top:8px">Revisá también <b>Correo no deseado / Spam</b>.</div>
+        <div>Después abrí el link del mail y volvé a ingresar.</div>
       </div>
-      <button type="button" class="btn-reg" onclick="volverLogin()">Volver al login</button>
+      <button class="btn-reg" onclick="volverLogin()">Volver al login</button>
       <div class="reg-countdown" id="regCountdown">Volviendo al login en 8...</div>
-    </div>`;
+    </div>
+  `;
   let n=8;
-  const t=setInterval(()=>{
+  const int=setInterval(()=>{
     n--;
     const el=document.getElementById('regCountdown');
-    if(el)el.textContent=`Volviendo al login en ${n}...`;
-    if(n<=0){clearInterval(t);volverLogin();}
+    if(el)el.textContent='Volviendo al login en '+n+'...';
+    if(n<=0){clearInterval(int);volverLogin();}
   },1000);
 }
-
-function vincularBotonRegistro(){
-  const btn=document.getElementById('btnRegSubmit');
-  if(!btn)return;
-  btn.onclick=function(ev){
-    ev.preventDefault();
-    console.log('[REG] click botón crear cuenta');
-    confirmarReg();
-  };
-}
-window.addEventListener('DOMContentLoaded',vincularBotonRegistro);
-setTimeout(vincularBotonRegistro,300);
-
 async function cargarPerfilDesdeSesion(session){
   const {data:{user}}=await SB.auth.getUser();
   if(!user)return;
@@ -2554,6 +2563,18 @@ async function logout(){
   document.getElementById('iU').value='';document.getElementById('iP').value='';
 }
 async function cargarResultadosSP(){return cargarResultadosDB();}
+async function cargarPartidosDB(){
+  try{
+    const {data,error}=await SB.from('partidos').select('id,cierra_en');
+    if(error)throw error;
+    CIERRES_PARTIDOS={};
+    (data||[]).forEach(p=>{
+      if(p.id&&p.cierra_en)CIERRES_PARTIDOS[p.id]=p.cierra_en;
+    });
+  }catch(e){
+    console.warn('Error cargando cierres de partidos:',e);
+  }
+}
 async function cargarResultadosDB(){
   try{
     const {data,error}=await SB.from('resultados').select('*');
@@ -2573,6 +2594,7 @@ async function cargarApp(){
   updSB();initCF();
   document.getElementById('mc').innerHTML='<div class="loading">Cargando pronósticos...</div>';
   PRONOS={}; EPRONOS={};
+  await cargarPartidosDB();
   try{
     const {data,error}=await SB.from('pronosticos').select('*').eq('usuario_id',USR.id);
     if(error)throw error;
@@ -2602,7 +2624,7 @@ async function guardarGrupoCompleto(){
   btn.classList.add('saving');btn.textContent='Guardando...';btn.disabled=true;
   const {error}=await SB.from('pronosticos').upsert(filas,{onConflict:'usuario_id,partido_id'});
   btn.classList.remove('saving');btn.disabled=false;
-  if(error){toast('Error guardando: '+error.message,'err');return;}
+  if(error){toast('No se pudo guardar. Puede que algún partido ya esté cerrado.','err');return;}
   toast(`✓ ${filas.length} pronóstico(s) del Grupo ${GA} guardados`);
   btn.textContent=`✅ Grupo ${GA} guardado`; btn.classList.add('all-saved');
 }
