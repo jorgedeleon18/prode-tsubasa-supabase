@@ -757,6 +757,79 @@ body.dark .elim-pts-banner{background:rgba(18,28,36,.9)}
 }
 
 
+/* ─── REGISTRO: estado de envío / confirmación email ─── */
+.btn-reg.loading{
+  opacity:.72;
+  cursor:not-allowed;
+  transform:scale(.98);
+  filter:saturate(.85);
+}
+.btn-reg.loading::after{
+  content:'';
+  display:inline-block;
+  width:13px;
+  height:13px;
+  margin-left:8px;
+  border:2px solid rgba(255,255,255,.45);
+  border-top-color:#fff;
+  border-radius:50%;
+  vertical-align:-2px;
+  animation:spinReg .8s linear infinite;
+}
+@keyframes spinReg{to{transform:rotate(360deg)}}
+.reg-success{
+  text-align:center;
+  padding:8px 2px 0;
+}
+.reg-success-ico{
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 15px;
+  font-size:34px;
+  background:linear-gradient(135deg,#ff2020,#8f0000);
+  box-shadow:0 0 28px rgba(255,0,0,.28);
+}
+.reg-success-title{
+  font-size:22px;
+  font-weight:800;
+  color:#ff3333;
+  margin-bottom:8px;
+}
+.reg-success-text{
+  font-size:13px;
+  line-height:1.55;
+  color:var(--gray);
+  margin-bottom:14px;
+}
+.reg-success-box{
+  text-align:left;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:13px;
+  padding:13px 14px;
+  margin:14px 0 16px;
+  font-size:12px;
+  color:var(--gray-dark);
+  line-height:1.7;
+}
+body.dark .reg-success-box{
+  background:rgba(0,0,0,.18);
+}
+.reg-success-mail{
+  color:#ff3333;
+  font-weight:800;
+  word-break:break-word;
+}
+.reg-countdown{
+  font-size:11px;
+  color:var(--gray);
+  margin-top:10px;
+}
+
 /* ─── THEME OVERRIDE 7GRANDES — rojo/negro ─── */
 :root{
   --aub:#ef1b1b;
@@ -999,7 +1072,7 @@ body.dark .gtab:hover{
       <input type="hidden" id="rAvatar" value="hyuga">
       <div class="avatar-grid" id="avatarGrid"></div>
     </div>
-    <button class="btn-reg" onclick="confirmarReg()">⚽ Crear cuenta y empezar</button>
+    <button class="btn-reg" id="btnRegSubmit" onclick="confirmarReg()">⚽ Crear cuenta y empezar</button>
     <button class="btn-reg" style="background:var(--gray);margin-top:8px" onclick="volverLogin()">Volver al login</button>
   </div>
 </div>
@@ -1329,27 +1402,14 @@ function calcPts(p,pr){
   return{pts:0,lbl:'Sin puntos',cls:'ptb-0'};
 }
 
-// ══════ CIERRE: Supabase manda el cierre real por partido (public.partidos.cierra_en) ══════
-function cierreDate(p){
-  const db=CIERRES_PARTIDOS[p.id];
-  if(db){
-    const d=new Date(db);
-    if(!isNaN(d.getTime()))return d;
-  }
-  const[y,m,d]=p.fecha.split('-').map(Number);
-  return new Date(y,m-1,d,0,0,0);
-}
-function abierto(p){return new Date()<cierreDate(p);}
+// ══════ CIERRE: medianoche del día del partido (23:59:59 del día anterior) ══════
+function abierto(p){const[y,m,d]=p.fecha.split('-').map(Number);return new Date()<new Date(y,m-1,d,0,0,0);}
 function finalizado(p){return p.gl!==undefined&&p.gl!==null&&p.gl!=='';}
 function fechaCorta(f){const[y,m,d]=f.split('-');return`${d}/${m}/${y}`;}
-function cierreStr(p){
-  const d=cierreDate(p);
-  const txt=`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-  return txt;
-}
+function cierreStr(p){const[y,m,d]=p.fecha.split('-').map(Number);const ant=new Date(y,m-1,d-1);return`${String(ant.getDate()).padStart(2,'0')}/${String(ant.getMonth()+1).padStart(2,'0')} 23:59`;}
 
 // ══════ ESTADO ══════
-let USR=null,PRONOS={},BONUS={cam:'',fin:'',gol:''},RANK=[],GA='A',ADMA='A',DARK=localStorage.getItem('pd')==='1',CIERRES_PARTIDOS={};
+let USR=null,PRONOS={},BONUS={cam:'',fin:'',gol:''},RANK=[],GA='A',ADMA='A',DARK=localStorage.getItem('pd')==='1';
 
 // ══ EQUIPOS ELIMINATORIAS: nombres reales de equipos, persistidos en localStorage ══
 let EQUIPOS_ELIM={};
@@ -2207,7 +2267,7 @@ const ERONDAS=[
 
 let EPRONOS={};
 
-function abiertoE(p){return new Date()<cierreDate(p);}
+function abiertoE(p){const[y,m,d]=p.fecha.split('-').map(Number);return new Date()<new Date(y,m-1,d,0,0,0);}
 
 function eCard(p,color){
   const ep=EPRONOS[p.id]||{};
@@ -2446,17 +2506,65 @@ async function confirmarReg(){
   const pass=document.getElementById('rPass').value||'';
   const equipo=(document.getElementById('rS').value||'').trim();
   const avatar=document.getElementById('rAvatar').value||'hyuga';
+  const btn=document.getElementById('btnRegSubmit');
   if(!n||!a){showErr('regErr','Ingresá nombre y apellido.');return;}
   if(!email||!pass){showErr('regErr','Ingresá email y contraseña.');return;}
   if(pass.length<6){showErr('regErr','La contraseña debe tener al menos 6 caracteres.');return;}
   hideErr('regErr');
+  if(btn){
+    btn.disabled=true;
+    btn.classList.add('loading');
+    btn.textContent='Creando cuenta';
+  }
   const nom=a+', '+n;
-  const {data,error}=await SB.auth.signUp({email,password:pass,options:{data:{nombre:nom,equipo,avatar}}});
-  if(error){showErr('regErr','No se pudo crear la cuenta: '+error.message);return;}
-  const user=data.user;
-  if(!user){showErr('regErr','Cuenta creada. Revisá el email para confirmar el acceso.');return;}
-  await upsertPerfilUsuario({id:user.id,nombre:nom,email,avatar,rol:'jugador',equipo});
-  await cargarPerfilDesdeSesion(data.session);
+  const {data,error}=await SB.auth.signUp({
+    email,
+    password:pass,
+    options:{
+      data:{nombre:nom,equipo,avatar},
+      emailRedirectTo:window.location.origin
+    }
+  });
+  if(error){
+    if(btn){btn.disabled=false;btn.classList.remove('loading');btn.textContent='⚽ Crear cuenta y empezar';}
+    showErr('regErr','No se pudo crear la cuenta: '+error.message);
+    return;
+  }
+  const user=data?.user;
+  if(data?.session && user){
+    await upsertPerfilUsuario({id:user.id,nombre:nom,email,avatar,rol:'jugador',equipo});
+    if(btn){btn.disabled=false;btn.classList.remove('loading');btn.textContent='⚽ Crear cuenta y empezar';}
+    await cargarPerfilDesdeSesion(data.session);
+    return;
+  }
+  mostrarConfirmacionEmail(email);
+}
+function mostrarConfirmacionEmail(email){
+  const card=document.querySelector('#regScreen .reg-card');
+  if(!card)return;
+  card.innerHTML=`
+    <div class="reg-success">
+      <div class="reg-success-ico">📧</div>
+      <div class="reg-success-title">Revisá tu correo</div>
+      <div class="reg-success-text">Tu cuenta fue creada correctamente, pero falta confirmar el email antes de ingresar al Prode.</div>
+      <div class="reg-success-box">
+        <div>Enviamos el enlace de confirmación a:</div>
+        <div class="reg-success-mail">${email}</div>
+        <br>
+        ✅ Revisá tu bandeja de entrada.<br>
+        ✅ Revisá también Correo no deseado / Spam.<br>
+        ✅ Después abrí el enlace y volvé a ingresar.
+      </div>
+      <button class="btn-reg" onclick="volverLogin()">Volver al login</button>
+      <div class="reg-countdown" id="regCountdown">Volviendo al login en 8...</div>
+    </div>`;
+  let n=8;
+  const t=setInterval(()=>{
+    n--;
+    const el=document.getElementById('regCountdown');
+    if(el)el.textContent=`Volviendo al login en ${n}...`;
+    if(n<=0){clearInterval(t);volverLogin();}
+  },1000);
 }
 async function cargarPerfilDesdeSesion(session){
   const {data:{user}}=await SB.auth.getUser();
@@ -2484,18 +2592,6 @@ async function logout(){
   document.getElementById('iU').value='';document.getElementById('iP').value='';
 }
 async function cargarResultadosSP(){return cargarResultadosDB();}
-async function cargarPartidosDB(){
-  try{
-    const {data,error}=await SB.from('partidos').select('id,cierra_en');
-    if(error)throw error;
-    CIERRES_PARTIDOS={};
-    (data||[]).forEach(p=>{
-      if(p.id&&p.cierra_en)CIERRES_PARTIDOS[p.id]=p.cierra_en;
-    });
-  }catch(e){
-    console.warn('Error cargando cierres de partidos:',e);
-  }
-}
 async function cargarResultadosDB(){
   try{
     const {data,error}=await SB.from('resultados').select('*');
@@ -2515,7 +2611,6 @@ async function cargarApp(){
   updSB();initCF();
   document.getElementById('mc').innerHTML='<div class="loading">Cargando pronósticos...</div>';
   PRONOS={}; EPRONOS={};
-  await cargarPartidosDB();
   try{
     const {data,error}=await SB.from('pronosticos').select('*').eq('usuario_id',USR.id);
     if(error)throw error;
@@ -2545,7 +2640,7 @@ async function guardarGrupoCompleto(){
   btn.classList.add('saving');btn.textContent='Guardando...';btn.disabled=true;
   const {error}=await SB.from('pronosticos').upsert(filas,{onConflict:'usuario_id,partido_id'});
   btn.classList.remove('saving');btn.disabled=false;
-  if(error){toast('No se pudo guardar. Puede que algún partido ya esté cerrado.','err');return;}
+  if(error){toast('Error guardando: '+error.message,'err');return;}
   toast(`✓ ${filas.length} pronóstico(s) del Grupo ${GA} guardados`);
   btn.textContent=`✅ Grupo ${GA} guardado`; btn.classList.add('all-saved');
 }
