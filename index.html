@@ -1478,7 +1478,20 @@ function updateMusicBtn(){
 function audioEl(){return document.getElementById('bgMusic');}
 function musicSrcFor(view){
   if(view==='pronosticos'){
-    const map={A:'Music/grupo-a.mp3',B:'Music/grupo-b.mp3'};
+    const map={
+      A:'Music/grupo-a.mp3',
+      B:'Music/grupo-b.mp3',
+      C:'Music/grupo-c.mp3',
+      D:'Music/grupo-d.mp3',
+      E:'Music/grupo-e.mp3',
+      F:'Music/grupo-f.mp3',
+      G:'Music/grupo-g.mp3',
+      H:'Music/grupo-h.mp3',
+      I:'Music/grupo-i.mp3',
+      J:'Music/grupo-j.mp3',
+      K:'Music/grupo-k.mp3',
+      L:'Music/grupo-l.mp3'
+    };
     return map[GA]||'Music/Menu.mp3';
   }
   return 'Music/Menu.mp3';
