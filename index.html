@@ -947,6 +947,41 @@ body.dark .reg-success-box{background:rgba(0,0,0,.18)}
 .reg-success-mail{color:#ff3333;font-weight:800;word-break:break-word}
 .reg-countdown{font-size:11px;color:var(--gray);margin-top:10px}
 
+/* ─── AUDIO PRODE ─── */
+.music-tog{
+  background:rgba(255,255,255,.86);
+  border:1px solid rgba(239,27,27,.35);
+  color:#ef1b1b;
+  border-radius:999px;
+  cursor:pointer;
+  font-size:14px;
+  min-width:38px;
+  height:34px;
+  padding:0 10px;
+  font-weight:800;
+  box-shadow:0 0 14px rgba(239,27,27,.10);
+  transition:all .18s;
+}
+.music-tog:hover{
+  transform:translateY(-1px);
+  border-color:#ef1b1b;
+  box-shadow:0 0 18px rgba(239,27,27,.18);
+}
+.music-tog.on{
+  background:linear-gradient(135deg,#ff2020,#b80000);
+  color:#fff;
+  border-color:#ff3333;
+}
+body.dark .music-tog{
+  background:rgba(0,0,0,.35);
+  border-color:rgba(255,55,55,.45);
+  color:#ff4b4b;
+}
+body.dark .music-tog.on{
+  background:linear-gradient(135deg,#ff2020,#8f0000);
+  color:#fff;
+}
+
 </style>
 </head>
 <body>
@@ -1056,7 +1091,7 @@ body.dark .reg-success-box{background:rgba(0,0,0,.18)}
           <button class="hamburger" onclick="openSB()">☰</button>
           <div><div class="tb-title" id="tbT">Mis pronósticos</div><div class="tb-sub" id="tbS">Fase de grupos — Mundial 2026</div></div>
         </div>
-        <div class="tb-acts"><button class="dark-tog" id="dtog" onclick="toggleDark()">🌙</button></div>
+        <div class="tb-acts"><button class="music-tog" id="musicTog" onclick="toggleMusic()" title="Música">🔇</button><button class="dark-tog" id="dtog" onclick="toggleDark()">🌙</button></div>
       </div>
       <div class="content" id="mc"><div class="loading">Cargando</div></div>
     </div>
@@ -1064,6 +1099,7 @@ body.dark .reg-success-box{background:rgba(0,0,0,.18)}
 </div>
 
 <div class="cf-wrap" id="cfWrap"></div>
+<audio id="bgMusic" loop preload="none"></audio>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1364,6 +1400,7 @@ function cierreStr(p){
 
 // ══════ ESTADO ══════
 let USR=null,PRONOS={},BONUS={cam:'',fin:'',gol:''},RANK=[],GA='A',ADMA='A',DARK=localStorage.getItem('pd')==='1',CIERRES_PARTIDOS={};
+let MUSIC_ON=localStorage.getItem('prode_music_on')==='1',CURRENT_VIEW='pronosticos',CURRENT_TRACK='';
 
 // ══ EQUIPOS ELIMINATORIAS: nombres reales de equipos, persistidos en localStorage ══
 let EQUIPOS_ELIM={};
@@ -1421,7 +1458,7 @@ async function cargarResultadosSP(){
 
 // ══════ HELPERS ══════
 function toggleDark(){DARK=!DARK;localStorage.setItem('pd',DARK?'1':'0');applyD();}
-function applyD(){document.body.classList.toggle('dark',DARK);document.getElementById('dtog').textContent=DARK?'☀️':'🌙';}
+function applyD(){document.body.classList.toggle('dark',DARK);const d=document.getElementById('dtog');if(d)d.textContent=DARK?'☀️':'🌙';updateMusicBtn();}
 function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='toast show '+(t==='err'?'err':'ok');setTimeout(()=>el.className='toast',2800);}
 function showErr(id,m){const e=document.getElementById(id);if(e){e.textContent=m;e.style.display='block';}}
 function hideErr(id){const e=document.getElementById(id);if(e)e.style.display='none';}
@@ -1430,6 +1467,48 @@ function totalPts(){return Object.values(PRONOS).reduce((a,p)=>a+(p.pts||0),0);}
 function updSB(){document.getElementById('sbPts').textContent=totalPts()+' pts';}
 function openSB(){document.getElementById('sidebar').classList.add('open');document.getElementById('sbOv').classList.add('open');}
 function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOv').classList.remove('open');}
+
+function updateMusicBtn(){
+  const b=document.getElementById('musicTog');
+  if(!b)return;
+  b.textContent=MUSIC_ON?'🔊':'🔇';
+  b.classList.toggle('on',MUSIC_ON);
+  b.title=MUSIC_ON?'Música activada':'Música desactivada';
+}
+function audioEl(){return document.getElementById('bgMusic');}
+function musicSrcFor(view){
+  if(view==='pronosticos'){
+    const map={A:'Music/grupo-a.mp3',B:'Music/grupo-b.mp3'};
+    return map[GA]||'Music/Menu.mp3';
+  }
+  return 'Music/Menu.mp3';
+}
+function setMusicTrack(view){
+  const a=audioEl();if(!a)return;
+  const src=musicSrcFor(view||CURRENT_VIEW);
+  if(CURRENT_TRACK!==src){
+    CURRENT_TRACK=src;
+    a.src=src;
+    a.volume=0.14;
+    a.loop=true;
+    if(MUSIC_ON)a.play().catch(()=>{});
+  }
+}
+function syncMusic(view){
+  CURRENT_VIEW=view||CURRENT_VIEW;
+  updateMusicBtn();
+  setMusicTrack(CURRENT_VIEW);
+  const a=audioEl();if(!a)return;
+  if(MUSIC_ON)a.play().catch(()=>{});
+  else a.pause();
+}
+function toggleMusic(){
+  MUSIC_ON=!MUSIC_ON;
+  localStorage.setItem('prode_music_on',MUSIC_ON?'1':'0');
+  syncMusic(CURRENT_VIEW);
+  toast(MUSIC_ON?'🎵 Música activada':'🔇 Música desactivada');
+}
+
 
 function initCF(){
   const w=document.getElementById('cfWrap');if(!w)return;w.innerHTML='';
@@ -1561,6 +1640,7 @@ function V(v){
   closeSB();document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
   const[t,s]=VM[v]||['–',''];document.getElementById('tbT').textContent=t;document.getElementById('tbS').textContent=s;
+  CURRENT_VIEW=v;syncMusic(v);
   const mc=document.getElementById('mc');
   if(v==='pronosticos')rPronos(mc);else if(v==='bonus')rBonus(mc);else if(v==='miprode')rHistorial(mc);
   else if(v==='posiciones')rPosiciones(mc);else if(v==='fixture')rFixture(mc);
@@ -1703,7 +1783,7 @@ function rPronos(mc){
   // Actualizar estado inicial del botón
   setTimeout(actualizarProgressGrupo,50);
 }
-function cGrupo(g){GA=g;rPronos(document.getElementById('mc'));}
+function cGrupo(g){GA=g;rPronos(document.getElementById('mc'));syncMusic('pronosticos');}
 
 function actualizarProgressGrupo(){
   const partAbiertos=G[GA].partidos.filter(p=>abierto(p)&&!finalizado(p));
@@ -2474,12 +2554,12 @@ async function confirmarReg(){
   try{
     console.log('[REG] ejecutando Supabase signUp para', email);
 
-    const redirectBase=window.location.origin;
+    // Mantengo la lógica original que sí enviaba el correo.
+    // No forzamos redirectTo desde el HTML: Supabase usa Site URL / Redirect URLs.
     const {data,error}=await SB.auth.signUp({
       email,
       password:pass,
       options:{
-        emailRedirectTo:redirectBase,
         data:{nombre:nom,equipo,avatar}
       }
     });
