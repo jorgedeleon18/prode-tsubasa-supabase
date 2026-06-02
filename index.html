@@ -1064,11 +1064,11 @@ body.dark .music-tog.on{
       </div>
       <div class="sb-nav">
         <div class="sb-sec">Jugar</div>
-        <div class="sb-item active" id="nav-pronosticos" onclick="V('pronosticos')"><span class="sb-ico">🎯</span> Mis pronósticos</div>
+        <div class="sb-item" id="nav-pronosticos" onclick="V('pronosticos')"><span class="sb-ico">🎯</span> Mis pronósticos</div>
         <div class="sb-item" id="nav-bonus" onclick="V('bonus')"><span class="sb-ico">🌟</span> Bonus torneo</div>
         <div class="sb-item" id="nav-miprode" onclick="V('miprode')"><span class="sb-ico">📋</span> Mi historial</div>
         <div class="sb-sec">Ranking</div>
-        <div class="sb-item" id="nav-posiciones" onclick="V('posiciones')"><span class="sb-ico">🏆</span> Tabla general</div>
+        <div class="sb-item active" id="nav-posiciones" onclick="V('posiciones')"><span class="sb-ico">🏆</span> Tabla general</div>
         <div class="sb-sec">Fixture</div>
         <div class="sb-item" id="nav-eliminatorias" onclick="V('eliminatorias')"><span class="sb-ico">⚔️</span> Eliminatorias</div>
         <div class="sb-item" id="nav-fixture" onclick="V('fixture')"><span class="sb-ico">📅</span> Ver fixture</div>
@@ -1089,7 +1089,7 @@ body.dark .music-tog.on{
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:9px">
           <button class="hamburger" onclick="openSB()">☰</button>
-          <div><div class="tb-title" id="tbT">Mis pronósticos</div><div class="tb-sub" id="tbS">Fase de grupos — Mundial 2026</div></div>
+          <div><div class="tb-title" id="tbT">Tabla general</div><div class="tb-sub" id="tbS">Ranking del departamento</div></div>
         </div>
         <div class="tb-acts"><button class="music-tog" id="musicTog" onclick="toggleMusic()" title="Música">🔇</button><button class="dark-tog" id="dtog" onclick="toggleDark()">🌙</button></div>
       </div>
@@ -1400,7 +1400,7 @@ function cierreStr(p){
 
 // ══════ ESTADO ══════
 let USR=null,PRONOS={},BONUS={cam:'',fin:'',gol:''},RANK=[],GA='A',ADMA='A',DARK=localStorage.getItem('pd')==='1',CIERRES_PARTIDOS={};
-let MUSIC_ON=localStorage.getItem('prode_music_on')==='1',CURRENT_VIEW='pronosticos',CURRENT_TRACK='';
+let MUSIC_ON=localStorage.getItem('prode_music_on')==='1',CURRENT_VIEW='posiciones',CURRENT_TRACK='';
 
 // ══ EQUIPOS ELIMINATORIAS: nombres reales de equipos, persistidos en localStorage ══
 let EQUIPOS_ELIM={};
@@ -1631,7 +1631,7 @@ async function cargarApp(){
   // Recalcular puntos de los pronósticos con los resultados reales ya aplicados
   Object.keys(PRONOS).forEach(id=>{const p=TODOS.find(x=>x.id===id);if(!p||!finalizado(p))return;const r=calcPts(p,PRONOS[id]);if(r)PRONOS[id].pts=r.pts;});
   updSB();
-  V('pronosticos');
+  V('posiciones');
 }
 
 // ══════ ROUTER ══════
@@ -2686,7 +2686,7 @@ async function cargarApp(){
   try{const {data:b}=await SB.from('bonus').select('*').eq('usuario_id',USR.id).maybeSingle(); if(b)BONUS={cam:b.campeon||'',fin:b.subcampeon||'',gol:b.goleador||''};}catch(e){}
   await cargarResultadosDB();
   Object.keys(PRONOS).forEach(id=>{const p=TODOS.find(x=>x.id===id);if(!p||!finalizado(p))return;const r=calcPts(p,PRONOS[id]);if(r)PRONOS[id].pts=r.pts;});
-  updSB(); V('pronosticos');
+  updSB(); V('posiciones');
 }
 async function guardarGrupoCompleto(){
   const btn=document.getElementById('btnGuardarGrupo');
