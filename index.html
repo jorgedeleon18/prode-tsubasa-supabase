@@ -348,8 +348,47 @@ body.dark .reg-fed-box{background:rgba(0,174,195,.10)}
 body.dark .reg-fed-box input{background:#0d1f2d;border-color:rgba(0,174,195,.4);color:var(--gray-dark)}
 .reg-fed-box input:focus{border-color:var(--aub)}
 
+/* Botón principal de registro */
+.btn-reg{
+  width:100%;padding:11px;border-radius:8px;border:none;
+  background:var(--aub);color:#fff;font-size:14px;font-weight:700;
+  font-family:var(--fn);cursor:pointer;margin-top:5px;
+  transition:background .15s;
+}
+.btn-reg:hover:not(:disabled){background:var(--aub-dark)}
 .btn-reg:disabled{opacity:.55;cursor:not-allowed}
-.btn-reg.loading::after{content:' ⏳'}
+.btn-reg.loading{opacity:.72;cursor:not-allowed}
+/* Variante "Volver al login" (fondo neutro) */
+.btn-reg-back{
+  width:100%;padding:11px;border-radius:8px;
+  border:1.5px solid var(--gray-border);
+  background:transparent;color:var(--gray);
+  font-size:13px;font-weight:600;font-family:var(--fn);
+  cursor:pointer;margin-top:8px;transition:all .15s;
+}
+.btn-reg-back:hover{background:var(--gray-light);color:var(--gray-dark);border-color:var(--gray)}
+body.dark .btn-reg-back{border-color:#374151;color:#9CA3AF;background:transparent}
+body.dark .btn-reg-back:hover{background:#1F2937;color:#fff}
+/* Dentro de reg-success (fondo de tarjeta, no blanco) */
+.reg-success .btn-reg-back{
+  border-color:rgba(0,174,195,.4);
+  background:rgba(0,174,195,.08);
+  color:var(--aub);
+  margin-top:12px;
+}
+.reg-success .btn-reg-back:hover{background:rgba(0,174,195,.16);border-color:var(--aub)}
+
+/* Pantalla de confirmación de email post-registro */
+.reg-success{text-align:center;padding:8px 2px 0}
+.reg-success-ico{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;font-size:34px;background:linear-gradient(135deg,#0088b8,#024560);box-shadow:0 0 28px rgba(0,140,190,.28)}
+.reg-success-title{font-size:22px;font-weight:800;color:var(--aub);margin-bottom:8px}
+.reg-success-text{font-size:13px;line-height:1.55;color:var(--gray);margin-bottom:14px}
+.reg-success-box{text-align:left;background:rgba(0,174,195,.07);border:1px solid rgba(0,174,195,.25);border-radius:13px;padding:13px 14px;margin:14px 0 16px;font-size:12px;color:var(--gray-dark);line-height:1.7}
+body.dark .reg-success-box{background:rgba(0,174,195,.10);border-color:rgba(0,174,195,.3)}
+.reg-success-mail{color:var(--aub);font-weight:800;word-break:break-word}
+.reg-countdown{font-size:11px;color:var(--gray);margin-top:10px}
+@keyframes spinReg{to{transform:rotate(360deg)}}
+
 
 
 
@@ -854,13 +893,11 @@ body.dark .topbar{
 
 /* Botones y acentos principales en rojo */
 .btn-sv,
-.btn-reg,
 .btn-guardar-grupo,
 .etgl.on{
   background:linear-gradient(135deg,#ff2020,#b80000);
 }
 .btn-sv:hover:not(:disabled),
-.btn-reg:hover,
 .btn-guardar-grupo:hover:not(:disabled){
   background:linear-gradient(135deg,#ff3838,#9f0000);
 }
@@ -956,19 +993,6 @@ body.dark .gtab:hover{
   }
 }
 
-
-/* ─── REGISTRO: estado de envío / confirmación email ─── */
-.btn-reg.loading{opacity:.72;cursor:not-allowed;transform:scale(.98);filter:saturate(.85)}
-.btn-reg.loading::after{content:'';display:inline-block;width:13px;height:13px;margin-left:8px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;vertical-align:-2px;animation:spinReg .8s linear infinite}
-@keyframes spinReg{to{transform:rotate(360deg)}}
-.reg-success{text-align:center;padding:8px 2px 0}
-.reg-success-ico{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;font-size:34px;background:linear-gradient(135deg,#ff2020,#8f0000);box-shadow:0 0 28px rgba(255,0,0,.28)}
-.reg-success-title{font-size:22px;font-weight:800;color:#ff3333;margin-bottom:8px}
-.reg-success-text{font-size:13px;line-height:1.55;color:var(--gray);margin-bottom:14px}
-.reg-success-box{text-align:left;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:13px 14px;margin:14px 0 16px;font-size:12px;color:var(--gray-dark);line-height:1.7}
-body.dark .reg-success-box{background:rgba(0,0,0,.18)}
-.reg-success-mail{color:#ff3333;font-weight:800;word-break:break-word}
-.reg-countdown{font-size:11px;color:var(--gray);margin-top:10px}
 
 /* ─── AUDIO PRODE ─── */
 .music-tog{
@@ -1072,21 +1096,21 @@ body.dark .music-tog.on{
         <label class="reg-tipo-opt" id="opt-amigo" onclick="regTipoSelect('amigo')">
           <input type="radio" name="regTipo" value="amigo" checked>
           <div>
-            <div class="reg-tipo-lbl">🤝 Amigo / Conocido</div>
+            <div class="reg-tipo-lbl">⚽ Amigo / Conocido</div>
             <div class="reg-tipo-sub">Vengo por invitación personal o de boca en boca</div>
           </div>
         </label>
         <label class="reg-tipo-opt" id="opt-federacion" onclick="regTipoSelect('federacion')">
           <input type="radio" name="regTipo" value="federacion">
           <div>
-            <div class="reg-tipo-lbl">🏟️ Federación / Club / Institución</div>
-            <div class="reg-tipo-sub">Soy integrante de una federación o institución deportiva</div>
+            <div class="reg-tipo-lbl">🛡️ Federación</div>
+            <div class="reg-tipo-sub">Integrante de una federación deportiva (amistosos y partidos por puntos)</div>
           </div>
         </label>
       </div>
       <div class="reg-fed-box" id="regFedBox">
-        <label>¿Cuál federación o institución?</label>
-        <input type="text" id="rFed" placeholder="Ej: AFA, Liga Regional, Club Atlético...">
+        <label>¿Cuál federación?</label>
+        <input type="text" id="rFed" placeholder="7Grandes / FD / Catenaccio / MW...">
       </div>
     </div>
     <div class="rf">
@@ -1095,7 +1119,7 @@ body.dark .music-tog.on{
       <div class="avatar-grid" id="avatarGrid"></div>
     </div>
     <button class="btn-reg" id="btnRegSubmit" onclick="confirmarReg()">⚽ Crear cuenta y empezar</button>
-    <button class="btn-reg" style="background:var(--gray);margin-top:8px" onclick="volverLogin()">Volver al login</button>
+    <button class="btn-reg-back" onclick="volverLogin()">← Volver al login</button>
   </div>
 </div>
 
@@ -2412,18 +2436,19 @@ function mostrarConfirmacionEmail(email){
     <div class="reg-success">
       <div class="reg-success-ico">📧</div>
       <div class="reg-success-title">Revisá tu correo</div>
-      <div class="reg-success-text">Tu cuenta fue creada correctamente. Falta confirmar el email antes de ingresar al Prode.</div>
+      <div class="reg-success-text">Tu cuenta fue creada. Necesitás confirmar el email para poder ingresar.</div>
       <div class="reg-success-box">
         <div>Enviamos el enlace de confirmación a:</div>
         <div class="reg-success-mail">${email}</div>
-        <div style="margin-top:8px">Revisá también <b>Correo no deseado / Spam</b>.</div>
-        <div>Después abrí el link del mail y volvé a ingresar.</div>
+        <div style="margin-top:10px">📁 Revisá también <b>Correo no deseado / Spam</b>.</div>
+        <div style="margin-top:6px">⏱️ Si no llegó en 5 minutos, puede ser el límite de envíos de Supabase (plan gratuito). Esperá unos minutos y volvé a intentar desde el login con "Olvidé mi contraseña".</div>
+        <div style="margin-top:6px">✅ Una vez que confirmás el mail, volvé acá e ingresá con tu email y contraseña.</div>
       </div>
-      <button class="btn-reg" onclick="volverLogin()">Volver al login</button>
-      <div class="reg-countdown" id="regCountdown">Volviendo al login en 8...</div>
+      <button class="btn-reg-back" onclick="volverLogin()">← Volver al login</button>
+      <div class="reg-countdown" id="regCountdown">Volviendo al login en 15...</div>
     </div>
   `;
-  let n=8;
+  let n=15;
   const int=setInterval(()=>{
     n--;
     const el=document.getElementById('regCountdown');
