@@ -2723,15 +2723,50 @@ function mostrarConfirmacionEmail(email){
   },1000);
 }
 async function cargarPerfilDesdeSesion(session){
-  const {data:{user}}=await SB.auth.getUser();
-  if(!user)return;
-  let {data:perfil}=await SB.from('usuarios').select('*').eq('id',user.id).maybeSingle();
-  if(!perfil){
-    perfil={id:user.id,email:user.email,nombre:user.user_metadata?.nombre||user.email.split('@')[0],avatar:user.user_metadata?.avatar||'hyuga',rol:'jugador',equipo:user.user_metadata?.equipo||''};
-    await upsertPerfilUsuario(perfil);
+  const btn=document.getElementById('btnIng');
+  try{
+    const {data:{user},error:ue}=await SB.auth.getUser();
+    if(ue||!user){
+      showErr('loginError','Error obteniendo usuario: '+(ue?.message||'sin usuario'));
+      if(btn){btn.disabled=false;btn.textContent='Ingresar';}
+      return;
+    }
+
+    let {data:perfil, error:pe}=await SB.from('usuarios').select('*').eq('id',user.id).maybeSingle();
+    if(pe){
+      showErr('loginError','Error leyendo perfil: '+pe.message);
+      if(btn){btn.disabled=false;btn.textContent='Ingresar';}
+      return;
+    }
+
+    if(!perfil){
+      // Crear perfil mínimo
+      const nuevo={id:user.id,nombre:user.user_metadata?.nombre||user.email.split('@')[0],email:user.email,avatar:user.user_metadata?.avatar||'hyuga',rol:'jugador',equipo:user.user_metadata?.equipo||''};
+      const {error:ie}=await SB.from('usuarios').upsert(nuevo);
+      if(ie){
+        showErr('loginError','Error creando perfil: '+ie.message);
+        if(btn){btn.disabled=false;btn.textContent='Ingresar';}
+        return;
+      }
+      perfil=nuevo;
+    }
+
+    USR={
+      id:user.id,
+      email:user.email,
+      nombre:perfil.nombre||user.email.split('@')[0],
+      sector:perfil.equipo||'',
+      avatar:perfil.avatar||'hyuga',
+      inits:(perfil.nombre||user.email).slice(0,2).toUpperCase(),
+      rol:perfil.rol==='admin'?'admin':'user',
+      nuevo:false
+    };
+    await cargarApp();
+
+  }catch(e){
+    showErr('loginError','Error inesperado al ingresar: '+(e?.message||e));
+    if(btn){btn.disabled=false;btn.textContent='Ingresar';}
   }
-  USR={id:user.id,email:user.email,nombre:perfil.nombre||user.email.split('@')[0],sector:perfil.equipo||'',avatar:perfil.avatar||'hyuga',inits:(perfil.nombre||user.email).slice(0,2).toUpperCase(),rol:perfil.rol==='admin'?'admin':'user',nuevo:false};
-  await cargarApp();
 }
 async function bootSupabase(){
   applyD(); renderAvatarGrid();
