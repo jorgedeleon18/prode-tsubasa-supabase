@@ -260,13 +260,15 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 .btn-ms,.ms-ico,.sep-o{display:none}
 
 /* Avatares registro */
-.avatar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 12px}
-.avatar-card{border:2px solid var(--gray-border);background:#fff;border-radius:14px;padding:8px 5px;cursor:pointer;text-align:center;transition:all .15s}
-.avatar-card:hover,.avatar-card.sel{border-color:var(--aub);box-shadow:0 0 0 3px rgba(0,174,195,.14)}
-.avatar-face{width:46px;height:46px;border-radius:50%;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:25px;background:linear-gradient(135deg,#e0f2fe,#fff7ed);border:2px solid rgba(0,0,0,.05)}
+.avatar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 12px}
+.avatar-card{border:2px solid var(--gray-border);background:#fff;border-radius:16px;padding:8px 6px;cursor:pointer;text-align:center;transition:all .15s}
+.avatar-card:hover,.avatar-card.sel{border-color:var(--aub);box-shadow:0 0 0 3px rgba(239,27,27,.16);transform:translateY(-1px)}
+.avatar-face{width:64px;height:64px;border-radius:50%;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;background:#fff;border:2px solid rgba(0,0,0,.07);overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+.avatar-face img{width:100%;height:100%;object-fit:cover;display:block}
 .avatar-name{font-size:9px;font-weight:800;color:var(--gray-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .avatar-rarity{font-size:8px;color:var(--gray)}
 body.dark .avatar-card{background:#111827;border-color:#374151}
+body.dark .avatar-face{background:#050505;border-color:rgba(255,255,255,.12)}
 .reg-card{max-width:520px}
 
 @media(max-width:620px){
@@ -1109,16 +1111,14 @@ const SUPABASE_URL='https://cflbawgjckkguuvowqzj.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_tmHiwZnxc3tgOGPGr_5K6g_l-zJ_-O5';
 const SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Avatares iniciales. Cuando subas PNGs al Storage, reemplazamos icono por URL.
+// Avatares disponibles — imágenes externas en /assets (NO Base64)
 const AVATARES=[
-  {id:'tsubasa',nombre:'Tsubasa',rareza:'Legendario',icono:'⚽'},
-  {id:'hyuga',nombre:'Hyuga',rareza:'Épico',icono:'🐯'},
-  {id:'misaki',nombre:'Misaki',rareza:'Raro',icono:'🎨'},
-  {id:'wakabayashi',nombre:'Wakabayashi',rareza:'Épico',icono:'🧤'},
-  {id:'schneider',nombre:'Schneider',rareza:'Legendario',icono:'🔥'},
-  {id:'matsuyama',nombre:'Matsuyama',rareza:'Raro',icono:'🦅'},
-  {id:'natureza',nombre:'Natureza',rareza:'Legendario',icono:'🌪️'},
-  {id:'santana',nombre:'Santana',rareza:'Épico',icono:'💫'}
+  {id:'santana',nombre:'Santana',rareza:'Brasil · FW 9',img:'assets/avatar-santana.png'},
+  {id:'hyuga',nombre:'Hyuga',rareza:'Japón · FW 9',img:'assets/avatar-hyuga.png'},
+  {id:'diaz',nombre:'Díaz',rareza:'Argentina · MF 10',img:'assets/avatar-diaz.png'},
+  {id:'misaki',nombre:'Misaki',rareza:'Japón · MF 11',img:'assets/avatar-misaki.png'},
+  {id:'tsubasa',nombre:'Tsubasa',rareza:'Japón · MF 10',img:'assets/avatar-tsubasa.png'},
+  {id:'genzo',nombre:'Genzo',rareza:'Japón · GK 22',img:'assets/avatar-genzo.png'}
 ];
 
 // ══════ BANDERAS ══════
@@ -2487,10 +2487,17 @@ function rEliminatorias(mc){
 
 
 // ══════ ADAPTADOR SUPABASE — reemplaza SharePoint / Power Automate ══════
-function avatarObj(id){return AVATARES.find(a=>a.id===id)||AVATARES[0];}
+function avatarObj(id){
+  const legacy={wakabayashi:'genzo',schneider:'hyuga',matsuyama:'misaki',natureza:'santana'};
+  const fixed=legacy[id]||id;
+  return AVATARES.find(a=>a.id===fixed)||AVATARES[0];
+}
 function avatarHTML(id,size=30){
   const a=avatarObj(id);
-  return `<span title="${a.nombre}" style="font-size:${Math.round(size*.65)}px">${a.icono}</span>`;
+  if(a.img){
+    return `<img src="${a.img}" alt="${a.nombre}" title="${a.nombre}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;display:block">`;
+  }
+  return `<span title="${a.nombre}" style="font-size:${Math.round(size*.65)}px">${a.icono||'⚽'}</span>`;
 }
 
 async function upsertPerfilUsuario(perfil){
@@ -2513,7 +2520,7 @@ function renderAvatarGrid(){
   const g=document.getElementById('avatarGrid'); if(!g)return;
   const current=document.getElementById('rAvatar')?.value || 'hyuga';
   g.innerHTML=AVATARES.map(a=>`<div class="avatar-card ${a.id===current?'sel':''}" onclick="selectAvatar('${a.id}')">
-    <div class="avatar-face">${a.icono}</div>
+    <div class="avatar-face">${avatarHTML(a.id,64)}</div>
     <div class="avatar-name">${a.nombre}</div>
     <div class="avatar-rarity">${a.rareza}</div>
   </div>`).join('');
