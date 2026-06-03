@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Prode Tsubasa 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -2777,10 +2780,21 @@ async function bootSupabase(){
   // onAuthStateChange es el único punto de entrada a la app
   SB.auth.onAuthStateChange(async (event, session) => {
     if((event==='SIGNED_IN'||event==='INITIAL_SESSION') && session){
-      if(cargando||USR)return; // evitar doble ejecución
+      if(cargando||USR)return;
       cargando=true;
+      // Timeout de seguridad: si en 12 segundos no cargó, limpia y vuelve al login
+      const timeout=setTimeout(async()=>{
+        if(!USR){
+          console.warn('[BOOT] timeout — limpiando sesión colgada');
+          await SB.auth.signOut();
+          cargando=false;
+          document.getElementById('btnIng').disabled=false;
+          document.getElementById('btnIng').textContent='Ingresar';
+        }
+      },12000);
       try{ await cargarPerfilDesdeSesion(session); }
-      finally{ cargando=false; }
+      catch(e){ console.error('[BOOT] error cargando perfil:',e); }
+      finally{ clearTimeout(timeout); cargando=false; }
     }
     if(event==='SIGNED_OUT'){
       USR=null;
