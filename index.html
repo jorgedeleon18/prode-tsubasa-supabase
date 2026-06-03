@@ -783,6 +783,17 @@ body.dark .ft td{border-color:var(--gray-border)}
 .ft-v{font-weight:600;width:30%}
 .ft-c{font-size:9px;color:var(--gray);white-space:nowrap;width:90px}
 
+/* TABLA RANKING — columnas responsivas */
+.rank-col-fed,.rank-col-eq{vertical-align:middle}
+.rank-mobile-info{display:none;margin-top:3px;display:flex;gap:4px;flex-wrap:wrap}
+@media(max-width:600px){
+  .rank-col-fed,.rank-col-eq{display:none}
+  .rank-mobile-info{display:flex}
+}
+@media(min-width:601px){
+  .rank-mobile-info{display:none}
+}
+
 /* MISC */
 .toast{position:fixed;bottom:18px;right:18px;background:var(--gray-dark);color:#fff;padding:8px 15px;border-radius:8px;font-size:11px;font-weight:600;opacity:0;transform:translateY(7px);transition:all .25s;pointer-events:none;z-index:9999;max-width:260px}
 .toast.show{opacity:1;transform:translateY(0)}.toast.ok{background:var(--verde)}.toast.err{background:var(--rojo)}
@@ -2862,25 +2873,32 @@ async function rPosiciones(mc){
     const rank=i<3
       ?`<span style="font-size:16px">${md[i]}</span>`
       :`<span style="font-size:13px;font-weight:800;color:var(--gray)">${i+1}</span>`;
-    const badge=p.tipo==='federacion'
-      ?`<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;padding:1px 6px;border-radius:5px;background:rgba(202,138,4,.18);color:#92400e">🛡️ ${p.federacion||'Fed.'}</span>`
-      :`<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;padding:1px 6px;border-radius:5px;background:var(--aub-light);color:var(--aub-darker)">⚽ ${p.Sector||'Amigo'}</span>`;
+    const fedLabel=p.tipo==='federacion'
+      ?`<span class="db" style="background:rgba(202,138,4,.18);color:#92400e">🛡️ ${p.federacion||'Fed.'}</span>`
+      :`<span class="db">⚽ Amigo</span>`;
+    const eqLabel=p.Sector
+      ?`<span class="db">${p.Sector}</span>`
+      :`<span style="font-size:9px;color:var(--gray)">–</span>`;
+    // En mobile mostramos fed+equipo debajo del nombre
+    const mobileInfo=`<div class="rank-mobile-info">${fedLabel} ${eqLabel}</div>`;
     return`<tr style="${yo?'background:rgba(0,174,195,.06)':''}">
       <td style="text-align:center;width:36px;vertical-align:middle">${rank}</td>
       <td style="vertical-align:middle">
         <div style="display:flex;align-items:center;gap:7px">
           <div class="pav" style="${yo?'background:var(--verde)':''}">${avatarHTML(p.Avatar,26)}</div>
           <div>
-            <div style="font-size:11px;font-weight:${yo?'700':'600'};color:${yo?'var(--aub)':'var(--gray-dark)'}">${p.Nombre||p.Email?.split('@')[0]}${yo?' <span style="color:var(--aub);font-weight:400;font-size:9px">(vos)</span>':''}</div>
+            <div style="font-size:11px;font-weight:${yo?'700':'600'};color:${yo?'var(--aub)':'var(--gray-dark)'}">${p.Nombre||p.Email?.split('@')[0]}${yo?' (vos)':''}</div>
             <div style="font-size:8px;color:var(--gray);margin-top:1px">${p.Exactos||0} exactos</div>
-            ${badge}
+            ${mobileInfo}
           </div>
         </div>
       </td>
+      <td class="rank-col-fed" style="vertical-align:middle">${fedLabel}</td>
+      <td class="rank-col-eq" style="vertical-align:middle">${eqLabel}</td>
       <td style="text-align:right;vertical-align:middle"><span class="pp">${p.Puntos||0}</span></td>
     </tr>`;
   }).join('');
-  mc.innerHTML=`<div class="stats"><div class="sc sc-a"><div class="sc-lbl">Participantes</div><div class="sc-val">${RANK.length}</div><div class="sc-sub">jugando</div></div><div class="sc sc-g"><div class="sc-lbl">Líder</div><div class="sc-val" style="font-size:16px">${RANK[0]?.Nombre?.split(',')[0]||'–'}</div><div class="sc-sub">${RANK[0]?.Puntos||0} pts</div></div></div><div class="pw"><div class="pw-hdr"><div><div class="pw-t">🏆 Tabla de posiciones</div><div class="pw-s">Desempate por más exactos</div></div></div><table class="pt"><thead><tr><th style="width:36px;text-align:center">#</th><th>Participante</th><th style="text-align:right">Puntos</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  mc.innerHTML=`<div class="stats"><div class="sc sc-a"><div class="sc-lbl">Participantes</div><div class="sc-val">${RANK.length}</div><div class="sc-sub">jugando</div></div><div class="sc sc-g"><div class="sc-lbl">Líder</div><div class="sc-val" style="font-size:16px">${RANK[0]?.Nombre?.split(',')[0]||'–'}</div><div class="sc-sub">${RANK[0]?.Puntos||0} pts</div></div></div><div class="pw"><div class="pw-hdr"><div><div class="pw-t">🏆 Tabla de posiciones</div><div class="pw-s">Desempate por más exactos</div></div></div><table class="pt"><thead><tr><th style="width:36px;text-align:center">#</th><th>Participante</th><th class="rank-col-fed">Federación / Tipo</th><th class="rank-col-eq">Equipo</th><th style="text-align:right">Puntos</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 async function svRes(id){
   const gL=document.getElementById('adL_'+id)?.value;const gV=document.getElementById('adV_'+id)?.value;
