@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>Prode Tsubasa 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -2629,15 +2626,10 @@ async function handleLogin(){
   if(!email||!pass){showErr('loginError','Completá email y contraseña.');return;}
   const btn=document.getElementById('btnIng');
   btn.disabled=true; btn.textContent='Ingresando...';
-  try{
-    const {data,error}=await SB.auth.signInWithPassword({email,password:pass});
-    if(error){showErr('loginError','No se pudo ingresar: '+error.message);btn.disabled=false;btn.textContent='Ingresar';return;}
-    // onAuthStateChange se encarga — no llamamos cargarPerfilDesdeSesion acá
-    // para evitar doble ejecución en paralelo
-  }catch(e){
-    showErr('loginError','Error inesperado: '+(e.message||e));
-    btn.disabled=false;btn.textContent='Ingresar';
-  }
+  const {data,error}=await SB.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false; btn.textContent='Ingresar';
+  if(error){showErr('loginError','No se pudo ingresar: '+error.message);return;}
+  await cargarPerfilDesdeSesion(data.session);
 }
 async function confirmarReg(){
   const n=document.getElementById('rN').value.trim();
@@ -2774,32 +2766,8 @@ async function cargarPerfilDesdeSesion(session){
 async function bootSupabase(){
   applyD(); renderAvatarGrid();
   if(!SUPABASE_ANON_KEY||SUPABASE_ANON_KEY.includes('PEGAR_ACA')){showErr('loginError','Falta pegar la SUPABASE_ANON_KEY en el HTML.');return;}
-
-  let cargando=false;
-
-  // onAuthStateChange es el único punto de entrada a la app
-  SB.auth.onAuthStateChange(async (event, session) => {
-    if((event==='SIGNED_IN'||event==='INITIAL_SESSION') && session){
-      if(cargando||USR)return;
-      cargando=true;
-      // Timeout de seguridad: si en 12 segundos no cargó, limpia y vuelve al login
-      const timeout=setTimeout(async()=>{
-        if(!USR){
-          console.warn('[BOOT] timeout — limpiando sesión colgada');
-          await SB.auth.signOut();
-          cargando=false;
-          document.getElementById('btnIng').disabled=false;
-          document.getElementById('btnIng').textContent='Ingresar';
-        }
-      },12000);
-      try{ await cargarPerfilDesdeSesion(session); }
-      catch(e){ console.error('[BOOT] error cargando perfil:',e); }
-      finally{ clearTimeout(timeout); cargando=false; }
-    }
-    if(event==='SIGNED_OUT'){
-      USR=null;
-    }
-  });
+  const {data:{session}}=await SB.auth.getSession();
+  if(session) await cargarPerfilDesdeSesion(session);
 }
 async function logout(){
   USR=null;PRONOS={};RANK=[];BONUS={cam:'',fin:'',gol:''};
