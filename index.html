@@ -259,17 +259,10 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 
 .btn-ms,.ms-ico,.sep-o{display:none}
 
-/* Avatares registro */
+/* Avatares registro — sobreescritos por el bloque del regScreen más abajo */
 .avatar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 12px}
-.avatar-card{border:2px solid var(--gray-border);background:#fff;border-radius:16px;padding:8px 6px;cursor:pointer;text-align:center;transition:all .15s}
-.avatar-card:hover,.avatar-card.sel{border-color:var(--aub);box-shadow:0 0 0 3px rgba(239,27,27,.16);transform:translateY(-1px)}
-.avatar-face{width:64px;height:64px;border-radius:50%;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;background:#fff;border:2px solid rgba(0,0,0,.07);overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.12)}
 .avatar-face img{width:100%;height:100%;object-fit:cover;display:block}
-.avatar-name{font-size:9px;font-weight:800;color:var(--gray-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.avatar-rarity{font-size:8px;color:var(--gray)}
-body.dark .avatar-card{background:#111827;border-color:#374151}
-body.dark .avatar-face{background:#050505;border-color:rgba(255,255,255,.12)}
-.reg-card{max-width:520px}
+
 
 @media(max-width:620px){
   #loginScreen{
@@ -315,79 +308,230 @@ body.dark .avatar-face{background:#050505;border-color:rgba(255,255,255,.12)}
   .btn-sec{min-height:48px}
 }
 
-/* REGISTRO */
-#regScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#022D40,#00AEC3)}
-.reg-card{background:#fff;border-radius:15px;padding:30px 26px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,.2)}
-body.dark #regScreen{background:linear-gradient(135deg,#071820,#024560)}
-body.dark .reg-card{background:#1F2937;color:var(--gray-dark)}
-.reg-t{font-size:19px;font-weight:800;color:var(--aub-darker);margin-bottom:3px}
-body.dark .reg-t{color:var(--aub)}
-.reg-s{font-size:12px;color:var(--gray);margin-bottom:18px}
-.rf{margin-bottom:12px}
-.rf label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray);margin-bottom:3px}
-.rf input,.rf select{width:100%;padding:9px 11px;border-radius:7px;border:1.5px solid var(--gray-border);background:#fff;font-size:13px;font-family:var(--fn);color:var(--gray-dark);outline:none}
-body.dark .rf input,body.dark .rf select{background:#374151;border-color:var(--gray-border);color:var(--gray-dark)}
-.rf input:focus,.rf select:focus{border-color:var(--aub)}
-.rf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-/* Tipo de participante en registro */
-.reg-tipo-wrap{margin-bottom:14px}
+/* ─── REGISTRO — mismo estilo visual que el LOGIN ─── */
+#regScreen{
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow-y:auto;
+  padding:28px 18px;
+  background:
+    radial-gradient(circle at center,rgba(180,0,0,.12) 0%,rgba(0,0,0,0) 42%),
+    #000;
+}
+/* overlay igual al login */
+#regScreen::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 8%,rgba(255,0,0,.14),transparent 34%),
+    radial-gradient(circle at 50% 100%,rgba(160,0,0,.12),transparent 38%),
+    linear-gradient(180deg,#000 0%,#050505 52%,#000 100%);
+  pointer-events:none;
+  z-index:0;
+}
+/* Card oscura con borde rojo — igual que .card-l del login */
+.reg-card{
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:540px;
+  padding:36px 38px 32px;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 50% 10%,rgba(255,255,255,.07),transparent 28%),
+    linear-gradient(180deg,rgba(24,24,24,.96),rgba(5,5,5,.98));
+  border:1.5px solid rgba(255,24,24,.92);
+  box-shadow:
+    0 0 0 1px rgba(255,0,0,.10),
+    0 0 42px rgba(255,0,0,.18),
+    0 24px 80px rgba(0,0,0,.88),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+/* Título */
+.reg-t{
+  font-size:26px;
+  font-weight:800;
+  color:#fff;
+  margin-bottom:4px;
+  font-family:'Encode Sans',sans-serif;
+}
+.reg-s{
+  font-size:13px;
+  color:rgba(255,255,255,.55);
+  margin-bottom:22px;
+}
+/* Labels */
+.rf{margin-bottom:14px}
+.rf label{
+  display:block;
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:rgba(255,255,255,.65);
+  margin-bottom:7px;
+}
+/* Inputs */
+.rf input,.rf select{
+  width:100%;
+  height:50px;
+  padding:0 16px;
+  border-radius:12px;
+  border:1.5px solid rgba(255,255,255,.22);
+  background:rgba(14,14,14,.68);
+  color:#fff;
+  font-size:14px;
+  font-family:var(--fn);
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  transition:border-color .18s,box-shadow .18s;
+}
+.rf input::placeholder{color:rgba(255,255,255,.32)}
+.rf input:focus,.rf select:focus{
+  border-color:#ff1f1f;
+  background:rgba(18,18,18,.86);
+  box-shadow:0 0 0 3px rgba(255,0,0,.13),inset 0 1px 0 rgba(255,255,255,.07);
+}
+.rf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ─── Tipo de participante ─── */
+.reg-tipo-wrap{margin-bottom:16px}
 .reg-tipo-opts{display:flex;flex-direction:column;gap:8px;margin-top:6px}
-.reg-tipo-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--gray-border);cursor:pointer;transition:all .15s;background:#fff}
-body.dark .reg-tipo-opt{background:#1a2838;border-color:var(--gray-border)}
-.reg-tipo-opt:hover{border-color:var(--aub)}
-.reg-tipo-opt input[type=radio]{accent-color:var(--aub);width:16px;height:16px;flex-shrink:0;margin-top:2px;cursor:pointer}
-.reg-tipo-opt.sel{border-color:var(--aub);background:rgba(0,174,195,.06)}
-body.dark .reg-tipo-opt.sel{background:rgba(0,174,195,.10)}
-.reg-tipo-lbl{font-size:12px;font-weight:700;color:var(--gray-dark);line-height:1.3}
-.reg-tipo-sub{font-size:10px;color:var(--gray);margin-top:1px}
-.reg-fed-box{margin-top:8px;padding:10px 12px;border-radius:9px;background:rgba(0,174,195,.06);border:1.5px solid var(--aub);display:none}
-body.dark .reg-fed-box{background:rgba(0,174,195,.10)}
+.reg-tipo-opt{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:11px 14px;border-radius:12px;
+  border:1.5px solid rgba(255,255,255,.14);
+  cursor:pointer;transition:all .15s;
+  background:rgba(14,14,14,.55);
+}
+.reg-tipo-opt:hover{border-color:rgba(255,40,40,.6);background:rgba(255,0,0,.06)}
+.reg-tipo-opt input[type=radio]{
+  accent-color:#ff2020;width:16px;height:16px;flex-shrink:0;margin-top:2px;cursor:pointer;
+}
+.reg-tipo-opt.sel{
+  border-color:rgba(255,24,24,.85);
+  background:rgba(255,0,0,.09);
+  box-shadow:0 0 0 1px rgba(255,0,0,.12);
+}
+.reg-tipo-lbl{font-size:13px;font-weight:700;color:#fff;line-height:1.3}
+.reg-tipo-sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+
+/* Caja federación */
+.reg-fed-box{
+  margin-top:9px;padding:12px 14px;border-radius:11px;
+  background:rgba(255,0,0,.07);
+  border:1.5px solid rgba(255,40,40,.45);
+  display:none;
+}
 .reg-fed-box.visible{display:block}
-.reg-fed-box label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--aub);margin-bottom:5px}
-.reg-fed-box input{width:100%;padding:9px 11px;border-radius:7px;border:1.5px solid rgba(0,174,195,.4);background:#fff;font-size:13px;font-family:var(--fn);color:var(--gray-dark);outline:none}
-body.dark .reg-fed-box input{background:#0d1f2d;border-color:rgba(0,174,195,.4);color:var(--gray-dark)}
-.reg-fed-box input:focus{border-color:var(--aub)}
+.reg-fed-box label{
+  display:block;font-size:11px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.7px;
+  color:rgba(255,100,100,.85);margin-bottom:6px;
+}
+.reg-fed-box input{
+  width:100%;height:46px;padding:0 14px;border-radius:10px;
+  border:1.5px solid rgba(255,60,60,.38);
+  background:rgba(14,14,14,.68);
+  color:#fff;font-size:13px;font-family:var(--fn);outline:none;
+  transition:border-color .15s;
+}
+.reg-fed-box input::placeholder{color:rgba(255,255,255,.3)}
+.reg-fed-box input:focus{border-color:rgba(255,40,40,.8);box-shadow:0 0 0 3px rgba(255,0,0,.10)}
 
-/* Botón principal de registro */
+/* Avatares en modo oscuro */
+.avatar-card{
+  border:2px solid rgba(255,255,255,.12);
+  background:rgba(18,18,18,.8);
+  border-radius:14px;padding:8px 6px;
+  cursor:pointer;text-align:center;transition:all .15s;
+}
+.avatar-card:hover,.avatar-card.sel{
+  border-color:rgba(255,24,24,.9);
+  box-shadow:0 0 0 3px rgba(255,0,0,.18);
+  transform:translateY(-1px);
+}
+.avatar-face{
+  width:64px;height:64px;border-radius:50%;
+  margin:0 auto 5px;display:flex;align-items:center;justify-content:center;
+  background:#111;border:2px solid rgba(255,255,255,.1);
+  overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.4);
+}
+.avatar-face img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar-name{font-size:9px;font-weight:800;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.avatar-rarity{font-size:8px;color:rgba(255,255,255,.4)}
+
+/* Botón principal */
 .btn-reg{
-  width:100%;padding:11px;border-radius:8px;border:none;
-  background:var(--aub);color:#fff;font-size:14px;font-weight:700;
-  font-family:var(--fn);cursor:pointer;margin-top:5px;
-  transition:background .15s;
+  width:100%;min-height:56px;padding:15px;border-radius:14px;border:none;
+  cursor:pointer;
+  background:linear-gradient(135deg,#ff1a1a,#b60000);
+  color:#fff;font-size:17px;font-weight:800;font-family:var(--fn);
+  margin-top:6px;transition:all .2s;
+  box-shadow:0 10px 26px rgba(255,0,0,.28);
 }
-.btn-reg:hover:not(:disabled){background:var(--aub-dark)}
-.btn-reg:disabled{opacity:.55;cursor:not-allowed}
+.btn-reg:hover:not(:disabled){
+  transform:translateY(-1px);
+  box-shadow:0 14px 32px rgba(255,0,0,.38);
+  filter:brightness(1.05);
+}
+.btn-reg:disabled{opacity:.55;cursor:not-allowed;transform:none}
 .btn-reg.loading{opacity:.72;cursor:not-allowed}
-/* Variante "Volver al login" (fondo neutro) */
-.btn-reg-back{
-  width:100%;padding:11px;border-radius:8px;
-  border:1.5px solid var(--gray-border);
-  background:transparent;color:var(--gray);
-  font-size:13px;font-weight:600;font-family:var(--fn);
-  cursor:pointer;margin-top:8px;transition:all .15s;
-}
-.btn-reg-back:hover{background:var(--gray-light);color:var(--gray-dark);border-color:var(--gray)}
-body.dark .btn-reg-back{border-color:#374151;color:#9CA3AF;background:transparent}
-body.dark .btn-reg-back:hover{background:#1F2937;color:#fff}
-/* Dentro de reg-success (fondo de tarjeta, no blanco) */
-.reg-success .btn-reg-back{
-  border-color:rgba(0,174,195,.4);
-  background:rgba(0,174,195,.08);
-  color:var(--aub);
-  margin-top:12px;
-}
-.reg-success .btn-reg-back:hover{background:rgba(0,174,195,.16);border-color:var(--aub)}
 
-/* Pantalla de confirmación de email post-registro */
+/* Botón volver */
+.btn-reg-back{
+  width:100%;padding:12px;border-radius:12px;
+  border:1.5px solid rgba(255,24,24,.5);
+  background:rgba(0,0,0,.34);color:rgba(255,255,255,.7);
+  font-size:13px;font-weight:700;font-family:var(--fn);
+  cursor:pointer;margin-top:10px;transition:all .2s;
+}
+.btn-reg-back:hover{
+  background:rgba(255,0,0,.12);
+  border-color:rgba(255,24,24,.8);
+  color:#fff;
+  box-shadow:0 0 18px rgba(255,0,0,.14);
+}
+
+/* Pantalla confirmación email */
 .reg-success{text-align:center;padding:8px 2px 0}
-.reg-success-ico{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;font-size:34px;background:linear-gradient(135deg,#0088b8,#024560);box-shadow:0 0 28px rgba(0,140,190,.28)}
-.reg-success-title{font-size:22px;font-weight:800;color:var(--aub);margin-bottom:8px}
-.reg-success-text{font-size:13px;line-height:1.55;color:var(--gray);margin-bottom:14px}
-.reg-success-box{text-align:left;background:rgba(0,174,195,.07);border:1px solid rgba(0,174,195,.25);border-radius:13px;padding:13px 14px;margin:14px 0 16px;font-size:12px;color:var(--gray-dark);line-height:1.7}
-body.dark .reg-success-box{background:rgba(0,174,195,.10);border-color:rgba(0,174,195,.3)}
-.reg-success-mail{color:var(--aub);font-weight:800;word-break:break-word}
-.reg-countdown{font-size:11px;color:var(--gray);margin-top:10px}
+.reg-success-ico{
+  width:72px;height:72px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 15px;font-size:34px;
+  background:linear-gradient(135deg,#ff2020,#8f0000);
+  box-shadow:0 0 28px rgba(255,0,0,.28);
+}
+.reg-success-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:8px}
+.reg-success-text{font-size:13px;line-height:1.55;color:rgba(255,255,255,.55);margin-bottom:14px}
+.reg-success-box{
+  text-align:left;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,40,40,.3);
+  border-radius:13px;padding:13px 14px;
+  margin:14px 0 16px;font-size:12px;
+  color:rgba(255,255,255,.7);line-height:1.7;
+}
+.reg-success-mail{color:#ff5555;font-weight:800;word-break:break-word}
+.reg-countdown{font-size:11px;color:rgba(255,255,255,.35);margin-top:10px}
+.reg-success .btn-reg-back{
+  border-color:rgba(255,24,24,.5);background:rgba(255,0,0,.09);color:rgba(255,255,255,.75);
+}
+.reg-success .btn-reg-back:hover{background:rgba(255,0,0,.18);color:#fff}
 @keyframes spinReg{to{transform:rotate(360deg)}}
+
+@media(max-width:560px){
+  .reg-card{padding:28px 20px 26px;border-radius:22px}
+  .reg-t{font-size:22px}
+  .rf-row{grid-template-columns:1fr}
+}
 
 
 
@@ -1074,7 +1218,7 @@ body.dark .music-tog.on{
 <!-- ── REGISTRO ── -->
 <div id="regScreen" style="display:none">
   <div class="reg-card">
-    <div style="font-size:30px;margin-bottom:7px">👋</div>
+    <div style="font-size:30px;margin-bottom:10px">👋</div>
     <div class="reg-t">¡Bienvenido al Prode!</div>
     <div class="reg-s">Primera vez que ingresás. Completá tu perfil para participar.</div>
     <div id="regErr" class="err-m" style="display:none"></div>
@@ -1087,8 +1231,8 @@ body.dark .music-tog.on{
       <div class="rf"><label>Contraseña</label><input type="password" id="rPass" placeholder="mínimo 6 caracteres"></div>
     </div>
     <div class="rf">
-      <label>Equipo / Grupo</label>
-      <input type="text" id="rS" placeholder="Ej: 7Grandes / Amigos / Viernes">
+      <label>Nombre de equipo</label>
+      <input type="text" id="rS" placeholder="">
     </div>
     <div class="reg-tipo-wrap">
       <div class="rf" style="margin-bottom:6px"><label>¿De dónde venís?</label></div>
@@ -1104,7 +1248,7 @@ body.dark .music-tog.on{
           <input type="radio" name="regTipo" value="federacion">
           <div>
             <div class="reg-tipo-lbl">🛡️ Federación</div>
-            <div class="reg-tipo-sub">Integrante de una federación deportiva (amistosos y partidos por puntos)</div>
+            <div class="reg-tipo-sub">Integrante de una federación deportiva</div>
           </div>
         </label>
       </div>
@@ -2435,20 +2579,26 @@ function mostrarConfirmacionEmail(email){
   card.innerHTML=`
     <div class="reg-success">
       <div class="reg-success-ico">📧</div>
-      <div class="reg-success-title">Revisá tu correo</div>
-      <div class="reg-success-text">Tu cuenta fue creada. Necesitás confirmar el email para poder ingresar.</div>
+      <div class="reg-success-title">Confirmá tu correo</div>
+      <div class="reg-success-text">Cuenta creada. Necesitás confirmar el email para poder ingresar.</div>
       <div class="reg-success-box">
         <div>Enviamos el enlace de confirmación a:</div>
         <div class="reg-success-mail">${email}</div>
-        <div style="margin-top:10px">📁 Revisá también <b>Correo no deseado / Spam</b>.</div>
-        <div style="margin-top:6px">⏱️ Si no llegó en 5 minutos, puede ser el límite de envíos de Supabase (plan gratuito). Esperá unos minutos y volvé a intentar desde el login con "Olvidé mi contraseña".</div>
-        <div style="margin-top:6px">✅ Una vez que confirmás el mail, volvé acá e ingresá con tu email y contraseña.</div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,174,195,.2)">
+          <b>¿No llegó el mail?</b><br>
+          • Revisá <b>Spam / Correo no deseado</b><br>
+          • El plan gratuito de Supabase tiene límite de envíos — esperá unos minutos<br>
+          • Si sigue sin llegar, en el <b>Dashboard de Supabase</b> → Authentication → Settings → verificá que <b>"Enable email confirmations"</b> esté en <b>ON</b>
+        </div>
+        <div style="margin-top:8px">
+          ✅ Una vez que hacés clic en el link del mail, volvé acá e ingresá con tu email y contraseña.
+        </div>
       </div>
       <button class="btn-reg-back" onclick="volverLogin()">← Volver al login</button>
-      <div class="reg-countdown" id="regCountdown">Volviendo al login en 15...</div>
+      <div class="reg-countdown" id="regCountdown">Volviendo al login en 20...</div>
     </div>
   `;
-  let n=15;
+  let n=20;
   const int=setInterval(()=>{
     n--;
     const el=document.getElementById('regCountdown');
@@ -2470,6 +2620,19 @@ async function cargarPerfilDesdeSesion(session){
 async function bootSupabase(){
   applyD(); renderAvatarGrid();
   if(!SUPABASE_ANON_KEY||SUPABASE_ANON_KEY.includes('PEGAR_ACA')){showErr('loginError','Falta pegar la SUPABASE_ANON_KEY en el HTML.');return;}
+
+  // Escuchar cambios de auth — cubre el callback del link de confirmación de email
+  SB.auth.onAuthStateChange(async (event, session) => {
+    if(event === 'SIGNED_IN' && session && !USR){
+      // Viene del link de confirmación de email o de un login externo
+      await cargarPerfilDesdeSesion(session);
+    }
+    if(event === 'SIGNED_OUT'){
+      USR=null;
+    }
+  });
+
+  // Sesión activa al cargar la página
   const {data:{session}}=await SB.auth.getSession();
   if(session) await cargarPerfilDesdeSesion(session);
 }
