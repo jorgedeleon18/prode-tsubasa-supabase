@@ -1291,6 +1291,7 @@ body.dark .music-tog.on{
         <div id="adm-nav" style="display:none">
           <div class="sb-sec">Admin</div>
           <div class="sb-item" id="nav-admin" onclick="V('admin')"><span class="sb-ico">⚙️</span> Cargar resultados</div>
+          <div class="sb-item" id="nav-usuarios" onclick="V('usuarios')"><span class="sb-ico">👥</span> Usuarios</div>
         </div>
       </div>
       <div class="sb-user">
@@ -1727,7 +1728,7 @@ function initCF(){
 
 // ══════ AUTH ══════
 // ══════ ROUTER ══════
-const VM={pronosticos:['Mis pronósticos','Cargá tu prode antes que empiece cada partido'],bonus:['Bonus del torneo','Predicciones especiales · No se pueden cambiar'],miprode:['Mi historial','Puntos obtenidos partido a partido'],posiciones:['Tabla general','Ranking del departamento'],fixture:['Fixture oficial','Todos los partidos — Mundial USA·CAN·MEX 2026'],eliminatorias:['Fase eliminatoria','16avos · Octavos · Cuartos · Semis · Final'],reglas:['Reglas y puntos','Sistema de puntaje oficial'],admin:['⚙️ Cargar resultados','Solo administradores']};
+const VM={pronosticos:['Mis pronósticos','Cargá tu prode antes que empiece cada partido'],bonus:['Bonus del torneo','Predicciones especiales · No se pueden cambiar'],miprode:['Mi historial','Puntos obtenidos partido a partido'],posiciones:['Tabla general','Ranking del departamento'],fixture:['Fixture oficial','Todos los partidos — Mundial USA·CAN·MEX 2026'],eliminatorias:['Fase eliminatoria','16avos · Octavos · Cuartos · Semis · Final'],reglas:['Reglas y puntos','Sistema de puntaje oficial'],admin:['⚙️ Cargar resultados','Solo administradores'],usuarios:['👥 Gestión de usuarios','Dar o quitar acceso admin']};
 function V(v){
   closeSB();document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
@@ -1736,7 +1737,9 @@ function V(v){
   const mc=document.getElementById('mc');
   if(v==='pronosticos')rPronos(mc);else if(v==='bonus')rBonus(mc);else if(v==='miprode')rHistorial(mc);
   else if(v==='posiciones')rPosiciones(mc);else if(v==='fixture')rFixture(mc);
-  else if(v==='eliminatorias')rEliminatorias(mc);else if(v==='reglas')rReglas(mc);else if(v==='admin'&&esAdm())rAdmin(mc);
+  else if(v==='eliminatorias')rEliminatorias(mc);else if(v==='reglas')rReglas(mc);
+  else if(v==='admin'&&esAdm())rAdmin(mc);
+  else if(v==='usuarios'&&esAdm())rUsuarios(mc);
 }
 
 // ══════ PRONÓSTICOS ══════
@@ -2198,7 +2201,7 @@ function rAdmin(mc){
 
   mc.innerHTML=`<div class="aw"><div class="ah"><div class="ah-t">Carga de resultados</div><span class="a-badge">ADMIN</span></div>
   <div class="abody"><div class="gt" style="margin-bottom:10px">${tabs}</div>${rows}
-  <button class="btn-rec" onclick="recalc()">🔄 Recalcular todos los puntos</button></div></div>`;
+  <button class="btn-rec" id="btnRecalc" onclick="recalcTodos()">🔄 Recalcular todos los puntos</button></div></div>`;
 }
 function aGrupo(g){ADMA=g;ADMA_MODO='grupo';EDITANDO={};rAdmin(document.getElementById('mc'));}
 function aElim(){ADMA_MODO='elim';EDITANDO={};rAdmin(document.getElementById('mc'));}
@@ -2218,16 +2221,123 @@ async function svResElim(id){
     guardarResultadoLocal(id,gL,gV);
     aplicarResultadoAlFixture(id,parseInt(gL),parseInt(gV));
     const {error}=await SB.from('resultados').upsert({partido_id:id,goles_local_real:parseInt(gL),goles_visitante_real:parseInt(gV),fase:'eliminatoria'},{onConflict:'partido_id'});
-    if(error){toast('Error guardando resultado: '+error.message,'err');}else{toast('✓ Guardado');}
+    if(error){toast('Error guardando resultado: '+error.message,'err');}
+    else{
+      // Recalcular puntos de todos los pronósticos de este partido en Supabase
+      await recalcPartido(id);
+      toast('✓ Resultado guardado y puntos actualizados');
+    }
   } else if(l||v){
     toast('✓ Equipos actualizados');
   }
   btn.disabled=false;EDITANDO[id]=false;rAdmin(document.getElementById('mc'));
 }
-function recalc(){
-  let tot=0;Object.keys(PRONOS).forEach(id=>{const p=TODOS.find(x=>x.id===id);if(!p)return;const r=calcPts(p,PRONOS[id]);if(r){PRONOS[id].pts=r.pts;tot+=r.pts;}});
-  updSB();toast(`✓ Recalculado: ${tot} pts totales`);
+// ══ SUPER-ADMIN: email hardcodeado, nunca puede perder su rol ══
+const SUPER_ADMIN='jorge_dl18@hotmail.com';
+
+// ══ RECALCULAR PUNTOS DE TODOS EN SUPABASE ══
+// Llama a esto después de guardar cualquier resultado
+async function recalcPartido(partido_id){
+  // Buscar el partido en el fixture
+  const p=TODOS.find(x=>x.id===partido_id);
+  if(!p||!finalizado(p))return;
+  try{
+    // Traer todos los pronósticos de ese partido
+    const {data:pronos,error}=await SB.from('pronosticos').select('id,usuario_id,goles_local,goles_visitante').eq('partido_id',partido_id);
+    if(error||!pronos?.length)return;
+    // Calcular puntos para cada prono y hacer upsert masivo
+    const updates=pronos.map(pr=>{
+      const fake={gL:String(pr.goles_local),gV:String(pr.goles_visitante)};
+      const r=calcPts(p,fake);
+      return{id:pr.id,usuario_id:pr.usuario_id,partido_id,goles_local:pr.goles_local,goles_visitante:pr.goles_visitante,puntos:r?r.pts:0};
+    });
+    await SB.from('pronosticos').upsert(updates,{onConflict:'usuario_id,partido_id'});
+  }catch(e){console.warn('recalcPartido error:',e);}
 }
+
+async function recalcTodos(){
+  const btn=document.getElementById('btnRecalc');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Calculando...';}
+  try{
+    // Traer todos los pronósticos y resultados de una vez
+    const {data:pronos}=await SB.from('pronosticos').select('id,usuario_id,partido_id,goles_local,goles_visitante');
+    if(!pronos?.length){toast('No hay pronósticos para recalcular','err');return;}
+    const updates=[];
+    pronos.forEach(pr=>{
+      const p=TODOS.find(x=>x.id===pr.partido_id);
+      if(!p||!finalizado(p))return;
+      const fake={gL:String(pr.goles_local),gV:String(pr.goles_visitante)};
+      const r=calcPts(p,fake);
+      updates.push({id:pr.id,usuario_id:pr.usuario_id,partido_id:pr.partido_id,goles_local:pr.goles_local,goles_visitante:pr.goles_visitante,puntos:r?r.pts:0});
+    });
+    if(!updates.length){toast('No hay partidos finalizados aún');return;}
+    const {error}=await SB.from('pronosticos').upsert(updates,{onConflict:'usuario_id,partido_id'});
+    if(error){toast('Error: '+error.message,'err');return;}
+    toast(`✅ ${updates.length} pronósticos recalculados en Supabase`);
+  }catch(e){toast('Error recalculando: '+e.message,'err');}
+  finally{if(btn){btn.disabled=false;btn.textContent='🔄 Recalcular todos los puntos';}}
+}
+
+// ══ PANEL USUARIOS ══
+async function rUsuarios(mc){
+  if(!esAdm()){mc.innerHTML='<div class="empty"><div class="empty-ico">🔒</div></div>';return;}
+  mc.innerHTML='<div class="loading">Cargando usuarios</div>';
+  try{
+    const {data:users,error}=await SB.from('usuarios').select('id,nombre,email,avatar,rol,equipo,tipo,federacion').order('nombre');
+    if(error)throw error;
+    const rows=users.map(u=>{
+      const esYo=u.email?.toLowerCase()===USR.email?.toLowerCase();
+      const esSuperAdmin=u.email?.toLowerCase()===SUPER_ADMIN.toLowerCase();
+      const esAdmU=u.rol==='admin';
+      // No se puede tocar al super-admin (a menos que seas vos mismo para referencia)
+      const puedeToggle=!esSuperAdmin||esYo;
+      const btnRol=esSuperAdmin
+        ?`<span style="font-size:9px;font-weight:800;color:#ca8a04;background:#fef9c3;padding:3px 8px;border-radius:6px">⭐ SUPER</span>`
+        :esAdmU
+          ?`<button class="btn-as sv" style="font-size:9px" onclick="toggleAdmin('${u.id}','${u.email}',false)">🔑 Admin · Quitar</button>`
+          :`<button class="btn-as" style="font-size:9px;background:var(--aub)" onclick="toggleAdmin('${u.id}','${u.email}',true)">Dar admin</button>`;
+      const tipo=u.tipo==='federacion'?`<span class="db" style="background:#fef3c7;color:#92400e">🛡️ ${u.federacion||'Fed.'}</span>`:`<span class="db">⚽ Amigo</span>`;
+      return`<div class="hist-row" style="flex-wrap:wrap;gap:6px;${esYo?'border-left:3px solid var(--aub)':''}">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
+          <div class="pav" style="${esAdmU?'background:var(--rojo)':'background:var(--aub)'}">${avatarHTML(u.avatar,26)}</div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--gray-dark)">${u.nombre||u.email}${esYo?' <span style="color:var(--aub);font-size:9px">(vos)</span>':''}</div>
+            <div style="font-size:9px;color:var(--gray)">${u.email}</div>
+            <div style="margin-top:2px">${tipo}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-left:auto">${btnRol}</div>
+      </div>`;
+    }).join('');
+    mc.innerHTML=`
+      <div class="aw" style="margin-bottom:14px">
+        <div class="ah"><div class="ah-t">👥 Gestión de usuarios</div><span class="a-badge">${users.length} registrados</span></div>
+        <div class="abody" style="padding:8px 10px">
+          <div style="font-size:10px;color:var(--gray);margin-bottom:10px;padding:8px 10px;background:var(--gray-light);border-radius:7px">
+            🔑 <b>Admin:</b> puede cargar resultados y gestionar usuarios.<br>
+            ⭐ <b>Super-admin</b> (vos): único rol que no se puede modificar.
+          </div>
+          ${rows}
+        </div>
+      </div>`;
+  }catch(e){
+    mc.innerHTML=`<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-txt">No se pudo cargar: ${e.message}</div></div>`;
+  }
+}
+
+async function toggleAdmin(uid,email,darAdmin){
+  // Protección extra: nadie puede tocar al super-admin
+  if(email?.toLowerCase()===SUPER_ADMIN.toLowerCase()&&!darAdmin){
+    toast('No se puede quitar el rol al super-admin','err');return;
+  }
+  const nuevoRol=darAdmin?'admin':'jugador';
+  const {error}=await SB.from('usuarios').update({rol:nuevoRol}).eq('id',uid);
+  if(error){toast('Error: '+error.message,'err');return;}
+  toast(darAdmin?`✅ ${email} ahora es admin`:`✅ ${email} ya no es admin`);
+  rUsuarios(document.getElementById('mc'));
+}
+
+function recalc(){recalcTodos();}
 let EDITANDO={};
 function editarRes(id){EDITANDO[id]=true;rAdmin(document.getElementById('mc'));}
 
@@ -2730,10 +2840,13 @@ async function rPosiciones(mc){
 async function svRes(id){
   const gL=document.getElementById('adL_'+id)?.value;const gV=document.getElementById('adV_'+id)?.value;
   if(gL===''||gV===''){toast('Ingresá los goles','err');return;}
+  const btn=document.getElementById('adB_'+id);if(btn){btn.disabled=true;btn.textContent='Guardando...';}
   aplicarResultadoAlFixture(id,parseInt(gL),parseInt(gV)); guardarResultadoLocal(id,gL,gV);
   const {error}=await SB.from('resultados').upsert({partido_id:id,goles_local_real:parseInt(gL),goles_visitante_real:parseInt(gV),fase:'grupos'},{onConflict:'partido_id'});
-  if(error){toast('Error guardando resultado: '+error.message,'err');return;}
-  EDITANDO[id]=false;toast('✓ Resultado guardado');rAdmin(document.getElementById('mc'));
+  if(error){toast('Error guardando resultado: '+error.message,'err');if(btn){btn.disabled=false;btn.textContent='💾 Guardar';}return;}
+  // Recalcular puntos de todos los pronósticos de este partido en Supabase
+  await recalcPartido(id);
+  EDITANDO[id]=false;toast('✓ Resultado guardado y puntos actualizados');rAdmin(document.getElementById('mc'));
 }
 async function eGuardar(pid,desc){
   const ep=EPRONOS[pid]||{};EPRONOS[pid]=ep;
