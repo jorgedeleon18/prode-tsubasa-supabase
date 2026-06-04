@@ -2049,7 +2049,9 @@ document.addEventListener('click',function(e){
 });
 
 function rBonus(mc){
-  const locked=Object.keys(PRONOS).length>0;
+  // Bonus se cierra cuando arranca el torneo (11/06/2026 16:00 ARG = UTC-3 = 19:00 UTC)
+  const BONUS_CIERRE=new Date('2026-06-11T19:00:00Z');
+  const locked=new Date()>=BONUS_CIERRE;
   const sel=(id,val)=>locked
     ?`<div class="cbx-locked">${val||'<span style="color:var(--gray);font-weight:500">No elegido</span>'}</div>`
     :cbxHTML(id,SEL_OPT_LIST,val,{search:true,placeholder:'— Elegí una selección —'});
