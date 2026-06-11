@@ -565,6 +565,23 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 body.dark .main{background:repeating-linear-gradient(180deg,#091d0c 0,#091d0c 54px,#0b2410 54px,#0b2410 108px)}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.88);backdrop-filter:blur(8px);flex-shrink:0;position:sticky;top:0;z-index:10}
 body.dark .topbar{background:rgba(7,24,32,.9);border-color:rgba(255,255,255,.06)}
+.topbar-matches{display:flex;gap:6px;padding:5px 18px;background:rgba(255,255,255,.7);backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,0,0,.06);flex-shrink:0;flex-wrap:wrap;position:sticky;top:49px;z-index:9}
+body.dark .topbar-matches{background:rgba(7,24,32,.8);border-color:rgba(255,255,255,.05)}
+.tm-pill{display:flex;align-items:center;gap:5px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.07);border-radius:20px;padding:3px 9px;font-size:10px;color:var(--gray-dark);white-space:nowrap;cursor:default}
+body.dark .tm-pill{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08);color:rgba(255,255,255,.6)}
+.tm-pill .tm-badge{font-size:8px;font-weight:700;text-transform:uppercase;margin-right:1px}
+.tm-pill .tm-teams{font-weight:700}
+.tm-pill .tm-hora{color:var(--gray);margin-left:3px}
+body.dark .tm-pill .tm-hora{color:rgba(255,255,255,.35)}
+.tm-pill.tm-hoy{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08)}
+.tm-pill.tm-hoy .tm-badge{color:#16a34a}
+body.dark .tm-pill.tm-hoy{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.06)}
+body.dark .tm-pill.tm-hoy .tm-badge{color:#4ade80}
+.tm-pill.tm-manana{border-color:rgba(139,92,246,.35);background:rgba(139,92,246,.08)}
+.tm-pill.tm-manana .tm-badge{color:#7c3aed}
+body.dark .tm-pill.tm-manana{border-color:rgba(139,92,246,.25);background:rgba(139,92,246,.06)}
+body.dark .tm-pill.tm-manana .tm-badge{color:#a78bfa}
+.tm-pill.tm-jugado .tm-result{font-weight:900;color:var(--oro);margin-left:3px}
 .tb-title{font-size:15px;font-weight:700;color:var(--gray-dark)}
 .tb-sub{font-size:10px;color:var(--gray);margin-top:1px}
 .tb-acts{display:flex;gap:6px;align-items:center}
@@ -1329,6 +1346,7 @@ body.dark .music-tog.on{
         </div>
         <div class="tb-acts"><button class="music-tog" id="musicTog" onclick="toggleMusic()" title="Música">🔇</button><button class="dark-tog" id="dtog" onclick="toggleDark()">🌙</button></div>
       </div>
+      <div class="topbar-matches" id="topbar-matches"></div>
       <div class="content" id="mc"><div class="loading">Cargando</div></div>
     </div>
   </div>
@@ -2988,6 +3006,36 @@ async function eGuardar(pid,desc){
 })();
 
 // ══════ INIT ══════
+// ══════ BARRA DE PARTIDOS EN TOPBAR ══════
+(function(){
+  function renderTopbarMatches(){
+    const bar = document.getElementById('topbar-matches');
+    if(!bar) return;
+    const hoy = new Date();
+    const manana = new Date(hoy); manana.setDate(manana.getDate()+1);
+    const fmt = d => d.toLocaleDateString('sv-SE');
+    const fechaHoy = fmt(hoy);
+    const fechaManana = fmt(manana);
+    const partidos = TODOS.filter(p =>
+      /^[A-L]/.test(p.id) && (p.fecha === fechaHoy || p.fecha === fechaManana)
+    ).sort((a,b) => {
+      if(a.fecha !== b.fecha) return a.fecha < b.fecha ? -1 : 1;
+      return a.hora < b.hora ? -1 : 1;
+    });
+    if(!partidos.length){ bar.style.display='none'; return; }
+    bar.innerHTML = partidos.map(p => {
+      const jugado = finalizado(p);
+      const esHoy = p.fecha === fechaHoy;
+      return `<div class="tm-pill${jugado?' tm-jugado':''}${esHoy?' tm-hoy':' tm-manana'}">
+        <span class="tm-badge">${esHoy?'HOY':'MÑ'}</span>
+        <span class="tm-teams">${p.l} vs ${p.v}</span>
+        ${jugado ? `<span class="tm-result">${p.gl}–${p.gv}</span>` : `<span class="tm-hora">${p.hora}</span>`}
+      </div>`;
+    }).join('');
+  }
+  renderTopbarMatches();
+})();
+
 cargarResultadosLocales();
 cargarEquiposElimLocales();
 applyD();
