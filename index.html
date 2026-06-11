@@ -2290,7 +2290,7 @@ async function recalcPartido(partido_id){
     const updates=pronos.map(pr=>{
       const fake={gL:String(pr.goles_local),gV:String(pr.goles_visitante)};
       const r=calcPts(p,fake);
-      return{id:pr.id,usuario_id:pr.usuario_id,partido_id,goles_local:pr.goles_local,goles_visitante:pr.goles_visitante,puntos:r?r.pts:0};
+      return{usuario_id:pr.usuario_id,partido_id,goles_local:pr.goles_local,goles_visitante:pr.goles_visitante,puntos:r?r.pts:0};
     });
     await SB.from('pronosticos').upsert(updates,{onConflict:'usuario_id,partido_id'});
   }catch(e){console.warn('recalcPartido error:',e);}
@@ -2309,7 +2309,7 @@ async function recalcTodos(){
       if(!p||!finalizado(p))return;
       const fake={gL:String(pr.goles_local),gV:String(pr.goles_visitante)};
       const r=calcPts(p,fake);
-      updates.push({id:pr.id,usuario_id:pr.usuario_id,partido_id:pr.partido_id,goles_local:pr.goles_local,goles_visitante:pr.goles_visitante,puntos:r?r.pts:0});
+      updates.push({usuario_id:pr.usuario_id,partido_id:pr.partido_id,goles_local:pr.goles_local,goles_visitante:pr.goles_visitante,puntos:r?r.pts:0});
     });
     if(!updates.length){toast('No hay partidos finalizados aún');return;}
     const {error}=await SB.from('pronosticos').upsert(updates,{onConflict:'usuario_id,partido_id'});
