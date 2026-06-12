@@ -1330,6 +1330,7 @@ body.dark .music-tog.on{
         <div id="adm-nav" style="display:none">
           <div class="sb-sec">Admin</div>
           <div class="sb-item" id="nav-admin" onclick="V('admin')"><span class="sb-ico">⚙️</span> Cargar resultados</div>
+          <div class="sb-item" id="nav-todosprono" onclick="V('todosprono')"><span class="sb-ico">📊</span> Todos los pronósticos</div>
           <div class="sb-item" id="nav-usuarios" onclick="V('usuarios')"><span class="sb-ico">👥</span> Usuarios</div>
         </div>
       </div>
@@ -1769,7 +1770,7 @@ function initCF(){
 
 // ══════ AUTH ══════
 // ══════ ROUTER ══════
-const VM={pronosticos:['Mis pronósticos','Cargá tu prode antes que empiece cada partido'],bonus:['Bonus del torneo','Predicciones especiales · No se pueden cambiar'],miprode:['Mi historial','Puntos obtenidos partido a partido'],posiciones:['Tabla general','Ranking del departamento'],fixture:['Fixture oficial','Todos los partidos — Mundial USA·CAN·MEX 2026'],eliminatorias:['Fase eliminatoria','16avos · Octavos · Cuartos · Semis · Final'],reglas:['Reglas y puntos','Sistema de puntaje oficial'],admin:['⚙️ Cargar resultados','Solo administradores'],usuarios:['👥 Gestión de usuarios','Dar o quitar acceso admin']};
+const VM={pronosticos:['Mis pronósticos','Cargá tu prode antes que empiece cada partido'],bonus:['Bonus del torneo','Predicciones especiales · No se pueden cambiar'],miprode:['Mi historial','Puntos obtenidos partido a partido'],posiciones:['Tabla general','Ranking del departamento'],fixture:['Fixture oficial','Todos los partidos — Mundial USA·CAN·MEX 2026'],eliminatorias:['Fase eliminatoria','16avos · Octavos · Cuartos · Semis · Final'],reglas:['Reglas y puntos','Sistema de puntaje oficial'],admin:['⚙️ Cargar resultados','Solo administradores'],usuarios:['👥 Gestión de usuarios','Dar o quitar acceso admin'],todosprono:['📊 Todos los pronósticos','Auditoría · Solo administradores']};
 function V(v){
   closeSB();document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
@@ -1780,6 +1781,7 @@ function V(v){
   else if(v==='posiciones')rPosiciones(mc);else if(v==='fixture')rFixture(mc);
   else if(v==='eliminatorias')rEliminatorias(mc);else if(v==='reglas')rReglas(mc);
   else if(v==='admin'&&esAdm())rAdmin(mc);
+  else if(v==='todosprono'&&esAdm())rTodosPronos(mc);
   else if(v==='usuarios'&&esAdm())rUsuarios(mc);
 }
 
@@ -2124,6 +2126,59 @@ function golCheckOtro(val){
   if(!inp)return;
   if(val==='Otro / No está en la lista'){inp.style.display='block';inp.focus();}
   else{inp.style.display='none';inp.value='';}
+}
+
+// ══════ ADMIN: VER TODOS LOS PRONÓSTICOS ══════
+let TP_USER='';let TP_GRUPO='';
+async function rTodosPronos(mc){
+  if(!esAdm()){mc.innerHTML='<div class="empty"><div class="empty-ico">🔒</div></div>';return;}
+  mc.innerHTML='<div class="loading">Cargando usuarios</div>';
+  try{
+    const {data:users,error:uerr}=await SB.from('usuarios').select('id,nombre,email').order('nombre');
+    if(uerr)throw uerr;
+    if(!TP_USER&&users.length)TP_USER=users[0].id;
+    const userOpts=users.map(u=>`<option value="${u.id}" ${u.id===TP_USER?'selected':''}>${u.nombre||u.email}</option>`).join('');
+    const grupoOpts=['','A','B','C','D','E','F','G','H','I','J','K','L'].map(g=>`<option value="${g}" ${g===TP_GRUPO?'selected':''}>${g?'Grupo '+g:'Todos los grupos'}</option>`).join('');
+
+    let body='<div class="loading">Cargando pronósticos</div>';
+    mc.innerHTML=`<div class="aw" style="margin-bottom:14px">
+      <div class="ah"><div class="ah-t">📊 Todos los pronósticos</div><span class="a-badge">ADMIN</span></div>
+      <div class="abody" style="display:flex;gap:10px;flex-wrap:wrap;padding:10px">
+        <select id="tpUser" class="cbx-trig" style="flex:1;min-width:180px" onchange="TP_USER=this.value;rTodosPronos(document.getElementById('mc'))">${userOpts}</select>
+        <select id="tpGrupo" class="cbx-trig" style="flex:0 0 160px" onchange="TP_GRUPO=this.value;rTodosPronos(document.getElementById('mc'))">${grupoOpts}</select>
+      </div>
+    </div><div id="tpBody">${body}</div>`;
+
+    const {data:pronos,error:perr}=await SB.from('pronosticos').select('partido_id,goles_local,goles_visitante,puntos').eq('usuario_id',TP_USER);
+    if(perr)throw perr;
+    const pmap={};(pronos||[]).forEach(p=>pmap[p.partido_id]=p);
+
+    let lista=TODOS.filter(p=>/^[A-L]/.test(p.id));
+    if(TP_GRUPO)lista=lista.filter(p=>p.id[0]===TP_GRUPO);
+
+    const total=(pronos||[]).reduce((s,p)=>s+(p.puntos||0),0);
+    const cargados=lista.filter(p=>pmap[p.id]!==undefined).length;
+
+    const rows=lista.map(p=>{
+      const pr=pmap[p.id];const fin=finalizado(p);
+      if(!pr){
+        return`<div class="hist-row"><div class="am"><div class="amt">${fn(p.l)} vs ${fn(p.v)}</div><div class="ams">${p.grupo} · ${fechaCorta(p.fecha)} · ${fin?'Real: '+p.gl+'–'+p.gv:'No jugado aún'}</div></div><div style="font-size:13px;color:var(--gray);min-width:55px;text-align:right">Sin prode</div></div>`;
+      }
+      let ptB='';
+      if(fin&&pr.puntos!==undefined){
+        const cls=pr.puntos>=5?'ptb-5':pr.puntos>=3?'ptb-3':pr.puntos>=1?'ptb-1':'ptb-0';
+        ptB=`<span class="ptb ${cls}" style="margin-top:3px;display:inline-block">+${pr.puntos} pts</span>`;
+      }
+      return`<div class="hist-row">
+        <div class="am"><div class="amt">${fn(p.l)} vs ${fn(p.v)}</div><div class="ams">${p.grupo} · ${fechaCorta(p.fecha)} · ${fin?'Real: '+p.gl+'–'+p.gv:'No jugado aún'}</div>${ptB}</div>
+        <div style="font-size:17px;font-weight:800;color:var(--aub);min-width:55px;text-align:right">${pr.goles_local}–${pr.goles_visitante}</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('tpBody').innerHTML=`<div class="stats" style="margin-bottom:10px"><div class="sc sc-a"><div class="sc-lbl">Puntos totales</div><div class="sc-val">${total}</div><div class="sc-sub">acumulados</div></div><div class="sc sc-v"><div class="sc-lbl">Cargados</div><div class="sc-val">${cargados}/${lista.length}</div><div class="sc-sub">pronósticos</div></div></div>${rows||'<div class="empty"><div class="empty-txt">Sin partidos para este filtro</div></div>'}`;
+  }catch(e){
+    mc.innerHTML=`<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-txt">No se pudo cargar: ${e.message}</div></div>`;
+  }
 }
 
 // ══════ HISTORIAL ══════
