@@ -750,6 +750,8 @@ body.dark .cbx-search{background:#0f1a24;color:#f1f5f9;border-color:#3a4654}
 body.dark .cbx-search:focus{border-color:#d97706}
 /* combo custom bloqueado (después del cierre del torneo) */
 .cbx-locked{width:100%;min-height:42px;border-radius:12px;border:2px solid var(--gray-border);background:var(--gray-light);padding:11px 15px;font-size:13px;font-weight:700;color:var(--gray-dark);display:flex;align-items:center}
+.cbx-locked.has-val{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08);color:var(--gray-dark);gap:8px}
+.cbx-locked.has-val .cbx-check{color:#16a34a;font-size:15px}
 
 /* REGLAS */
 .rw{display:flex;flex-direction:column;gap:11px}
@@ -2073,16 +2075,20 @@ document.addEventListener('click',function(e){
 
 function rBonus(mc){
   // Bonus se cierra cuando arranca el torneo (11/06/2026 16:00 ARG = UTC-3 = 19:00 UTC)
-  const BONUS_CIERRE=new Date('2026-06-11T19:00:00Z');
+  const BONUS_CIERRE=new Date('2026-06-28T15:00:00Z');
   const locked=new Date()>=BONUS_CIERRE;
   const sel=(id,val)=>locked
-    ?`<div class="cbx-locked">${val||'<span style="color:var(--gray);font-weight:500">No elegido</span>'}</div>`
+    ?(val
+        ?`<div class="cbx-locked has-val"><span class="cbx-check">✓</span>${val}</div>`
+        :`<div class="cbx-locked"><span style="color:var(--gray);font-weight:500">No elegido</span></div>`)
     :cbxHTML(id,SEL_OPT_LIST,val,{search:true,placeholder:'— Elegí una selección —'});
   // Goleador: combo custom con lista de cracks + opción "Otro" que muestra un input libre
   const golEnLista=GOLEADORES.includes(BONUS.gol);
   const golEsOtro=BONUS.gol&&!golEnLista;
   const golSel=(id,val)=>{
-    if(locked)return`<div class="cbx-locked">${val||'<span style="color:var(--gray);font-weight:500">No ingresado</span>'}</div>`;
+    if(locked)return val
+      ?`<div class="cbx-locked has-val"><span class="cbx-check">✓</span>${val}</div>`
+      :`<div class="cbx-locked"><span style="color:var(--gray);font-weight:500">No ingresado</span></div>`;
     const selVal=golEsOtro?'Otro / No está en la lista':(val||'');
     return`<div style="flex:1;display:flex;flex-direction:column;gap:8px">
       ${cbxHTML(id,GOLEADORES,selVal,{search:true,placeholder:'— Elegí un goleador —',onPick:'golCheckOtro'})}
