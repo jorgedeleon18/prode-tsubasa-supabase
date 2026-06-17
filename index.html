@@ -1322,6 +1322,7 @@ body.dark .music-tog.on{
         <div class="sb-item" id="nav-miprode" onclick="V('miprode')"><span class="sb-ico">📋</span> Mi historial</div>
         <div class="sb-sec">Ranking</div>
         <div class="sb-item active" id="nav-posiciones" onclick="V('posiciones')"><span class="sb-ico">🏆</span> Tabla general</div>
+        <div class="sb-item" id="nav-todosprono" onclick="V('todosprono')"><span class="sb-ico">📊</span> Todos los pronósticos</div>
         <div class="sb-sec">Fixture</div>
         <div class="sb-item" id="nav-eliminatorias" onclick="V('eliminatorias')"><span class="sb-ico">⚔️</span> Eliminatorias</div>
         <div class="sb-item" id="nav-fixture" onclick="V('fixture')"><span class="sb-ico">📅</span> Ver fixture</div>
@@ -1330,7 +1331,6 @@ body.dark .music-tog.on{
         <div id="adm-nav" style="display:none">
           <div class="sb-sec">Admin</div>
           <div class="sb-item" id="nav-admin" onclick="V('admin')"><span class="sb-ico">⚙️</span> Cargar resultados</div>
-          <div class="sb-item" id="nav-todosprono" onclick="V('todosprono')"><span class="sb-ico">📊</span> Todos los pronósticos</div>
           <div class="sb-item" id="nav-usuarios" onclick="V('usuarios')"><span class="sb-ico">👥</span> Usuarios</div>
         </div>
       </div>
@@ -1770,7 +1770,7 @@ function initCF(){
 
 // ══════ AUTH ══════
 // ══════ ROUTER ══════
-const VM={pronosticos:['Mis pronósticos','Cargá tu prode antes que empiece cada partido'],bonus:['Bonus del torneo','Predicciones especiales · No se pueden cambiar'],miprode:['Mi historial','Puntos obtenidos partido a partido'],posiciones:['Tabla general','Ranking del departamento'],fixture:['Fixture oficial','Todos los partidos — Mundial USA·CAN·MEX 2026'],eliminatorias:['Fase eliminatoria','16avos · Octavos · Cuartos · Semis · Final'],reglas:['Reglas y puntos','Sistema de puntaje oficial'],admin:['⚙️ Cargar resultados','Solo administradores'],usuarios:['👥 Gestión de usuarios','Dar o quitar acceso admin'],todosprono:['📊 Todos los pronósticos','Auditoría · Solo administradores']};
+const VM={pronosticos:['Mis pronósticos','Cargá tu prode antes que empiece cada partido'],bonus:['Bonus del torneo','Predicciones especiales · No se pueden cambiar'],miprode:['Mi historial','Puntos obtenidos partido a partido'],posiciones:['Tabla general','Ranking del departamento'],fixture:['Fixture oficial','Todos los partidos — Mundial USA·CAN·MEX 2026'],eliminatorias:['Fase eliminatoria','16avos · Octavos · Cuartos · Semis · Final'],reglas:['Reglas y puntos','Sistema de puntaje oficial'],admin:['⚙️ Cargar resultados','Solo administradores'],usuarios:['👥 Gestión de usuarios','Dar o quitar acceso admin'],todosprono:['📊 Todos los pronósticos','Ver qué puso cada uno']};
 function V(v){
   closeSB();document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
@@ -1781,7 +1781,7 @@ function V(v){
   else if(v==='posiciones')rPosiciones(mc);else if(v==='fixture')rFixture(mc);
   else if(v==='eliminatorias')rEliminatorias(mc);else if(v==='reglas')rReglas(mc);
   else if(v==='admin'&&esAdm())rAdmin(mc);
-  else if(v==='todosprono'&&esAdm())rTodosPronos(mc);
+  else if(v==='todosprono')rTodosPronos(mc);
   else if(v==='usuarios'&&esAdm())rUsuarios(mc);
 }
 
@@ -2131,7 +2131,6 @@ function golCheckOtro(val){
 // ══════ ADMIN: VER TODOS LOS PRONÓSTICOS ══════
 let TP_USER='';let TP_GRUPO='';
 async function rTodosPronos(mc){
-  if(!esAdm()){mc.innerHTML='<div class="empty"><div class="empty-ico">🔒</div></div>';return;}
   mc.innerHTML='<div class="loading">Cargando usuarios</div>';
   try{
     const {data:users,error:uerr}=await SB.from('usuarios').select('id,nombre,email').order('nombre');
