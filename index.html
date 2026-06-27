@@ -1623,6 +1623,11 @@ const G={
   ]},
 };
 const TODOS=Object.entries(G).flatMap(([g,d])=>d.partidos.map(p=>({...p,grupo:'Grupo '+g})));
+// Todos los partidos incluyendo eliminatorias
+function getTodosConElim(){
+  const elim=ERONDAS.flatMap(r=>r.partidos.map(p=>({...p,grupo:r.label,gl:RESULTADOS[p.id]?.gl,gv:RESULTADOS[p.id]?.gv})));
+  return [...TODOS,...elim];
+}
 
 // ══════ SISTEMA DE PUNTAJE ══════
 // 5 = exacto | 3 = ganador + diferencia | 1 = solo ganador | 0 = nada
@@ -2491,14 +2496,21 @@ async function recalcTodos(){
     const {data:pronos}=await SB.from('pronosticos').select('id,usuario_id,partido_id,goles_local,goles_visitante,alargue,penales,ganador_extra');
     if(!pronos?.length){toast('No hay pronósticos para recalcular','err');return;}
     const updates=[];
+    const todosConElim=getTodosConElim();
     pronos.forEach(pr=>{
-      const p=TODOS.find(x=>x.id===pr.partido_id);
-      if(!p||!finalizado(p))return;
+      const p=todosConElim.find(x=>x.id===pr.partido_id);
+      // Para elim: partido finalizado si hay resultado en RESULTADOS
+      const esElim=pr.partido_id?.startsWith('P')&&parseInt(pr.partido_id.slice(1))>=73;
+      const esFinalizado=esElim?(RESULTADOS[pr.partido_id]!==undefined):(!p?false:finalizado(p));
+      if(!p||!esFinalizado)return;
+      // Para elim usar resultado de RESULTADOS, para grupos usar p.gl/gv
+      const pConRes=esElim?{...p,...(RESULTADOS[pr.partido_id]||{})}:p;
       const fake={gL:String(pr.goles_local),gV:String(pr.goles_visitante)};
-      const r=calcPts(p,fake);
+      const r=calcPts(pConRes,fake);
       let pts=r?r.pts:0;
-      const res=RESULTADOS[pr.partido_id]||{};
-      if(res.alargue!==undefined&&res.alargue!==null){
+      if(esElim){
+        const res=RESULTADOS[pr.partido_id]||{};
+        // pr.alargue llega como string 'si'/'no' de Supabase
         if(pr.alargue==='si'&&res.alargue===true)pts+=1;
         if(pr.penales==='si'&&res.penales===true)pts+=1;
         if(res.penales===true&&pr.ganador_extra&&pr.ganador_extra===res.ganador_extra)pts+=1;
