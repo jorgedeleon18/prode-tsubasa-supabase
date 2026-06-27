@@ -2265,10 +2265,37 @@ function rAdmin(mc){
         const eq=EQUIPOS_ELIM[p.id]||{};
         const res=RESULTADOS[p.id];
         const bloqueado=res&&!EDITANDO[p.id];
+        // Estado actual de alargue/penales/ganador del resultado
+        const resAl=res?.alargue||false;
+        const resPen=res?.penales||false;
+        const resGan=res?.ganador_extra||null;
+        const teamL=eq.l||p.desc.split(' vs ')[0]||'Local';
+        const teamV=eq.v||p.desc.split(' vs ')[1]||'Visitante';
+        const esReal=!teamL.includes('°')&&!teamL.includes('G.P');
+        const extraControls=bloqueado?'':`
+          <div style="display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-top:4px;padding-top:6px;border-top:1px solid var(--gray-border)">
+            <span style="font-size:10px;font-weight:700;color:var(--gray);align-self:center">¿Alargue?</span>
+            <div style="display:flex;gap:4px">
+              <button class="etgl adal-btn ${resAl?'on':'no'}" onclick="adSetAl('${p.id}',true)">Sí</button>
+              <button class="etgl adal-btn ${!resAl?'on':'no'}" onclick="adSetAl('${p.id}',false)">No</button>
+            </div>
+            <div id="adpen_${p.id}" style="display:${resAl?'flex':'none'};gap:6px;align-items:center;flex-wrap:wrap">
+              <span style="font-size:10px;font-weight:700;color:var(--gray)">¿Penales?</span>
+              <div style="display:flex;gap:4px">
+                <button class="etgl adpen-btn ${resPen?'on':'no'}" onclick="adSetPen('${p.id}',true)">Sí</button>
+                <button class="etgl adpen-btn ${!resPen&&resAl?'on':'no'}" onclick="adSetPen('${p.id}',false)">No</button>
+              </div>
+              <div id="adgan_${p.id}" style="display:flex;gap:4px;align-items:center">
+                <span style="font-size:10px;font-weight:700;color:var(--gray)">${resPen?'Gana penales:':'Gana alargue:'}</span>
+                <button class="etgl adgan-btn ${resGan==='local'?'on':'no'}" onclick="adSetGan('${p.id}','local')">${esReal?`${fi(teamL,14,14)} ${fn(teamL)}`:teamL}</button>
+                <button class="etgl adgan-btn ${resGan==='visita'?'on':'no'}" onclick="adSetGan('${p.id}','visita')">${esReal?`${fi(teamV,14,14)} ${fn(teamV)}`:teamV}</button>
+              </div>
+            </div>
+          </div>`;
         return`<div class="ar" style="flex-wrap:wrap;gap:6px">
           <div class="am" style="min-width:100%">
             <div class="amt">${p.label} · ${p.desc}</div>
-            <div class="ams">${fechaCorta(p.fecha)} ${p.hora} · ${p.ciudad}</div>
+            <div class="ams">${fechaCorta(p.fecha)} ${p.hora} · ${p.ciudad}${res?` · <span style="color:var(--verde);font-weight:700">✓ ${res.gl}–${res.gv}${resAl?' +AE':''}`+`${resPen?' +PEN':''}`+`${resGan?' ('+(resGan==='local'?fn(teamL):fn(teamV))+')':''}</span>`:''}</div>
           </div>
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;width:100%">
             <input class="ai" style="width:110px;flex:1" id="adEL_${p.id}" value="${eq.l||''}" placeholder="Equipo local" ${bloqueado?'disabled':''}>
@@ -2282,6 +2309,7 @@ function rAdmin(mc){
               :`<button class="btn-as" id="adB_${p.id}" onclick="svResElim('${p.id}')">${res?'💾 Actualizar':'💾 Guardar'}</button>`
             }
           </div>
+          ${extraControls}
         </div>`;
       }).join('');
       return`<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:800;color:#fff;background:#7c3aed;padding:4px 10px;border-radius:5px;margin-bottom:6px;display:inline-block">${ronda.label}</div>${rondaRows}</div>`;
@@ -2310,7 +2338,42 @@ function rAdmin(mc){
   <button class="btn-rec" id="btnRecalc" onclick="recalcTodos()">🔄 Recalcular todos los puntos</button></div></div>`;
 }
 function aGrupo(g){ADMA=g;ADMA_MODO='grupo';EDITANDO={};rAdmin(document.getElementById('mc'));}
-function aElim(){ADMA_MODO='elim';EDITANDO={};rAdmin(document.getElementById('mc'));}
+function aElim(){ADMA_MODO='elim';EDITANDO={};ADRES_EXTRA={};rAdmin(document.getElementById('mc'));}
+
+// Estado temporal de alargue/penales/ganador para admin (por partido)
+let ADRES_EXTRA={};
+function adSetAl(id,val){
+  if(!ADRES_EXTRA[id])ADRES_EXTRA[id]={};
+  ADRES_EXTRA[id].alargue=val;
+  if(!val){ADRES_EXTRA[id].penales=false;ADRES_EXTRA[id].ganador=null;}
+  // Mostrar/ocultar sección penales
+  const d=document.getElementById('adpen_'+id);if(d)d.style.display=val?'flex':'none';
+  // Actualizar botones alargue
+  document.querySelectorAll(`[onclick="adSetAl('${id}',true)"]`).forEach(b=>b.className='etgl adal-btn '+(val?'on':'no'));
+  document.querySelectorAll(`[onclick="adSetAl('${id}',false)"]`).forEach(b=>b.className='etgl adal-btn '+(!val?'on':'no'));
+  if(!val){
+    document.querySelectorAll(`[onclick="adSetPen('${id}',true)"]`).forEach(b=>b.className='etgl adpen-btn no');
+    document.querySelectorAll(`[onclick="adSetPen('${id}',false)"]`).forEach(b=>b.className='etgl adpen-btn no');
+    document.querySelectorAll(`[onclick^="adSetGan('${id}'"]`).forEach(b=>b.className='etgl adgan-btn no');
+  }
+}
+function adSetPen(id,val){
+  if(!ADRES_EXTRA[id])ADRES_EXTRA[id]={};
+  ADRES_EXTRA[id].penales=val;
+  ADRES_EXTRA[id].ganador=null;
+  document.querySelectorAll(`[onclick="adSetPen('${id}',true)"]`).forEach(b=>b.className='etgl adpen-btn '+(val?'on':'no'));
+  document.querySelectorAll(`[onclick="adSetPen('${id}',false)"]`).forEach(b=>b.className='etgl adpen-btn '+(!val?'on':'no'));
+  document.querySelectorAll(`[onclick^="adSetGan('${id}'"]`).forEach(b=>b.className='etgl adgan-btn no');
+  // Actualizar label
+  const d=document.getElementById('adgan_'+id);
+  if(d){const s=d.querySelector('span');if(s)s.textContent=val?'Gana penales:':'Gana alargue:';}
+}
+function adSetGan(id,val){
+  if(!ADRES_EXTRA[id])ADRES_EXTRA[id]={};
+  ADRES_EXTRA[id].ganador=val;
+  document.querySelectorAll(`[onclick="adSetGan('${id}','local')"]`).forEach(b=>b.className='etgl adgan-btn '+(val==='local'?'on':'no'));
+  document.querySelectorAll(`[onclick="adSetGan('${id}','visita')"]`).forEach(b=>b.className='etgl adgan-btn '+(val==='visita'?'on':'no'));
+}
 
 async function svResElim(id){
   const l=document.getElementById('adEL_'+id)?.value.trim();
@@ -2324,15 +2387,23 @@ async function svResElim(id){
     ERONDAS.forEach(r=>{const p=r.partidos.find(x=>x.id===id);if(p){if(l)p.l=l;if(v)p.v=v;}});
   }
   if(gL!==''&&gV!==''){
+    // Leer extras del estado temporal (o del resultado existente si no se tocó)
+    const extra=ADRES_EXTRA[id]||{};
+    const resActual=RESULTADOS[id]||{};
+    const alargue=extra.alargue!==undefined?extra.alargue:(resActual.alargue||false);
+    const penales=extra.penales!==undefined?extra.penales:(resActual.penales||false);
+    const ganador=extra.ganador!==undefined?extra.ganador:(resActual.ganador_extra||null);
     guardarResultadoLocal(id,gL,gV);
     aplicarResultadoAlFixture(id,parseInt(gL),parseInt(gV));
-    const {error}=await SB.from('resultados').upsert({partido_id:id,goles_local_real:parseInt(gL),goles_visitante_real:parseInt(gV),fase:'eliminatoria'},{onConflict:'partido_id'});
+    // Guardar en RESULTADOS local con extras
+    RESULTADOS[id]={...RESULTADOS[id],gl:parseInt(gL),gv:parseInt(gV),alargue,penales,ganador_extra:ganador};
+    const {error}=await SB.from('resultados').upsert({partido_id:id,goles_local_real:parseInt(gL),goles_visitante_real:parseInt(gV),fase:'eliminatoria',alargue,penales,ganador_extra:ganador},{onConflict:'partido_id'});
     if(error){toast('Error guardando resultado: '+error.message,'err');}
     else{
-      // Recalcular puntos de todos los pronósticos de este partido en Supabase
       await recalcPartido(id);
       toast('✓ Resultado guardado y puntos actualizados');
     }
+    delete ADRES_EXTRA[id];
   } else if(l||v){
     toast('✓ Equipos actualizados');
   }
@@ -2344,18 +2415,25 @@ const SUPER_ADMIN='jorge_dl18@hotmail.com';
 // ══ RECALCULAR PUNTOS DE TODOS EN SUPABASE ══
 // Llama a esto después de guardar cualquier resultado
 async function recalcPartido(partido_id){
-  // Buscar el partido en el fixture
   const p=TODOS.find(x=>x.id===partido_id);
   if(!p||!finalizado(p))return;
+  // Resultado real con extras
+  const res=RESULTADOS[partido_id]||{};
   try{
-    // Traer todos los pronósticos de ese partido
-    const {data:pronos,error}=await SB.from('pronosticos').select('id,usuario_id,goles_local,goles_visitante').eq('partido_id',partido_id);
+    const {data:pronos,error}=await SB.from('pronosticos').select('id,usuario_id,goles_local,goles_visitante,alargue,penales,ganador_extra').eq('partido_id',partido_id);
     if(error||!pronos?.length)return;
-    // Calcular puntos para cada prono y hacer upsert masivo
     const updates=pronos.map(pr=>{
       const fake={gL:String(pr.goles_local),gV:String(pr.goles_visitante)};
       const r=calcPts(p,fake);
-      return{usuario_id:pr.usuario_id,partido_id,goles_local:pr.goles_local,goles_visitante:pr.goles_visitante,puntos:r?r.pts:0};
+      let pts=r?r.pts:0;
+      // Extras solo para eliminatorias
+      if(res.alargue!==undefined){
+        if(pr.alargue==='si'&&res.alargue)pts+=1;
+        if(pr.penales==='si'&&res.penales)pts+=1;
+        if(res.penales&&pr.penGana&&pr.penGana===res.ganador_extra)pts+=1;
+        if(!res.penales&&res.alargue&&pr.alargGana&&pr.alargGana===res.ganador_extra)pts+=1;
+      }
+      return{usuario_id:pr.usuario_id,partido_id,goles_local:pr.goles_local,goles_visitante:pr.goles_visitante,puntos:pts};
     });
     await SB.from('pronosticos').upsert(updates,{onConflict:'usuario_id,partido_id'});
   }catch(e){console.warn('recalcPartido error:',e);}
@@ -2978,7 +3056,7 @@ async function cargarResultadosDB(){
     const {data,error}=await SB.from('resultados').select('*');
     if(error)throw error;
     RESULTADOS={};
-    (data||[]).forEach(r=>{RESULTADOS[r.partido_id]={gl:r.goles_local_real,gv:r.goles_visitante_real};aplicarResultadoAlFixture(r.partido_id,parseInt(r.goles_local_real),parseInt(r.goles_visitante_real));});
+    (data||[]).forEach(r=>{RESULTADOS[r.partido_id]={gl:r.goles_local_real,gv:r.goles_visitante_real,alargue:r.alargue||false,penales:r.penales||false,ganador_extra:r.ganador_extra||null};aplicarResultadoAlFixture(r.partido_id,parseInt(r.goles_local_real),parseInt(r.goles_visitante_real));});
   }catch(e){console.warn('Error cargando resultados:',e);}
 }
 async function cargarApp(){
