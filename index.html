@@ -2510,6 +2510,8 @@ function eCard(p,color){
 
   const teamL=ep.teamL||p.desc.split(' vs ')[0];
   const teamV=ep.teamV||p.desc.split(' vs ')[1];
+  const esRealL=!teamL.includes('°')&&!teamL.includes('G.P')&&teamL.length>1;
+  const esRealV=!teamV.includes('°')&&!teamV.includes('G.P')&&teamV.length>1;
 
   let body='';
   if(cerrado){
@@ -2576,9 +2578,6 @@ function eCard(p,color){
     </div>`;
   }
 
-  // Mostrar bandera solo si el equipo es real (no placeholder con ° o G.P)
-  const esRealL=!teamL.includes('°')&&!teamL.includes('G.P')&&teamL.length>1;
-  const esRealV=!teamV.includes('°')&&!teamV.includes('G.P')&&teamV.length>1;
   const flagL=esRealL?`<div class="fw" style="margin:0 auto 3px">${fi(teamL,34,34)}</div>`:'<div style="font-size:22px;text-align:center;margin-bottom:3px">🌍</div>';
   const flagV=esRealV?`<div class="fw" style="margin:0 auto 3px">${fi(teamV,34,34)}</div>`:'<div style="font-size:22px;text-align:center;margin-bottom:3px">🌍</div>';
   const nameL=esRealL?fn(teamL):teamL;
