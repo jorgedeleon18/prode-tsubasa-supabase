@@ -2265,54 +2265,79 @@ function rAdmin(mc){
         const eq=EQUIPOS_ELIM[p.id]||{};
         const res=RESULTADOS[p.id];
         const bloqueado=res&&!EDITANDO[p.id];
-        // Estado actual de alargue/penales/ganador del resultado
         const resAl=res?.alargue||false;
         const resPen=res?.penales||false;
         const resGan=res?.ganador_extra||null;
         const teamL=eq.l||p.desc.split(' vs ')[0]||'Local';
         const teamV=eq.v||p.desc.split(' vs ')[1]||'Visitante';
         const esReal=!teamL.includes('°')&&!teamL.includes('G.P');
-        const extraControls=bloqueado?'':`
-          <div style="display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-top:4px;padding-top:6px;border-top:1px solid var(--gray-border)">
-            <span style="font-size:10px;font-weight:700;color:var(--gray);align-self:center">¿Alargue?</span>
+        // Badge estado
+        const badge=res?'<span class="eb eb-f">✓ Finalizado</span>':'<span class="eb eb-p">⏳ Pendiente</span>';
+        // Centro: marcador o VS
+        const centro=res
+          ?`<div class="ms"><div class="sb">${res.gl}</div><span class="ss">–</span><div class="sb">${res.gv}</div></div>${badge}`
+          :`<div class="mv">VS</div>${badge}`;
+        // Inputs de goles (solo si no bloqueado)
+        const golesRow=bloqueado?'':`
+          <div class="ps" style="border-top:1px solid var(--gray-border);margin-top:8px">
+            <div class="ps-left">
+              <span class="pl">Resultado real</span>
+              ${!esReal?'<input class="ai" style="font-size:9px;width:90px;margin-top:3px" id="adEL_'+p.id+'" value="'+eq.l+'" placeholder="Equipo local">':''}
+            </div>
+            <div class="ps-center" style="gap:6px">
+              <input type="number" min="0" max="20" class="ig" id="adL_${p.id}" value="${res?res.gl:''}" placeholder="–" style="width:38px;height:32px;font-size:15px">
+              <span class="vi">–</span>
+              <input type="number" min="0" max="20" class="ig" id="adV_${p.id}" value="${res?res.gv:''}" placeholder="–" style="width:38px;height:32px;font-size:15px">
+            </div>
+            <div class="ps-right">
+              ${!esReal?'<input class="ai" style="font-size:9px;width:90px" id="adEV_'+p.id+'" value="'+eq.v+'" placeholder="Equipo visitante">':''}
+            </div>
+          </div>
+          <div style="padding:8px 12px;border-top:1px solid var(--gray-border);display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+            <span style="font-size:10px;font-weight:700;color:var(--gray)">¿Alargue?</span>
             <div style="display:flex;gap:4px">
-              <button class="etgl adal-btn ${resAl?'on':'no'}" onclick="adSetAl('${p.id}',true)">Sí</button>
+              <button class="etgl adal-btn ${resAl?'on':'no'}" onclick="adSetAl('${p.id}',true)">Sí +1</button>
               <button class="etgl adal-btn ${!resAl?'on':'no'}" onclick="adSetAl('${p.id}',false)">No</button>
             </div>
             <div id="adpen_${p.id}" style="display:${resAl?'flex':'none'};gap:6px;align-items:center;flex-wrap:wrap">
               <span style="font-size:10px;font-weight:700;color:var(--gray)">¿Penales?</span>
               <div style="display:flex;gap:4px">
-                <button class="etgl adpen-btn ${resPen?'on':'no'}" onclick="adSetPen('${p.id}',true)">Sí</button>
+                <button class="etgl adpen-btn ${resPen?'on':'no'}" onclick="adSetPen('${p.id}',true)">Sí +1</button>
                 <button class="etgl adpen-btn ${!resPen&&resAl?'on':'no'}" onclick="adSetPen('${p.id}',false)">No</button>
               </div>
-              <div id="adgan_${p.id}" style="display:flex;gap:4px;align-items:center">
-                <span style="font-size:10px;font-weight:700;color:var(--gray)">${resPen?'Gana penales:':'Gana alargue:'}</span>
-                <button class="etgl adgan-btn ${resGan==='local'?'on':'no'}" onclick="adSetGan('${p.id}','local')">${esReal?`${fi(teamL,14,14)} ${fn(teamL)}`:teamL}</button>
-                <button class="etgl adgan-btn ${resGan==='visita'?'on':'no'}" onclick="adSetGan('${p.id}','visita')">${esReal?`${fi(teamV,14,14)} ${fn(teamV)}`:teamV}</button>
+              <div id="adgan_${p.id}" style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+                <span style="font-size:10px;font-weight:700;color:var(--gray)" id="adganlbl_${p.id}">${resPen?'Gana penales:':'Gana alargue:'}</span>
+                <button class="etgl ewin-btn adgan-btn ${resGan==='local'?'on':'no'}" onclick="adSetGan('${p.id}','local')">${esReal?`<span style="display:inline-flex;align-items:center;gap:3px">${fi(teamL,16,16)} ${fn(teamL)}</span>`:teamL}</button>
+                <button class="etgl ewin-btn adgan-btn ${resGan==='visita'?'on':'no'}" onclick="adSetGan('${p.id}','visita')">${esReal?`<span style="display:inline-flex;align-items:center;gap:3px">${fi(teamV,16,16)} ${fn(teamV)}</span>`:teamV}</button>
               </div>
             </div>
+          </div>
+          <div style="padding:6px 12px 10px;display:flex;gap:6px">
+            <button class="btn-as" id="adB_${p.id}" onclick="svResElim('${p.id}')" style="flex:1">${res?'💾 Actualizar resultado':'💾 Guardar resultado'}</button>
           </div>`;
-        return`<div class="ar" style="flex-wrap:wrap;gap:6px">
-          <div class="am" style="min-width:100%">
-            <div class="amt">${p.label} · ${p.desc}</div>
-            <div class="ams">${fechaCorta(p.fecha)} ${p.hora} · ${p.ciudad}${res?` · <span style="color:var(--verde);font-weight:700">✓ ${res.gl}–${res.gv}${resAl?' +AE':''}`+`${resPen?' +PEN':''}`+`${resGan?' ('+(resGan==='local'?fn(teamL):fn(teamV))+')':''}</span>`:''}</div>
+        const resumenExtra=res?`<div style="font-size:9px;color:var(--verde);font-weight:700;padding:3px 12px">✓ ${res.gl}–${res.gv}${resAl?' · Alargue':''}${resPen?' · Penales':''}${resGan?' · Ganó '+(resGan==='local'?fn(teamL):fn(teamV)):''} <button class="btn-as-edit" onclick="editarRes('${p.id}')" style="margin-left:8px;font-size:9px;padding:2px 7px">✏️ Editar</button></div>`:'';
+        return`<div class="pc" style="margin-bottom:10px">
+          <div class="ph" style="background:linear-gradient(90deg,${ronda.color},${ronda.color}cc)">
+            <span class="ph-grp">${p.label}</span>
+            <span class="ph-f">⏰ ${p.hora} &nbsp; ${fechaCorta(p.fecha)}</span>
+            <span class="ph-c">📍 ${p.ciudad}</span>
           </div>
-          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;width:100%">
-            <input class="ai" style="width:110px;flex:1" id="adEL_${p.id}" value="${eq.l||''}" placeholder="Equipo local" ${bloqueado?'disabled':''}>
-            <span class="a-sep">vs</span>
-            <input class="ai" style="width:110px;flex:1" id="adEV_${p.id}" value="${eq.v||''}" placeholder="Equipo visitante" ${bloqueado?'disabled':''}>
-            <input type="number" min="0" max="20" class="ai" id="adL_${p.id}" value="${res?res.gl:''}" placeholder="GL" ${bloqueado?'disabled':''}>
-            <span class="a-sep">–</span>
-            <input type="number" min="0" max="20" class="ai" id="adV_${p.id}" value="${res?res.gv:''}" placeholder="GV" ${bloqueado?'disabled':''}>
-            ${res&&!EDITANDO[p.id]
-              ?`<button class="btn-as-edit" onclick="editarRes('${p.id}')">✏️ Editar</button>`
-              :`<button class="btn-as" id="adB_${p.id}" onclick="svResElim('${p.id}')">${res?'💾 Actualizar':'💾 Guardar'}</button>`
-            }
+          <div class="mh">
+            <div class="mt">
+              <div class="fw">${esReal?fi(teamL,38,38):'<div style="font-size:26px">🌍</div>'}</div>
+              <div class="mn">${esReal?fn(teamL):teamL}</div>
+            </div>
+            <div class="mc">${centro}</div>
+            <div class="mt mt-r">
+              <div class="fw">${esReal?fi(teamV,38,38):'<div style="font-size:26px">🌍</div>'}</div>
+              <div class="mn">${esReal?fn(teamV):teamV}</div>
+            </div>
           </div>
-          ${extraControls}
+          ${resumenExtra}
+          ${golesRow}
         </div>`;
       }).join('');
-      return`<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:800;color:#fff;background:#7c3aed;padding:4px 10px;border-radius:5px;margin-bottom:6px;display:inline-block">${ronda.label}</div>${rondaRows}</div>`;
+      return`<div style="margin-bottom:16px"><div style="font-size:11px;font-weight:800;color:#fff;background:${ronda.color};padding:5px 12px;border-radius:6px;margin-bottom:8px;display:inline-block">${ronda.label}</div><div class="pg-fecha-grid">${rondaRows}</div></div>`;
     }).join('');
   } else {
     rows=G[ADMA].partidos.map(p=>{
@@ -2363,16 +2388,16 @@ function adSetPen(id,val){
   ADRES_EXTRA[id].ganador=null;
   document.querySelectorAll(`[onclick="adSetPen('${id}',true)"]`).forEach(b=>b.className='etgl adpen-btn '+(val?'on':'no'));
   document.querySelectorAll(`[onclick="adSetPen('${id}',false)"]`).forEach(b=>b.className='etgl adpen-btn '+(!val?'on':'no'));
-  document.querySelectorAll(`[onclick^="adSetGan('${id}'"]`).forEach(b=>b.className='etgl adgan-btn no');
+  document.querySelectorAll(`[onclick^="adSetGan('${id}'"]`).forEach(b=>b.className='etgl ewin-btn adgan-btn no');
   // Actualizar label
-  const d=document.getElementById('adgan_'+id);
-  if(d){const s=d.querySelector('span');if(s)s.textContent=val?'Gana penales:':'Gana alargue:';}
+  const lbl=document.getElementById('adganlbl_'+id);
+  if(lbl)lbl.textContent=val?'Gana penales:':'Gana alargue:';
 }
 function adSetGan(id,val){
   if(!ADRES_EXTRA[id])ADRES_EXTRA[id]={};
   ADRES_EXTRA[id].ganador=val;
-  document.querySelectorAll(`[onclick="adSetGan('${id}','local')"]`).forEach(b=>b.className='etgl adgan-btn '+(val==='local'?'on':'no'));
-  document.querySelectorAll(`[onclick="adSetGan('${id}','visita')"]`).forEach(b=>b.className='etgl adgan-btn '+(val==='visita'?'on':'no'));
+  document.querySelectorAll(`[onclick="adSetGan('${id}','local')"]`).forEach(b=>b.className='etgl ewin-btn adgan-btn '+(val==='local'?'on':'no'));
+  document.querySelectorAll(`[onclick="adSetGan('${id}','visita')"]`).forEach(b=>b.className='etgl ewin-btn adgan-btn '+(val==='visita'?'on':'no'));
 }
 
 async function svResElim(id){
