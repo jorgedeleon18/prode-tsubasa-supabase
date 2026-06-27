@@ -2469,12 +2469,13 @@ async function recalcPartido(partido_id){
       const fake={gL:String(pr.goles_local),gV:String(pr.goles_visitante)};
       const r=calcPts(p,fake);
       let pts=r?r.pts:0;
-      // Extras solo para eliminatorias
-      if(res.alargue!==undefined){
-        if(pr.alargue==='si'&&res.alargue)pts+=1;
-        if(pr.penales==='si'&&res.penales)pts+=1;
-        if(res.penales&&pr.penGana&&pr.penGana===res.ganador_extra)pts+=1;
-        if(!res.penales&&res.alargue&&pr.alargGana&&pr.alargGana===res.ganador_extra)pts+=1;
+      // Extras solo para eliminatorias — leer de columnas nuevas
+      if(res.alargue!==undefined&&res.alargue!==null){
+        if(pr.alargue==='si'&&res.alargue===true)pts+=1;
+        if(pr.penales==='si'&&res.penales===true)pts+=1;
+        // Ganador: pr.ganador_extra tiene 'local'/'visita', res.ganador_extra igual
+        if(res.penales===true&&pr.ganador_extra&&pr.ganador_extra===res.ganador_extra)pts+=1;
+        if(res.penales===false&&res.alargue===true&&pr.ganador_extra&&pr.ganador_extra===res.ganador_extra)pts+=1;
       }
       return{usuario_id:pr.usuario_id,partido_id,goles_local:pr.goles_local,goles_visitante:pr.goles_visitante,puntos:pts};
     });
@@ -2487,7 +2488,7 @@ async function recalcTodos(){
   if(btn){btn.disabled=true;btn.textContent='⏳ Calculando...';}
   try{
     // Traer todos los pronósticos y resultados de una vez
-    const {data:pronos}=await SB.from('pronosticos').select('id,usuario_id,partido_id,goles_local,goles_visitante');
+    const {data:pronos}=await SB.from('pronosticos').select('id,usuario_id,partido_id,goles_local,goles_visitante,alargue,penales,ganador_extra');
     if(!pronos?.length){toast('No hay pronósticos para recalcular','err');return;}
     const updates=[];
     pronos.forEach(pr=>{
@@ -2495,7 +2496,15 @@ async function recalcTodos(){
       if(!p||!finalizado(p))return;
       const fake={gL:String(pr.goles_local),gV:String(pr.goles_visitante)};
       const r=calcPts(p,fake);
-      updates.push({usuario_id:pr.usuario_id,partido_id:pr.partido_id,goles_local:pr.goles_local,goles_visitante:pr.goles_visitante,puntos:r?r.pts:0});
+      let pts=r?r.pts:0;
+      const res=RESULTADOS[pr.partido_id]||{};
+      if(res.alargue!==undefined&&res.alargue!==null){
+        if(pr.alargue==='si'&&res.alargue===true)pts+=1;
+        if(pr.penales==='si'&&res.penales===true)pts+=1;
+        if(res.penales===true&&pr.ganador_extra&&pr.ganador_extra===res.ganador_extra)pts+=1;
+        if(res.penales===false&&res.alargue===true&&pr.ganador_extra&&pr.ganador_extra===res.ganador_extra)pts+=1;
+      }
+      updates.push({usuario_id:pr.usuario_id,partido_id:pr.partido_id,goles_local:pr.goles_local,goles_visitante:pr.goles_visitante,puntos:pts});
     });
     if(!updates.length){toast('No hay partidos finalizados aún');return;}
     const {error}=await SB.from('pronosticos').upsert(updates,{onConflict:'usuario_id,partido_id'});
@@ -2827,10 +2836,12 @@ async function eGuardar(pid,desc){
   const ep=EPRONOS[pid]||{};EPRONOS[pid]=ep;
   const gl=document.getElementById('egl_'+pid)?.value;
   const gv=document.getElementById('egv_'+pid)?.value;
-  // penGana y alargGana ya están en ep via eSetWin
   if(gl===''||gv===''){toast('Ingresá el resultado al 90\'','err');return;}
   ep.gL=gl;ep.gV=gv;
-  const {error}=await SB.from('pronosticos').upsert({usuario_id:USR.id,partido_id:pid,goles_local:parseInt(gl),goles_visitante:parseInt(gv),fase:'eliminatoria',puntos:0},{onConflict:'usuario_id,partido_id'});
+  const alargue=ep.alargue||null;
+  const penales=ep.penales||null;
+  const ganador_extra=ep.penGana||ep.alargGana||null;
+  const {error}=await SB.from('pronosticos').upsert({usuario_id:USR.id,partido_id:pid,goles_local:parseInt(gl),goles_visitante:parseInt(gv),fase:'eliminatoria',puntos:0,alargue,penales,ganador_extra},{onConflict:'usuario_id,partido_id'});
   if(error){toast('Error guardando: '+error.message,'err');return;}
   toast('✓ Pronóstico guardado');
   rEliminatorias(document.getElementById('mc'));
@@ -3119,7 +3130,11 @@ async function cargarApp(){
     if(error)throw error;
     (data||[]).forEach(item=>{
       const target=(item.fase==='eliminatoria')?EPRONOS:PRONOS;
-      target[item.partido_id]={gL:String(item.goles_local??''),gV:String(item.goles_visitante??''),pts:item.puntos||0,sbId:item.id};
+      if(item.fase==='eliminatoria'){
+        target[item.partido_id]={gL:String(item.goles_local??''),gV:String(item.goles_visitante??''),pts:item.puntos||0,sbId:item.id,alargue:item.alargue||null,penales:item.penales||null,penGana:item.ganador_extra&&item.penales==='si'?item.ganador_extra:null,alargGana:item.ganador_extra&&item.penales!=='si'?item.ganador_extra:null};
+      } else {
+        target[item.partido_id]={gL:String(item.goles_local??''),gV:String(item.goles_visitante??''),pts:item.puntos||0,sbId:item.id};
+      }
     });
   }catch(e){console.warn('Error cargando pronósticos:',e);}
   try{const {data:b}=await SB.from('bonus').select('*').eq('usuario_id',USR.id).maybeSingle(); if(b)BONUS={cam:b.campeon||'',fin:b.subcampeon||'',gol:b.goleador||''};}catch(e){}
@@ -3222,10 +3237,12 @@ async function svRes(id){
 async function eGuardar(pid,desc){
   const ep=EPRONOS[pid]||{};EPRONOS[pid]=ep;
   const gl=document.getElementById('egl_'+pid)?.value; const gv=document.getElementById('egv_'+pid)?.value;
-  // penGana ya está en ep via eSetWin
   if(gl===''||gv===''){toast("Ingresá el resultado al 90'","err");return;}
   ep.gL=gl;ep.gV=gv;
-  const {error}=await SB.from('pronosticos').upsert({usuario_id:USR.id,partido_id:pid,goles_local:parseInt(gl),goles_visitante:parseInt(gv),fase:'eliminatoria',puntos:0},{onConflict:'usuario_id,partido_id'});
+  const alargue=ep.alargue||null;
+  const penales=ep.penales||null;
+  const ganador_extra=ep.penGana||ep.alargGana||null;
+  const {error}=await SB.from('pronosticos').upsert({usuario_id:USR.id,partido_id:pid,goles_local:parseInt(gl),goles_visitante:parseInt(gv),fase:'eliminatoria',puntos:0,alargue,penales,ganador_extra},{onConflict:'usuario_id,partido_id'});
   if(error){toast('Error guardando: '+error.message,'err');return;}
   toast('✓ Pronóstico guardado'); rEliminatorias(document.getElementById('mc'));
 }
