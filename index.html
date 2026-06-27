@@ -2313,6 +2313,7 @@ function rAdmin(mc){
             </div>
           </div>
           <div style="padding:6px 12px 10px;display:flex;gap:6px">
+            <button onclick="adLimpiar('${p.id}')" style="padding:7px 10px;border-radius:7px;border:1px solid var(--gray-border);background:var(--gray-light);color:var(--gray);font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer;white-space:nowrap">🗑️ Limpiar</button>
             <button class="btn-as" id="adB_${p.id}" onclick="svResElim('${p.id}')" style="flex:1">${res?'💾 Actualizar resultado':'💾 Guardar resultado'}</button>
           </div>`;
         const resumenExtra=res?`<div style="font-size:9px;color:var(--verde);font-weight:700;padding:3px 12px">✓ ${res.gl}–${res.gv}${resAl?' · Alargue':''}${resPen?' · Penales':''}${resGan?' · Ganó '+(resGan==='local'?fn(teamL):fn(teamV)):''} <button class="btn-as-edit" onclick="editarRes('${p.id}')" style="margin-left:8px;font-size:9px;padding:2px 7px">✏️ Editar</button></div>`:'';
@@ -2398,6 +2399,23 @@ function adSetGan(id,val){
   ADRES_EXTRA[id].ganador=val;
   document.querySelectorAll(`[onclick="adSetGan('${id}','local')"]`).forEach(b=>b.className='etgl ewin-btn adgan-btn '+(val==='local'?'on':'no'));
   document.querySelectorAll(`[onclick="adSetGan('${id}','visita')"]`).forEach(b=>b.className='etgl ewin-btn adgan-btn '+(val==='visita'?'on':'no'));
+}
+
+function adLimpiar(id){
+  // Limpiar inputs de goles
+  const gl=document.getElementById('adL_'+id);if(gl)gl.value='';
+  const gv=document.getElementById('adV_'+id);if(gv)gv.value='';
+  // Resetear estado extra
+  if(ADRES_EXTRA[id])delete ADRES_EXTRA[id];
+  // Resetear botones alargue
+  document.querySelectorAll(`[onclick="adSetAl('${id}',true)"]`).forEach(b=>b.className='etgl adal-btn no');
+  document.querySelectorAll(`[onclick="adSetAl('${id}',false)"]`).forEach(b=>b.className='etgl adal-btn no');
+  // Ocultar penales
+  const dp=document.getElementById('adpen_'+id);if(dp)dp.style.display='none';
+  document.querySelectorAll(`[onclick="adSetPen('${id}',true)"]`).forEach(b=>b.className='etgl adpen-btn no');
+  document.querySelectorAll(`[onclick="adSetPen('${id}',false)"]`).forEach(b=>b.className='etgl adpen-btn no');
+  document.querySelectorAll(`[onclick^="adSetGan('${id}'"]`).forEach(b=>b.className='etgl ewin-btn adgan-btn no');
+  toast('🗑️ Limpiado');
 }
 
 async function svResElim(id){
