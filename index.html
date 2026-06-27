@@ -2574,7 +2574,10 @@ function eCard(p,color){
         <span class="eept-lbl">Puntos posibles</span>
         <span class="eept-val" id="eptval_${p.id}">${eCalcDisplay(p.id)}</span>
       </div>
-      <button style="width:100%;padding:7px;border-radius:7px;border:none;background:var(--aub);color:#fff;font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer;margin-top:6px" onclick="eGuardar('${p.id}','${p.desc}')">💾 Guardar pronóstico</button>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button style="padding:7px 10px;border-radius:7px;border:1px solid var(--gray-border);background:var(--gray-light);color:var(--gray);font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer;white-space:nowrap" onclick="eLimpiar('${p.id}')">🗑️ Limpiar</button>
+        <button style="flex:1;padding:7px;border-radius:7px;border:none;background:var(--aub);color:#fff;font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer" onclick="eGuardar('${p.id}','${p.desc}')">💾 Guardar pronóstico</button>
+      </div>
     </div>`;
   }
 
@@ -2670,6 +2673,33 @@ function eUpdPts(pid){
   const prev=document.getElementById('eptprev_'+pid);
   if(el){el.textContent=pts>0?pts+' pts extra':'0 pts';el.style.color=pts>0?'var(--verde)':'var(--aub)';}
   if(prev){prev.style.background=pts>0?'var(--verde-light)':'var(--aub-light)';prev.style.borderColor=pts>0?'#86efac':'#b0e8f0';}
+}
+
+function eLimpiar(pid){
+  const ep=EPRONOS[pid]||{};EPRONOS[pid]=ep;
+  // Limpiar valores
+  ep.gL='';ep.gV='';ep.alargue=null;ep.penales=null;ep.penGana=null;ep.alargGana=null;
+  // Limpiar inputs
+  const gl=document.getElementById('egl_'+pid);if(gl)gl.value='';
+  const gv=document.getElementById('egv_'+pid);if(gv)gv.value='';
+  // Resetear botones alargue
+  const algrp=document.getElementById('algrp_'+pid);
+  if(algrp)algrp.querySelectorAll('.etgl').forEach(b=>b.className='etgl no');
+  // Ocultar penales y sus botones
+  const pengrp=document.getElementById('pengrp_'+pid);
+  if(pengrp){pengrp.style.opacity='0';pengrp.style.pointerEvents='none';}
+  const penbtns=document.getElementById('penbtns_'+pid);
+  if(penbtns)penbtns.querySelectorAll('.etgl').forEach(b=>b.className='etgl no');
+  // Ocultar ganpen y ganalarg
+  const ganpen=document.getElementById('ganpen_'+pid);if(ganpen)ganpen.classList.remove('vis');
+  const ganalarg=document.getElementById('ganalarg_'+pid);if(ganalarg)ganalarg.classList.remove('vis');
+  // Resetear botones ganador
+  const alargbtns=document.getElementById('alargbtns_'+pid);
+  if(alargbtns)alargbtns.querySelectorAll('.etgl').forEach(b=>b.className='etgl ewin-btn no');
+  const penbtns2=document.getElementById('penbtns2_'+pid);
+  if(penbtns2)penbtns2.querySelectorAll('.etgl').forEach(b=>b.className='etgl ewin-btn no');
+  eUpdPts(pid);
+  toast('🗑️ Pronóstico limpiado');
 }
 
 async function eGuardar(pid,desc){
