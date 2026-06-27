@@ -2282,7 +2282,7 @@ function rAdmin(mc){
           <div class="ps" style="border-top:1px solid var(--gray-border);margin-top:8px">
             <div class="ps-left">
               <span class="pl">Resultado real</span>
-              ${!esReal?'<input class="ai" style="font-size:9px;width:90px;margin-top:3px" id="adEL_'+p.id+'" value="'+eq.l+'" placeholder="Equipo local">':''}
+              ${!esReal?'<input class="ai" style="font-size:9px;width:90px;margin-top:3px" id="adEL_'+p.id+'" value="'+(eq.l||'')+'" placeholder="Equipo local">':''}
             </div>
             <div class="ps-center" style="gap:6px">
               <input type="number" min="0" max="20" class="ig" id="adL_${p.id}" value="${res?res.gl:''}" placeholder="–" style="width:38px;height:32px;font-size:15px">
@@ -2290,7 +2290,7 @@ function rAdmin(mc){
               <input type="number" min="0" max="20" class="ig" id="adV_${p.id}" value="${res?res.gv:''}" placeholder="–" style="width:38px;height:32px;font-size:15px">
             </div>
             <div class="ps-right">
-              ${!esReal?'<input class="ai" style="font-size:9px;width:90px" id="adEV_'+p.id+'" value="'+eq.v+'" placeholder="Equipo visitante">':''}
+              ${!esReal?'<input class="ai" style="font-size:9px;width:90px" id="adEV_'+p.id+'" value="'+(eq.v||'')+'" placeholder="Equipo visitante">':''}
             </div>
           </div>
           <div style="padding:8px 12px;border-top:1px solid var(--gray-border);display:flex;flex-wrap:wrap;gap:6px;align-items:center">
