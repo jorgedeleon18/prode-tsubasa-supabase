@@ -1318,13 +1318,13 @@ body.dark .music-tog.on{
       <div class="sb-nav">
         <div class="sb-sec">Jugar</div>
         <div class="sb-item" id="nav-pronosticos" onclick="V('pronosticos')"><span class="sb-ico">🎯</span> Mis pronósticos</div>
+        <div class="sb-item" id="nav-eliminatorias" onclick="V('eliminatorias')"><span class="sb-ico">⚔️</span> Eliminatorias</div>
         <div class="sb-item" id="nav-bonus" onclick="V('bonus')"><span class="sb-ico">🌟</span> Bonus torneo</div>
         <div class="sb-item" id="nav-miprode" onclick="V('miprode')"><span class="sb-ico">📋</span> Mi historial</div>
         <div class="sb-sec">Ranking</div>
         <div class="sb-item active" id="nav-posiciones" onclick="V('posiciones')"><span class="sb-ico">🏆</span> Tabla general</div>
         <div class="sb-item" id="nav-todosprono" onclick="V('todosprono')"><span class="sb-ico">📊</span> Todos los pronósticos</div>
         <div class="sb-sec">Fixture</div>
-        <div class="sb-item" id="nav-eliminatorias" onclick="V('eliminatorias')"><span class="sb-ico">⚔️</span> Eliminatorias</div>
         <div class="sb-item" id="nav-fixture" onclick="V('fixture')"><span class="sb-ico">📅</span> Ver fixture</div>
         <div class="sb-sec">Info</div>
         <div class="sb-item" id="nav-reglas" onclick="V('reglas')"><span class="sb-ico">📖</span> Reglas</div>
@@ -1794,167 +1794,10 @@ const GCOL={
   J:['#0f766e','#09514b'],K:['#c2410c','#8f2f07'],L:['#1d4ed8','#1437a0']
 };
 
-// ══════ PRONÓSTICOS 16VOS ══════
-function buildTabsRow(gaActual){
-  const tabsGrupos=Object.keys(G).map(g=>`<div class="gtab${g===gaActual?' active':''}" onclick="cGrupo('${g}')" style="${g===gaActual?`background:${GCOL[g]};border-color:${GCOL[g]};color:#fff`:''}">${g}</div>`).join('');
-  const tab16=`<div class="gtab r16-tab${gaActual==='R16'?' active':''}" onclick="cGrupo('R16')" style="${gaActual==='R16'?'background:#ca8a04;border-color:#ca8a04;color:#fff':'border-color:#ca8a04;color:#92400e;background:rgba(202,138,4,.08)'}">⚔️ 16vos</div>`;
-  return tabsGrupos+tab16;
-}
-
-function rPronos16(mc){
-  const r16=ERONDAS.find(r=>r.id==='r16');
-  if(!r16){mc.innerHTML='<div class="empty"><div class="empty-ico">⏳</div><div class="empty-txt">Los cruces de 16avos se cargarán cuando estén confirmados.</div></div>';return;}
-  const color='#022D40';
-  // Solo mostrar partidos que tengan equipos reales (no contienen "°" ni "G.P")
-  const partidos=r16.partidos.filter(p=>!p.desc.includes('°')&&!p.desc.includes('G.P'));
-  if(partidos.length===0){mc.innerHTML=`<div class="gt">${buildTabsRow('R16')}</div><div class="empty"><div class="empty-ico">⏳</div><div class="empty-txt">Todavía no hay cruces confirmados. ¡Volvé cuando terminen los grupos!</div></div>`;return;}
-
-  // Adaptar cada partido de ERONDAS al formato de grupo (con l/v)
-  const partidosAdaptados=partidos.map(p=>{
-    const partes=p.desc.split(' vs ');
-    return {...p, l:partes[0]?.trim()||'Local', v:partes[1]?.trim()||'Visitante', grupo:'16vos', gl:undefined, gv:undefined};
-  });
-
-  // Cargar resultados si existen
-  partidosAdaptados.forEach(p=>{
-    const res=RESULTADOS[p.id];
-    if(res!==undefined&&res!==null){p.gl=res.gl;p.gv=res.gv;}
-  });
-
-  const partAbiertos=partidosAdaptados.filter(p=>abierto(p)&&!finalizado(p));
-  const hayAbiertos=partAbiertos.length>0;
-  const totalAb=partAbiertos.length;
-
-  const cards=partidosAdaptados.map(p=>{
-    const pr=PRONOS[p.id]||{};const fin=finalizado(p);const ab=abierto(p);const cerrado=!ab&&!fin;
-    let badge=fin?`<span class="eb eb-f">✓ Finalizado</span>`:cerrado?`<span class="eb eb-c">⛔ Cerrado</span>`:`<span class="eb eb-p">⏳ Abierto</span>`;
-    const centro=fin?`<div class="ms"><div class="sb">${p.gl}</div><span class="ss">–</span><div class="sb">${p.gv}</div></div>${badge}`:`<div class="mv">VS</div>${badge}`;
-    let ptsBadge='';
-    if(fin&&pr.gL!==undefined&&pr.gL!==''){const r=calcPts(p,pr);if(r)ptsBadge=`<div class="ptb-w"><span class="ptb ${r.cls}">+${r.pts} pts · ${r.lbl}</span></div>`;}
-    let pronoH='';
-    if(!fin&&!cerrado){
-      pronoH=`
-        <div class="ps-left"><span class="pl">Resultado</span><span class="c-fecha">⏳ cierra ${cierreStr(p)}</span></div>
-        <div class="ps-center">
-          <input type="number" min="0" max="20" class="ig" id="gL_${p.id}" value="${pr.gL??''}" placeholder="–" oninput="actualizarProgress16()">
-          <span class="vi">–</span>
-          <input type="number" min="0" max="20" class="ig" id="gV_${p.id}" value="${pr.gV??''}" placeholder="–" oninput="actualizarProgress16()">
-        </div>
-        <div class="ps-right"></div>`;
-    }else if(cerrado){
-      const tp=pr.gL!==undefined&&pr.gL!=='';
-      pronoH=`<div class="ps-left"><span class="c-msg">⛔ Cerrado ${cierreStr(p)}</span></div>
-        <div class="ps-center">${tp?`<span class="c-lbl">Tu prode: <strong style="color:var(--aub)">${pr.gL}–${pr.gV}</strong></span>`:''}</div>
-        <div class="ps-right"></div>`;
-    }else if(fin){
-      const gl=pr.gL!==undefined&&pr.gL!==''?pr.gL:'?';const gv=pr.gV!==undefined&&pr.gV!==''?pr.gV:'?';
-      pronoH=`<div class="ps-left"></div>
-        <div class="ps-center"><span class="c-lbl">Tu prode: <strong style="font-size:15px;color:var(--aub)">${gl}–${gv}</strong></span></div>
-        <div class="ps-right"></div>`;
-    }
-    return{fecha:p.fecha,html:`<div class="pc">
-      <div class="ph" style="background:linear-gradient(90deg,#78350f,#ca8a04)">
-        <span class="ph-grp">⚔️ 16avos</span>
-        <span class="ph-f">⏰ ${p.hora} &nbsp; ${fechaCorta(p.fecha)}</span>
-        <span class="ph-c">📍 ${p.ciudad}</span>
-      </div>
-      <div class="mh">
-        <div class="mt"><div class="fw">${fi(p.l,38,38)}</div><div class="mn">${fn(p.l)}</div></div>
-        <div class="mc">${centro}</div>
-        <div class="mt mt-r"><div class="fw">${fi(p.v,38,38)}</div><div class="mn">${fn(p.v)}</div></div>
-      </div>
-      <div class="ps">${pronoH}</div>
-      ${ptsBadge}
-    </div>`};
-  });
-
-  // Agrupar por fecha
-  const byFecha={};
-  cards.forEach(c=>{if(!byFecha[c.fecha])byFecha[c.fecha]=[];byFecha[c.fecha].push(c.html);});
-  const porFecha=Object.entries(byFecha).sort(([a],[b])=>a.localeCompare(b)).map(([fecha,htmls],i)=>`<div class="pg-fecha-wrap">
-    <div class="pg-fecha-side">
-      <div class="pg-fecha-num" style="color:#ca8a04">⚔️ ${fechaCorta(fecha)}</div>
-      <div class="pg-fecha-line"></div>
-    </div>
-    <div class="pg-fecha-content">
-      <div class="pg-fecha-lbl">📅 ${fechaCorta(fecha)}</div>
-      <div class="pg-fecha-grid">${htmls.join('')}</div>
-    </div>
-  </div>`).join('');
-
-  const btnR16=hayAbiertos?`
-    <div class="grupo-save-wrap">
-      <div class="grupo-progress">
-        <span class="gp-label">Partidos completados</span>
-        <div class="gp-dots" id="gp-dots-16">
-          ${partAbiertos.map(p=>{const pr=PRONOS[p.id]||{};const ok=pr.gL!==undefined&&pr.gL!==''&&pr.gV!==undefined&&pr.gV!=='';return`<div class="gp-dot${ok?' ok':''}" title="${fn(p.l)} vs ${fn(p.v)}"></div>`}).join('')}
-        </div>
-        <span class="gp-count" id="gp-count-16">0/${totalAb}</span>
-      </div>
-      <button class="btn-guardar-grupo" id="btnGuardar16" onclick="guardar16vosCompleto()" disabled>
-        ⚔️ Guardar pronósticos del 16avos
-      </button>
-    </div>`:'';
-
-  mc.innerHTML=`<div class="gt">${buildTabsRow('R16')}</div>${porFecha}${btnR16}`;
-  setTimeout(actualizarProgress16,50);
-}
-
-function actualizarProgress16(){
-  const r16=ERONDAS.find(r=>r.id==='r16');if(!r16)return;
-  const partidos=r16.partidos.filter(p=>!p.desc.includes('°')&&!p.desc.includes('G.P'));
-  const partAdapt=partidos.map(p=>{const partes=p.desc.split(' vs ');return{...p,l:partes[0]?.trim()||'Local',v:partes[1]?.trim()||'Visitante'};});
-  const partAbiertos=partAdapt.filter(p=>abierto(p)&&!finalizado(p));
-  const dots=document.getElementById('gp-dots-16');
-  const count=document.getElementById('gp-count-16');
-  const btn=document.getElementById('btnGuardar16');
-  if(!dots||!btn)return;
-  let completos=0;
-  partAbiertos.forEach((p,i)=>{
-    const gL=document.getElementById('gL_'+p.id)?.value;
-    const gV=document.getElementById('gV_'+p.id)?.value;
-    const ok=gL!==undefined&&gL!==''&&gV!==undefined&&gV!=='';
-    if(ok)completos++;
-    if(dots.children[i])dots.children[i].className='gp-dot'+(ok?' ok':'');
-  });
-  if(count)count.textContent=`${completos}/${partAbiertos.length}`;
-  btn.disabled=completos===0;
-  if(completos===partAbiertos.length&&completos>0){
-    btn.classList.add('all-saved');
-    btn.textContent=`✅ ¡Listo! Guardá los 16avos`;
-  } else {
-    btn.classList.remove('all-saved');
-    btn.textContent=`⚔️ Guardar pronósticos 16avos (${completos}/${partAbiertos.length})`;
-  }
-}
-
-async function guardar16vosCompleto(){
-  const btn=document.getElementById('btnGuardar16');
-  if(!btn||btn.disabled)return;
-  const r16=ERONDAS.find(r=>r.id==='r16');if(!r16)return;
-  const partidos=r16.partidos.filter(p=>!p.desc.includes('°')&&!p.desc.includes('G.P'));
-  const partAdapt=partidos.map(p=>{const partes=p.desc.split(' vs ');return{...p,l:partes[0]?.trim()||'Local',v:partes[1]?.trim()||'Visitante'};});
-  const partAbiertos=partAdapt.filter(p=>abierto(p)&&!finalizado(p));
-  const filas=[]; let incompletos=0;
-  partAbiertos.forEach(p=>{
-    const gL=document.getElementById('gL_'+p.id)?.value;
-    const gV=document.getElementById('gV_'+p.id)?.value;
-    if(gL===''||gV===''||gL===undefined||gV===undefined){incompletos++;return;}
-    PRONOS[p.id]={...PRONOS[p.id],gL,gV};
-    filas.push({usuario_id:USR.id,partido_id:p.id,goles_local:parseInt(gL),goles_visitante:parseInt(gV),fase:'grupos',puntos:PRONOS[p.id]?.pts||0});
-  });
-  if(incompletos>0){toast(`Completá los ${incompletos} partido(s) sin resultado`,'err');return;}
-  btn.classList.add('saving');btn.textContent='Guardando...';btn.disabled=true;
-  const {error}=await SB.from('pronosticos').upsert(filas,{onConflict:'usuario_id,partido_id'});
-  btn.classList.remove('saving');btn.disabled=false;
-  if(error){toast('No se pudo guardar. Puede que algún partido ya esté cerrado.','err');return;}
-  toast(`✓ ${filas.length} pronóstico(s) de 16avos guardados`);
-  btn.textContent=`✅ 16avos guardados`; btn.classList.add('all-saved');
-}
+// ══════ PRONÓSTICOS ══════
 
 function rPronos(mc){
-  if(GA==='R16'){rPronos16(mc);return;}
-  const tabs=buildTabsRow(GA);
+  const tabs=Object.keys(G).map(g=>`<div class="gtab${g===GA?' active':''}" onclick="cGrupo('${g}')" style="${g===GA?`background:${GCOL[g]};border-color:${GCOL[g]};color:#fff`:''}">` + g + `</div>`).join('');
   const gc=GCOL[GA]||['#022D40','#024560'];
   const cards=G[GA].partidos.map(p=>{
     const pr=PRONOS[p.id]||{};const fin=finalizado(p);const ab=abierto(p);const cerrado=!ab&&!fin;
@@ -2083,7 +1926,6 @@ function rPronos(mc){
 function cGrupo(g){GA=g;rPronos(document.getElementById('mc'));syncMusic('pronosticos');}
 
 function actualizarProgressGrupo(){
-  if(GA==='R16'){actualizarProgress16();return;}
   const partAbiertos=G[GA].partidos.filter(p=>abierto(p)&&!finalizado(p));
   const dots=document.getElementById('gp-dots');
   const count=document.getElementById('gp-count');
@@ -2713,6 +2555,14 @@ function eCard(p,color){
     </div>`;
   }
 
+  // Mostrar bandera solo si el equipo es real (no placeholder con ° o G.P)
+  const esRealL=!teamL.includes('°')&&!teamL.includes('G.P')&&teamL.length>1;
+  const esRealV=!teamV.includes('°')&&!teamV.includes('G.P')&&teamV.length>1;
+  const flagL=esRealL?`<div class="fw" style="margin:0 auto 3px">${fi(teamL,34,34)}</div>`:'<div style="font-size:22px;text-align:center;margin-bottom:3px">🌍</div>';
+  const flagV=esRealV?`<div class="fw" style="margin:0 auto 3px">${fi(teamV,34,34)}</div>`:'<div style="font-size:22px;text-align:center;margin-bottom:3px">🌍</div>';
+  const nameL=esRealL?fn(teamL):teamL;
+  const nameV=esRealV?fn(teamV):teamV;
+
   return`<div class="ec">
     <div class="eph" style="background:${color}">
       <span class="eph-n">${p.label}</span>
@@ -2721,14 +2571,16 @@ function eCard(p,color){
     </div>
     <div class="emh">
       <div class="emt">
-        <div style="font-size:11px;font-weight:700;color:var(--gray-dark);text-align:center;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${teamL}</div>
+        ${flagL}
+        <div style="font-size:11px;font-weight:700;color:var(--gray-dark);text-align:center;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nameL}</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
         <div class="emv">VS</div>
         ${eest}
       </div>
       <div class="emt">
-        <div style="font-size:11px;font-weight:700;color:var(--gray-dark);text-align:center;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${teamV}</div>
+        ${flagV}
+        <div style="font-size:11px;font-weight:700;color:var(--gray-dark);text-align:center;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nameV}</div>
       </div>
     </div>
     <div class="edivider"></div>
