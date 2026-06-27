@@ -970,6 +970,8 @@ body.dark .esb{background:#0a1520}
 .etgl-grp{display:flex;gap:3px}
 .etgl{padding:3px 8px;border-radius:12px;border:1px solid var(--gray-border);background:rgba(255,255,255,.9);font-size:9px;font-weight:700;cursor:pointer;color:var(--gray);transition:all .15s;font-family:var(--fn)}
 body.dark .etgl{background:#0a1520;color:var(--gray)}
+.ewin-btn{padding:4px 9px;display:inline-flex;align-items:center;gap:4px;font-size:10px}
+.ewin-btn img{width:16px;height:16px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .etgl.on{background:var(--aub);border-color:var(--aub);color:#fff}
 .etgl.no{background:var(--gray-light);color:var(--gray)}
 body.dark .etgl.no{background:#0a1520}
@@ -2541,22 +2543,30 @@ function eCard(p,color){
         </div>
       </div>
       <div id="ganalarg_${p.id}" class="epen-row ${hasnopen?'vis':''}">
-        <span style="font-size:10px;color:var(--gray-dark);font-weight:500;flex:1">Gana en alargue:</span>
-        <select class="epen-sel" id="ealargsel_${p.id}" onchange="eUpdPts('${p.id}')">
-          <option value="">— elegir —</option>
-          <option value="local" ${ep.alargGana==='local'?'selected':''}>🏠 ${teamL}</option>
-          <option value="visita" ${ep.alargGana==='visita'?'selected':''}>✈️ ${teamV}</option>
-        </select>
-        <span class="eort">+1</span>
+        <div style="display:flex;align-items:center;gap:6px;width:100%">
+          <span style="font-size:10px;color:var(--gray-dark);font-weight:600;white-space:nowrap">Gana en alargue <strong style="color:var(--aub)">+1</strong>:</span>
+          <div class="etgl-grp" id="alargbtns_${p.id}" style="flex:1;justify-content:flex-end">
+            <button class="etgl ewin-btn ${ep.alargGana==='local'?'on':'no'}" onclick="eSetWin('${p.id}','alarg','local')">
+              ${esRealL?`<span style="display:inline-flex;align-items:center;gap:3px">${fi(teamL,16,16)} ${fn(teamL)}</span>`:teamL}
+            </button>
+            <button class="etgl ewin-btn ${ep.alargGana==='visita'?'on':'no'}" onclick="eSetWin('${p.id}','alarg','visita')">
+              ${esRealV?`<span style="display:inline-flex;align-items:center;gap:3px">${fi(teamV,16,16)} ${fn(teamV)}</span>`:teamV}
+            </button>
+          </div>
+        </div>
       </div>
       <div id="ganpen_${p.id}" class="epen-row ${haspen?'vis':''}">
-        <span style="font-size:10px;color:var(--gray-dark);font-weight:500;flex:1">Gana en penales:</span>
-        <select class="epen-sel" id="epensel_${p.id}" onchange="eUpdPts('${p.id}')">
-          <option value="">— elegir —</option>
-          <option value="local" ${ep.penGana==='local'?'selected':''}>🏠 ${teamL}</option>
-          <option value="visita" ${ep.penGana==='visita'?'selected':''}>✈️ ${teamV}</option>
-        </select>
-        <span class="eort">+1</span>
+        <div style="display:flex;align-items:center;gap:6px;width:100%">
+          <span style="font-size:10px;color:var(--gray-dark);font-weight:600;white-space:nowrap">Gana en penales <strong style="color:var(--aub)">+1</strong>:</span>
+          <div class="etgl-grp" id="penbtns2_${p.id}" style="flex:1;justify-content:flex-end">
+            <button class="etgl ewin-btn ${ep.penGana==='local'?'on':'no'}" onclick="eSetWin('${p.id}','pen','local')">
+              ${esRealL?`<span style="display:inline-flex;align-items:center;gap:3px">${fi(teamL,16,16)} ${fn(teamL)}</span>`:teamL}
+            </button>
+            <button class="etgl ewin-btn ${ep.penGana==='visita'?'on':'no'}" onclick="eSetWin('${p.id}','pen','visita')">
+              ${esRealV?`<span style="display:inline-flex;align-items:center;gap:3px">${fi(teamV,16,16)} ${fn(teamV)}</span>`:teamV}
+            </button>
+          </div>
+        </div>
       </div>
       <div class="eept-prev" id="eptprev_${p.id}">
         <span class="eept-lbl">Puntos posibles</span>
@@ -2609,6 +2619,21 @@ function eCalcDisplay(pid){
   return p>0?p+' pts extra':'0 pts';
 }
 
+function eSetWin(pid,tipo,val){
+  const ep=EPRONOS[pid]||{};EPRONOS[pid]=ep;
+  if(tipo==='alarg'){
+    ep.alargGana=val;
+    const grp=document.getElementById('alargbtns_'+pid);
+    if(grp)grp.querySelectorAll('.etgl').forEach((b,i)=>{b.className='etgl ewin-btn '+(i===0&&val==='local'?'on':i===1&&val==='visita'?'on':'no');});
+  }
+  if(tipo==='pen'){
+    ep.penGana=val;
+    const grp=document.getElementById('penbtns2_'+pid);
+    if(grp)grp.querySelectorAll('.etgl').forEach((b,i)=>{b.className='etgl ewin-btn '+(i===0&&val==='local'?'on':i===1&&val==='visita'?'on':'no');});
+  }
+  eUpdPts(pid);
+}
+
 function eSetTgl(pid,tipo,val){
   const ep=EPRONOS[pid]||{};EPRONOS[pid]=ep;
   if(tipo==='al'){
@@ -2636,8 +2661,7 @@ function eSetTgl(pid,tipo,val){
 
 function eUpdPts(pid){
   const ep=EPRONOS[pid]||{};
-  const sel=document.getElementById('epensel_'+pid);if(sel)ep.penGana=sel.value||null;
-  const selA=document.getElementById('ealargsel_'+pid);if(selA)ep.alargGana=selA.value||null;
+  // penGana y alargGana se actualizan via eSetWin directamente en EPRONOS
   let pts=0;
   if(ep.alargue==='si')pts+=1;
   if(ep.penales==='si')pts+=1;
@@ -2653,10 +2677,7 @@ async function eGuardar(pid,desc){
   const ep=EPRONOS[pid]||{};EPRONOS[pid]=ep;
   const gl=document.getElementById('egl_'+pid)?.value;
   const gv=document.getElementById('egv_'+pid)?.value;
-  const sel=document.getElementById('epensel_'+pid);
-  if(sel)ep.penGana=sel.value||null;
-  const selA=document.getElementById('ealargsel_'+pid);
-  if(selA)ep.alargGana=selA.value||null;
+  // penGana y alargGana ya están en ep via eSetWin
   if(gl===''||gv===''){toast('Ingresá el resultado al 90\'','err');return;}
   ep.gL=gl;ep.gV=gv;
   const {error}=await SB.from('pronosticos').upsert({usuario_id:USR.id,partido_id:pid,goles_local:parseInt(gl),goles_visitante:parseInt(gv),fase:'eliminatoria',puntos:0},{onConflict:'usuario_id,partido_id'});
@@ -3051,7 +3072,7 @@ async function svRes(id){
 async function eGuardar(pid,desc){
   const ep=EPRONOS[pid]||{};EPRONOS[pid]=ep;
   const gl=document.getElementById('egl_'+pid)?.value; const gv=document.getElementById('egv_'+pid)?.value;
-  const sel=document.getElementById('epensel_'+pid); if(sel)ep.penGana=sel.value||null;
+  // penGana ya está en ep via eSetWin
   if(gl===''||gv===''){toast("Ingresá el resultado al 90'","err");return;}
   ep.gL=gl;ep.gV=gv;
   const {error}=await SB.from('pronosticos').upsert({usuario_id:USR.id,partido_id:pid,goles_local:parseInt(gl),goles_visitante:parseInt(gv),fase:'eliminatoria',puntos:0},{onConflict:'usuario_id,partido_id'});
