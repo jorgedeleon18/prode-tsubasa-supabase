@@ -2515,6 +2515,7 @@ function eCard(p,color){
   } else {
     const hasal=ep.alargue==='si';
     const haspen=ep.penales==='si';
+    const hasnopen=ep.alargue==='si'&&ep.penales==='no';
     body=`<div class="eext">
       <div class="eext-t">Resultado al 90'</div>
       <div class="eext-row">
@@ -2538,6 +2539,15 @@ function eCard(p,color){
           <button class="etgl ${haspen?'on':'no'}" onclick="eSetTgl('${p.id}','pen','si')">Penales +1</button>
           <button class="etgl ${!haspen&&ep.penales==='no'?'on':'no'}" onclick="eSetTgl('${p.id}','pen','no')">No penales</button>
         </div>
+      </div>
+      <div id="ganalarg_${p.id}" class="epen-row ${hasnopen?'vis':''}">
+        <span style="font-size:10px;color:var(--gray-dark);font-weight:500;flex:1">Gana en alargue:</span>
+        <select class="epen-sel" id="ealargsel_${p.id}" onchange="eUpdPts('${p.id}')">
+          <option value="">— elegir —</option>
+          <option value="local" ${ep.alargGana==='local'?'selected':''}>🏠 ${teamL}</option>
+          <option value="visita" ${ep.alargGana==='visita'?'selected':''}>✈️ ${teamV}</option>
+        </select>
+        <span class="eort">+1</span>
       </div>
       <div id="ganpen_${p.id}" class="epen-row ${haspen?'vis':''}">
         <span style="font-size:10px;color:var(--gray-dark);font-weight:500;flex:1">Gana en penales:</span>
@@ -2595,6 +2605,7 @@ function eCalcDisplay(pid){
   if(ep.alargue==='si')p+=1;
   if(ep.penales==='si')p+=1;
   if(ep.penales==='si'&&ep.penGana)p+=1;
+  if(ep.alargue==='si'&&ep.penales==='no'&&ep.alargGana)p+=1;
   return p>0?p+' pts extra':'0 pts';
 }
 
@@ -2604,7 +2615,7 @@ function eSetTgl(pid,tipo,val){
     ep.alargue=val;
     const penGrp=document.getElementById('pengrp_'+pid);
     if(penGrp){penGrp.style.opacity=val==='si'?'1':'0';penGrp.style.pointerEvents=val==='si'?'all':'none';}
-    if(val!=='si'){ep.penales=null;ep.penGana=null;const gr=document.getElementById('ganpen_'+pid);if(gr)gr.classList.remove('vis');}
+    if(val!=='si'){ep.penales=null;ep.penGana=null;ep.alargGana=null;const gr=document.getElementById('ganpen_'+pid);if(gr)gr.classList.remove('vis');const gra=document.getElementById('ganalarg_'+pid);if(gra)gra.classList.remove('vis');}
     const grp=document.getElementById('algrp_'+pid);
     if(grp)grp.querySelectorAll('.etgl').forEach((b,i)=>{b.className='etgl '+(i===0&&val==='si'?'on':i===1&&val==='no'?'on':'no');});
   }
@@ -2613,6 +2624,10 @@ function eSetTgl(pid,tipo,val){
     const gr=document.getElementById('ganpen_'+pid);
     if(gr){if(val==='si')gr.classList.add('vis');else gr.classList.remove('vis');}
     if(val!=='si'){ep.penGana=null;}
+    // Mostrar "Gana en alargue" solo si hay alargue y NO penales
+    const gralarg=document.getElementById('ganalarg_'+pid);
+    if(gralarg){if(ep.alargue==='si'&&val==='no')gralarg.classList.add('vis');else gralarg.classList.remove('vis');}
+    if(val==='si'){ep.alargGana=null;} // Si va a penales, limpiar ganador de alargue
     const grp=document.getElementById('penbtns_'+pid);
     if(grp)grp.querySelectorAll('.etgl').forEach((b,i)=>{b.className='etgl '+(i===0&&val==='si'?'on':i===1&&val==='no'?'on':'no');});
   }
@@ -2622,10 +2637,12 @@ function eSetTgl(pid,tipo,val){
 function eUpdPts(pid){
   const ep=EPRONOS[pid]||{};
   const sel=document.getElementById('epensel_'+pid);if(sel)ep.penGana=sel.value||null;
+  const selA=document.getElementById('ealargsel_'+pid);if(selA)ep.alargGana=selA.value||null;
   let pts=0;
   if(ep.alargue==='si')pts+=1;
   if(ep.penales==='si')pts+=1;
   if(ep.penales==='si'&&ep.penGana)pts+=1;
+  if(ep.alargue==='si'&&ep.penales==='no'&&ep.alargGana)pts+=1;
   const el=document.getElementById('eptval_'+pid);
   const prev=document.getElementById('eptprev_'+pid);
   if(el){el.textContent=pts>0?pts+' pts extra':'0 pts';el.style.color=pts>0?'var(--verde)':'var(--aub)';}
@@ -2638,6 +2655,8 @@ async function eGuardar(pid,desc){
   const gv=document.getElementById('egv_'+pid)?.value;
   const sel=document.getElementById('epensel_'+pid);
   if(sel)ep.penGana=sel.value||null;
+  const selA=document.getElementById('ealargsel_'+pid);
+  if(selA)ep.alargGana=selA.value||null;
   if(gl===''||gv===''){toast('Ingresá el resultado al 90\'','err');return;}
   ep.gL=gl;ep.gV=gv;
   const {error}=await SB.from('pronosticos').upsert({usuario_id:USR.id,partido_id:pid,goles_local:parseInt(gl),goles_visitante:parseInt(gv),fase:'eliminatoria',puntos:0},{onConflict:'usuario_id,partido_id'});
@@ -2666,6 +2685,7 @@ function rEliminatorias(mc){
         <span>⏱️ Acierta alargue = <strong style="color:var(--aub)">+1</strong></span>
         <span>🎲 Acierta penales = <strong style="color:var(--aub)">+1</strong></span>
         <span>🏆 Acierta ganador en penales = <strong style="color:var(--aub)">+1</strong></span>
+        <span>⚡ Acierta ganador en alargue = <strong style="color:var(--aub)">+1</strong></span>
       </div>
     </div>
     ${rondas}
