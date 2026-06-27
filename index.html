@@ -2147,7 +2147,11 @@ async function rTodosPronos(mc){
     if(uerr)throw uerr;
     if(!TP_USER&&users.length)TP_USER=users[0].id;
     const userOpts=users.map(u=>`<option value="${u.id}" ${u.id===TP_USER?'selected':''}>${u.nombre||u.email}</option>`).join('');
-    const grupoOpts=['','A','B','C','D','E','F','G','H','I','J','K','L'].map(g=>`<option value="${g}" ${g===TP_GRUPO?'selected':''}>${g?'Grupo '+g:'Todos los grupos'}</option>`).join('');
+    const grupoOpts=[
+      '<option value="">Todos los grupos</option>',
+      ...['A','B','C','D','E','F','G','H','I','J','K','L'].map(g=>`<option value="${g}" ${g===TP_GRUPO?'selected':''}>Grupo ${g}</option>`),
+      `<option value="ELIM" ${TP_GRUPO==='ELIM'?'selected':''}>⚔️ Eliminatorias</option>`
+    ].join('');
 
     let body='<div class="loading">Cargando pronósticos</div>';
     mc.innerHTML=`<div class="aw" style="margin-bottom:14px">
@@ -2158,33 +2162,66 @@ async function rTodosPronos(mc){
       </div>
     </div><div id="tpBody">${body}</div>`;
 
-    const {data:pronos,error:perr}=await SB.from('pronosticos').select('partido_id,goles_local,goles_visitante,puntos').eq('usuario_id',TP_USER);
+    const {data:pronos,error:perr}=await SB.from('pronosticos').select('partido_id,goles_local,goles_visitante,puntos,alargue,penales,ganador_extra').eq('usuario_id',TP_USER);
     if(perr)throw perr;
     const pmap={};(pronos||[]).forEach(p=>pmap[p.partido_id]=p);
 
-    let lista=TODOS.filter(p=>/^[A-L]/.test(p.id));
-    if(TP_GRUPO)lista=lista.filter(p=>p.id[0]===TP_GRUPO);
-
     const total=(pronos||[]).reduce((s,p)=>s+(p.puntos||0),0);
-    const cargados=lista.filter(p=>pmap[p.id]!==undefined).length;
 
-    const rows=lista.map(p=>{
-      const pr=pmap[p.id];const fin=finalizado(p);
-      if(!pr){
-        return`<div class="hist-row"><div class="am"><div class="amt">${fn(p.l)} vs ${fn(p.v)}</div><div class="ams">${p.grupo} · ${fechaCorta(p.fecha)} · ${fin?'Real: '+p.gl+'–'+p.gv:'No jugado aún'}</div></div><div style="font-size:13px;color:var(--gray);min-width:55px;text-align:right">Sin prode</div></div>`;
-      }
-      let ptB='';
-      if(fin&&pr.puntos!==undefined){
-        const cls=pr.puntos>=5?'ptb-5':pr.puntos>=3?'ptb-3':pr.puntos>=1?'ptb-1':'ptb-0';
-        ptB=`<span class="ptb ${cls}" style="margin-top:3px;display:inline-block">+${pr.puntos} pts</span>`;
-      }
-      return`<div class="hist-row">
-        <div class="am"><div class="amt">${fn(p.l)} vs ${fn(p.v)}</div><div class="ams">${p.grupo} · ${fechaCorta(p.fecha)} · ${fin?'Real: '+p.gl+'–'+p.gv:'No jugado aún'}</div>${ptB}</div>
-        <div style="font-size:17px;font-weight:800;color:var(--aub);min-width:55px;text-align:right">${pr.goles_local}–${pr.goles_visitante}</div>
-      </div>`;
-    }).join('');
-
-    document.getElementById('tpBody').innerHTML=`<div class="stats" style="margin-bottom:10px"><div class="sc sc-a"><div class="sc-lbl">Puntos totales</div><div class="sc-val">${total}</div><div class="sc-sub">acumulados</div></div><div class="sc sc-v"><div class="sc-lbl">Cargados</div><div class="sc-val">${cargados}/${lista.length}</div><div class="sc-sub">pronósticos</div></div></div>${rows||'<div class="empty"><div class="empty-txt">Sin partidos para este filtro</div></div>'}`;
+    let lista,rows;
+    if(TP_GRUPO==='ELIM'){
+      // Mostrar partidos de eliminatorias
+      const elimPartidos=ERONDAS.flatMap(r=>r.partidos.map(p=>{
+        const partes=p.desc.split(' vs ');
+        const eq=EQUIPOS_ELIM[p.id]||{};
+        return{...p,l:eq.l||partes[0]||'Local',v:eq.v||partes[1]||'Visitante',grupo:r.label,gl:RESULTADOS[p.id]?.gl,gv:RESULTADOS[p.id]?.gv};
+      }));
+      const cargados=elimPartidos.filter(p=>pmap[p.id]!==undefined).length;
+      rows=elimPartidos.map(p=>{
+        const pr=pmap[p.id];
+        const fin=RESULTADOS[p.id]!==undefined;
+        const resStr=fin?`Real: ${RESULTADOS[p.id].gl}–${RESULTADOS[p.id].gv}`:'No jugado aún';
+        if(!pr){
+          return`<div class="hist-row"><div class="am"><div class="amt">${fn(p.l)} vs ${fn(p.v)}</div><div class="ams">${p.grupo} · ${fechaCorta(p.fecha)} · ${resStr}</div></div><div style="font-size:13px;color:var(--gray);min-width:55px;text-align:right">Sin prode</div></div>`;
+        }
+        let ptB='';
+        if(fin&&pr.puntos!==undefined){
+          const cls=pr.puntos>=5?'ptb-5':pr.puntos>=3?'ptb-3':pr.puntos>=1?'ptb-1':'ptb-0';
+          ptB=`<span class="ptb ${cls}" style="margin-top:3px;display:inline-block">+${pr.puntos} pts</span>`;
+        }
+        // Extras del pronóstico
+        const extras=[];
+        if(pr.alargue==='si')extras.push('Alargue');
+        if(pr.penales==='si')extras.push('Penales');
+        if(pr.ganador_extra)extras.push('Gana: '+(pr.ganador_extra==='local'?fn(p.l):fn(p.v)));
+        const extraStr=extras.length?` · <span style="color:var(--aub);font-size:9px">${extras.join(' · ')}</span>`:'';
+        return`<div class="hist-row">
+          <div class="am"><div class="amt">${fn(p.l)} vs ${fn(p.v)}</div><div class="ams">${p.grupo} · ${fechaCorta(p.fecha)} · ${resStr}${extraStr}</div>${ptB}</div>
+          <div style="font-size:17px;font-weight:800;color:var(--aub);min-width:55px;text-align:right">${pr.goles_local}–${pr.goles_visitante}</div>
+        </div>`;
+      }).join('');
+      document.getElementById('tpBody').innerHTML=`<div class="stats" style="margin-bottom:10px"><div class="sc sc-a"><div class="sc-lbl">Puntos totales</div><div class="sc-val">${total}</div><div class="sc-sub">acumulados</div></div><div class="sc sc-v"><div class="sc-lbl">Cargados</div><div class="sc-val">${cargados}/${elimPartidos.length}</div><div class="sc-sub">pronósticos</div></div></div>${rows||'<div class="empty"><div class="empty-txt">Sin pronósticos de eliminatorias</div></div>'}`;
+    } else {
+      lista=TODOS.filter(p=>/^[A-L]/.test(p.id));
+      if(TP_GRUPO)lista=lista.filter(p=>p.id[0]===TP_GRUPO);
+      const cargados=lista.filter(p=>pmap[p.id]!==undefined).length;
+      rows=lista.map(p=>{
+        const pr=pmap[p.id];const fin=finalizado(p);
+        if(!pr){
+          return`<div class="hist-row"><div class="am"><div class="amt">${fn(p.l)} vs ${fn(p.v)}</div><div class="ams">${p.grupo} · ${fechaCorta(p.fecha)} · ${fin?'Real: '+p.gl+'–'+p.gv:'No jugado aún'}</div></div><div style="font-size:13px;color:var(--gray);min-width:55px;text-align:right">Sin prode</div></div>`;
+        }
+        let ptB='';
+        if(fin&&pr.puntos!==undefined){
+          const cls=pr.puntos>=5?'ptb-5':pr.puntos>=3?'ptb-3':pr.puntos>=1?'ptb-1':'ptb-0';
+          ptB=`<span class="ptb ${cls}" style="margin-top:3px;display:inline-block">+${pr.puntos} pts</span>`;
+        }
+        return`<div class="hist-row">
+          <div class="am"><div class="amt">${fn(p.l)} vs ${fn(p.v)}</div><div class="ams">${p.grupo} · ${fechaCorta(p.fecha)} · ${fin?'Real: '+p.gl+'–'+p.gv:'No jugado aún'}</div>${ptB}</div>
+          <div style="font-size:17px;font-weight:800;color:var(--aub);min-width:55px;text-align:right">${pr.goles_local}–${pr.goles_visitante}</div>
+        </div>`;
+      }).join('');
+      document.getElementById('tpBody').innerHTML=`<div class="stats" style="margin-bottom:10px"><div class="sc sc-a"><div class="sc-lbl">Puntos totales</div><div class="sc-val">${total}</div><div class="sc-sub">acumulados</div></div><div class="sc sc-v"><div class="sc-lbl">Cargados</div><div class="sc-val">${cargados}/${lista.length}</div><div class="sc-sub">pronósticos</div></div></div>${rows||'<div class="empty"><div class="empty-txt">Sin partidos para este filtro</div></div>'}`;
+    }
   }catch(e){
     mc.innerHTML=`<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-txt">No se pudo cargar: ${e.message}</div></div>`;
   }
