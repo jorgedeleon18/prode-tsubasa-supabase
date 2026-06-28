@@ -2764,11 +2764,27 @@ function eCard(p,color){
 
   let body='';
   if(cerrado){
-    body=`<div style="text-align:center;padding:8px;font-size:10px;color:var(--rojo-dark);font-weight:700;background:var(--rojo-light);border-radius:6px;margin:9px 11px 11px">🔒 Cerrado — sin modificación</div>`;
+    if(ep.gL!==undefined&&ep.gL!==''&&ep.gV!==undefined&&ep.gV!==''){
+      // Tiene pronóstico guardado — mostrar resumen de lo que eligió
+      const alargueStr=ep.alargue==='si'?'⏱️ Alargue: Sí':(ep.alargue==='no'?'⏱️ Alargue: No':'');
+      const penalesStr=ep.penales==='si'?'🎲 Penales: Sí':(ep.penales==='no'?'🎲 Penales: No':'');
+      const ganExtra=ep.penGana||ep.alargGana;
+      const ganStr=ganExtra?(ep.penales==='si'?`🏆 Gan. penales: ${ganExtra==='local'?fn(p.l||teamL):fn(p.v||teamV)}`:`🏆 Gan. alargue: ${ganExtra==='local'?fn(p.l||teamL):fn(p.v||teamV)}`):'';
+      body=`
+        <div style="text-align:center;padding:4px 8px;font-size:9px;font-weight:700;color:#166534;background:#dcfce7;border-radius:6px 6px 0 0;letter-spacing:.3px">✓ Pronóstico guardado: ${ep.gL}–${ep.gV}</div>
+        <div style="padding:8px 11px 10px;display:flex;flex-direction:column;gap:4px">
+          ${alargueStr?`<div style="font-size:10px;color:var(--gray-dark)">${alargueStr}</div>`:''}
+          ${penalesStr?`<div style="font-size:10px;color:var(--gray-dark)">${penalesStr}</div>`:''}
+          ${ganStr?`<div style="font-size:10px;color:var(--gray-dark)">${ganStr}</div>`:''}
+          <div style="font-size:9px;color:var(--rojo-dark);font-weight:600;margin-top:2px">🔒 Cerrado — sin modificación</div>
+        </div>`;
+    } else {
+      body=`<div style="text-align:center;padding:8px;font-size:10px;color:var(--rojo-dark);font-weight:700;background:var(--rojo-light);border-radius:6px;margin:9px 11px 11px">🔒 Cerrado — sin pronóstico cargado</div>`;
+    }
   } else {
     const hasal=ep.alargue==='si';
     const haspen=ep.penales==='si';
-    const hasnopen=ep.alargue==='si'&&ep.penales!=='si'; // gana en alargue solo si no hay penales
+    const hasnopen=ep.alargue==='si'&&ep.penales==='no';
     body=`<div class="eext">
       <div class="eext-t">Resultado al 90'</div>
       <div class="eext-row" style="flex-direction:column;gap:4px">
@@ -2786,7 +2802,7 @@ function eCard(p,color){
           <button class="etgl ${!hasal&&ep.alargue==='no'?'on':'no'}" onclick="eSetTgl('${p.id}','al','no')">No</button>
         </div>
       </div>
-      <div id="pengrp_${p.id}" class="eext-row" style="margin-top:0;opacity:${hasal&&!ep.alargGana?'1':'0'};pointer-events:${hasal&&!ep.alargGana?'all':'none'};transition:opacity .2s">
+      <div id="pengrp_${p.id}" class="eext-row" style="margin-top:0;opacity:${hasal?'1':'0'};pointer-events:${hasal?'all':'none'};transition:opacity .2s">
         <div class="etgl-grp" id="penbtns_${p.id}">
           <button class="etgl ${haspen?'on':'no'}" onclick="eSetTgl('${p.id}','pen','si')">Penales +1</button>
           <button class="etgl ${!haspen&&ep.penales==='no'?'on':'no'}" onclick="eSetTgl('${p.id}','pen','no')">No penales</button>
@@ -2867,7 +2883,7 @@ function eCalcDisplay(pid){
   if(esEmpate&&ep.alargue==='si')p+=1;
   if(esEmpate&&ep.penales==='si')p+=1;
   if(esEmpate&&ep.penales==='si'&&ep.penGana)p+=1;
-  if(esEmpate&&ep.alargue==='si'&&ep.penales!=='si'&&ep.alargGana)p+=1;
+  if(esEmpate&&ep.alargue==='si'&&ep.penales==='no'&&ep.alargGana)p+=1;
   return p>0?p+' pts extra':'0 pts';
 }
 
@@ -2877,13 +2893,6 @@ function eSetWin(pid,tipo,val){
     ep.alargGana=val;
     const grp=document.getElementById('alargbtns_'+pid);
     if(grp)grp.querySelectorAll('.etgl').forEach((b,i)=>{b.className='etgl ewin-btn '+(i===0&&val==='local'?'on':i===1&&val==='visita'?'on':'no');});
-    // Elegiste ganador en alargue → partido terminó, ocultar penales
-    const pengrp=document.getElementById('pengrp_'+pid);
-    if(pengrp){pengrp.style.opacity='0';pengrp.style.pointerEvents='none';}
-    ep.penales=null;ep.penGana=null;
-    const penbtns=document.getElementById('penbtns_'+pid);
-    if(penbtns)penbtns.querySelectorAll('.etgl').forEach(b=>b.className='etgl no');
-    const ganpen=document.getElementById('ganpen_'+pid);if(ganpen)ganpen.classList.remove('vis');
   }
   if(tipo==='pen'){
     ep.penGana=val;
@@ -2898,7 +2907,7 @@ function eSetTgl(pid,tipo,val){
   if(tipo==='al'){
     ep.alargue=val;
     const penGrp=document.getElementById('pengrp_'+pid);
-    if(penGrp){const mostrarPen=val==='si'&&!ep.alargGana;penGrp.style.opacity=mostrarPen?'1':'0';penGrp.style.pointerEvents=mostrarPen?'all':'none';}
+    if(penGrp){penGrp.style.opacity=val==='si'?'1':'0';penGrp.style.pointerEvents=val==='si'?'all':'none';}
     if(val!=='si'){ep.penales=null;ep.penGana=null;ep.alargGana=null;const gr=document.getElementById('ganpen_'+pid);if(gr)gr.classList.remove('vis');const gra=document.getElementById('ganalarg_'+pid);if(gra)gra.classList.remove('vis');}
     const grp=document.getElementById('algrp_'+pid);
     if(grp)grp.querySelectorAll('.etgl').forEach((b,i)=>{b.className='etgl '+(i===0&&val==='si'?'on':i===1&&val==='no'?'on':'no');});
@@ -2910,14 +2919,8 @@ function eSetTgl(pid,tipo,val){
     if(val!=='si'){ep.penGana=null;}
     // Mostrar "Gana en alargue" solo si hay alargue y NO penales
     const gralarg=document.getElementById('ganalarg_'+pid);
-    if(val==='si'){
-      ep.alargGana=null;
-      const ab=document.getElementById('alargbtns_'+pid);
-      if(ab)ab.querySelectorAll('.etgl').forEach(b=>b.className='etgl ewin-btn no');
-      if(gralarg)gralarg.classList.remove('vis');
-    } else {
-      if(gralarg&&ep.alargue==='si')gralarg.classList.add('vis');
-    } // Si va a penales, limpiar ganador de alargue
+    if(gralarg){if(ep.alargue==='si'&&val==='no')gralarg.classList.add('vis');else gralarg.classList.remove('vis');}
+    if(val==='si'){ep.alargGana=null;} // Si va a penales, limpiar ganador de alargue
     const grp=document.getElementById('penbtns_'+pid);
     if(grp)grp.querySelectorAll('.etgl').forEach((b,i)=>{b.className='etgl '+(i===0&&val==='si'?'on':i===1&&val==='no'?'on':'no');});
   }
@@ -2948,21 +2951,12 @@ function eUpdPts(pid){
     if(pengrp){pengrp.style.opacity='0';pengrp.style.pointerEvents='none';}
     const ganalarg=document.getElementById('ganalarg_'+pid);if(ganalarg)ganalarg.classList.remove('vis');
     const ganpen=document.getElementById('ganpen_'+pid);if(ganpen)ganpen.classList.remove('vis');
-  } else {
-    // Sincronizar visibilidad según estado ep (carga inicial desde Supabase)
-    const pengrp=document.getElementById('pengrp_'+pid);
-    const mostrarPen=ep.alargue==='si'&&!ep.alargGana;
-    if(pengrp){pengrp.style.opacity=mostrarPen?'1':'0';pengrp.style.pointerEvents=mostrarPen?'all':'none';}
-    const ganalarg=document.getElementById('ganalarg_'+pid);
-    if(ganalarg){(ep.alargue==='si'&&ep.penales!=='si')?ganalarg.classList.add('vis'):ganalarg.classList.remove('vis');}
-    const ganpen=document.getElementById('ganpen_'+pid);
-    if(ganpen){ep.penales==='si'?ganpen.classList.add('vis'):ganpen.classList.remove('vis');}
   }
   let pts=0;
   if(esEmpate&&ep.alargue==='si')pts+=1;
   if(esEmpate&&ep.penales==='si')pts+=1;
   if(esEmpate&&ep.penales==='si'&&ep.penGana)pts+=1;
-  if(esEmpate&&ep.alargue==='si'&&ep.penales!=='si'&&ep.alargGana)pts+=1;
+  if(esEmpate&&ep.alargue==='si'&&ep.penales==='no'&&ep.alargGana)pts+=1;
   const el=document.getElementById('eptval_'+pid);
   const prev=document.getElementById('eptprev_'+pid);
   if(el){el.textContent=pts>0?pts+' pts extra':'0 pts';el.style.color=pts>0?'var(--verde)':'var(--aub)';}
@@ -3036,10 +3030,6 @@ function rEliminatorias(mc){
     </div>
     ${rondas}
   </div>`;
-  // Sincronizar estado visual de cada card tras renderizar
-  setTimeout(()=>{
-    ERONDAS.forEach(r=>r.partidos.forEach(p=>eUpdPts(p.id)));
-  },0);
 }
 
 
