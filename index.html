@@ -2724,7 +2724,7 @@ const ERONDAS=[
     {id:'P88',label:'P88',desc:'Australia vs Egypt',fecha:'2026-07-03',hora:'15:00',ciudad:'Dallas'},
   ]},
   {id:'oct',label:'8vos de final ⚔️',cols:2,color:'#1d4ed8',partidos:[
-    {id:'P89',label:'P89',desc:'G.P73 vs G.P74',fecha:'2026-07-04',hora:'14:00',ciudad:'Philadelphia'},
+    {id:'P89',label:'P89',desc:'G.P74 vs G.P77',fecha:'2026-07-04',hora:'18:00',ciudad:'Philadelphia'},
     {id:'P90',label:'P90',desc:'G.P73 vs G.P75',fecha:'2026-07-04',hora:'14:00',ciudad:'Houston'},
     {id:'P91',label:'P91',desc:'G.P76 vs G.P78',fecha:'2026-07-05',hora:'15:00',ciudad:'NY/NJ'},
     {id:'P92',label:'P92',desc:'G.P79 vs G.P80',fecha:'2026-07-05',hora:'19:00',ciudad:'Ciudad de México'},
@@ -2764,8 +2764,8 @@ function eCard(p,color){
 
   const eest=fin?`<span class="eest eest-f">✓ Finalizado</span>`:cerrado?`<span class="eest eest-c">⛔ Cerrado</span>`:`<span class="eest eest-a">⏳ Abierto</span>`;
 
-  const teamL=ep.teamL||p.desc.split(' vs ')[0];
-  const teamV=ep.teamV||p.desc.split(' vs ')[1];
+  const teamL=ep.teamL||p.l||p.desc.split(' vs ')[0];
+  const teamV=ep.teamV||p.v||p.desc.split(' vs ')[1];
   const esRealL=!teamL.includes('°')&&!teamL.includes('G.P')&&teamL.length>1;
   const esRealV=!teamV.includes('°')&&!teamV.includes('G.P')&&teamV.length>1;
 
