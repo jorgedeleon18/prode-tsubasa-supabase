@@ -2571,16 +2571,21 @@ const SUPER_ADMIN='jorge_dl18@hotmail.com';
 // ══ RECALCULAR PUNTOS DE TODOS EN SUPABASE ══
 // Llama a esto después de guardar cualquier resultado
 async function recalcPartido(partido_id){
-  const p=TODOS.find(x=>x.id===partido_id);
-  if(!p||!finalizado(p))return;
+  const esElim=partido_id?.startsWith('P')&&parseInt(partido_id.slice(1))>=73;
+  const todosConElim=getTodosConElim();
+  const p=todosConElim.find(x=>x.id===partido_id);
+  // Para eliminatorias: finalizado si hay resultado en RESULTADOS; para grupos: usar finalizado(p)
+  const esFin=esElim?(RESULTADOS[partido_id]!==undefined):(!p?false:finalizado(p));
+  if(!p||!esFin)return;
   // Resultado real con extras
   const res=RESULTADOS[partido_id]||{};
+  const pConRes=esElim?{...p,...res}:p;
   try{
     const {data:pronos,error}=await SB.from('pronosticos').select('id,usuario_id,goles_local,goles_visitante,alargue,penales,ganador_extra').eq('partido_id',partido_id);
     if(error||!pronos?.length)return;
     const updates=pronos.map(pr=>{
       const fake={gL:String(pr.goles_local),gV:String(pr.goles_visitante)};
-      const r=calcPts(p,fake);
+      const r=calcPts(pConRes,fake);
       let pts=r?r.pts:0;
       // Extras solo para eliminatorias — leer de columnas nuevas
       if(res.alargue!==undefined&&res.alargue!==null){
@@ -2782,7 +2787,10 @@ function eCard(p,color){
       ${res.alargue?'<div style="text-align:center;font-size:9px;color:var(--aub);font-weight:700;margin-bottom:4px">⏱️ Fue a alargue'+(res.penales?' · 🎲 Penales':'')+'</div>':''}
       ${tieneProno?`<div style="text-align:center;font-size:10px;font-weight:700;color:#166534;background:#dcfce7;border-radius:5px;padding:4px 8px;margin:4px 0">Tu prode: ${userGL}–${userGV}</div>`:'<div style="text-align:center;font-size:9px;color:var(--gray);margin:4px 0">Sin pronóstico</div>'}
       ${tieneProno&&(alargueStr||ganStr)?`<div style="text-align:center;font-size:9px;color:var(--gray-dark);margin-top:2px">${[alargueStr,ganStr].filter(Boolean).join(' · ')}</div>`:''}
-      <div style="text-align:center;margin-top:6px"><span style="display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:800;${(ep.pts||0)>0?'background:var(--verde-light);color:var(--verde-dark)':'background:var(--gray-light);color:var(--gray)'}">${(ep.pts||0)>0?'+'+ep.pts+' pts':'0 pts'}</span></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:5px 9px;background:${(ep.pts||0)>0?'var(--verde-light)':'#f3e8ff'};border-radius:6px;border:1px solid ${(ep.pts||0)>0?'#86efac':'#d8b4fe'}">
+        <span style="font-size:10px;font-weight:600;color:var(--gray-dark)">Puntos obtenidos</span>
+        <span style="font-size:13px;font-weight:800;color:${(ep.pts||0)>0?'var(--verde-dark)':'#7c3aed'}">${(ep.pts||0)>0?'+'+ep.pts+' pts':'0 pts'}</span>
+      </div>
     </div>`;
   } else if(cerrado){
     if(ep.gL!==undefined&&ep.gL!==''&&ep.gV!==undefined&&ep.gV!==''){
