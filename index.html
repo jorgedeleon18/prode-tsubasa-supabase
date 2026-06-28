@@ -994,24 +994,24 @@ body.dark .eig{background:#0d1820;border-color:var(--gray-border);color:var(--gr
 body.dark .bracket-btn{background:rgba(18,28,36,.85)}
 .bracket-btn:hover{border-color:var(--aub);color:var(--aub)}
 /* ── BRACKET FINAL ── */
-.bk-wrap{padding:12px;overflow-x:auto;min-height:300px}
-.bk-title{font-size:14px;font-weight:800;color:var(--aub);margin-bottom:16px;text-align:center;letter-spacing:.5px;text-transform:uppercase}
-.bk-grid{display:grid;grid-template-columns:1fr 1fr 1fr 80px 1fr 1fr 1fr;gap:0;align-items:center;min-width:860px}
-.bk-col{display:flex;flex-direction:column;gap:6px;padding:4px}
-.bk-col-center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px}
-.bk-match{background:rgba(255,255,255,.08);border:1px solid var(--gray-border);border-radius:8px;cursor:pointer;transition:all .15s;overflow:hidden;min-width:100px}
-.bk-match:hover{border-color:var(--aub);box-shadow:0 2px 8px rgba(0,174,195,.2)}
-.bk-team{display:flex;align-items:center;gap:5px;padding:5px 7px;font-size:10px;font-weight:600;color:var(--gray-dark)}
-.bk-team.winner{background:rgba(0,174,195,.12);color:var(--aub-darker);font-weight:800}
-.bk-team.loser{opacity:.35;filter:grayscale(1)}
-.bk-team.pending{color:var(--gray)}
-.bk-flag{width:18px;height:12px;object-fit:cover;border-radius:2px;flex-shrink:0}
-.bk-sep{height:1px;background:var(--gray-border);margin:0}
-.bk-pid{font-size:8px;font-weight:700;color:var(--gray);text-align:center;padding:2px 0;background:rgba(0,0,0,.05);letter-spacing:.3px}
-.bk-trophy{font-size:32px;text-align:center;line-height:1}
-.bk-finals-lbl{font-size:8px;color:var(--gray);text-align:center;font-weight:600;letter-spacing:.3px;text-transform:uppercase;margin-top:2px}
+.bk-wrap{padding:12px 8px;overflow-x:auto}
+.bk-title{font-size:14px;font-weight:800;color:var(--aub);margin-bottom:14px;text-align:center;letter-spacing:.5px;text-transform:uppercase}
+.bk-table{border-collapse:separate;border-spacing:5px;margin:0 auto}
+.bk-match{background:rgba(255,255,255,.07);border:1px solid var(--gray-border);border-radius:7px;cursor:pointer;transition:border-color .15s,box-shadow .15s;overflow:hidden;min-width:105px;max-width:130px}
+.bk-match:hover{border-color:var(--aub);box-shadow:0 2px 8px rgba(0,174,195,.25)}
+.bk-pid{font-size:7.5px;font-weight:700;color:rgba(255,255,255,.35);text-align:center;padding:2px 4px;background:rgba(0,0,0,.12);letter-spacing:.4px}
+.bk-team{display:flex;align-items:center;gap:4px;padding:4px 6px;font-size:9.5px;font-weight:600;color:var(--gray-dark);white-space:nowrap;overflow:hidden}
+.bk-team .bk-name{overflow:hidden;text-overflow:ellipsis;max-width:80px}
+.bk-team.bk-win{background:rgba(0,174,195,.15);color:var(--aub-darker);font-weight:800}
+.bk-team.bk-lose{opacity:.3;filter:grayscale(1)}
+.bk-team.bk-pend{color:rgba(255,255,255,.3)}
+.bk-sep{height:1px;background:var(--gray-border)}
+.bk-trophy-cell{text-align:center;vertical-align:middle;padding:4px}
+.bk-trophy{font-size:28px;line-height:1}
+.bk-finals-lbl{font-size:7px;color:var(--gray);font-weight:700;letter-spacing:.4px;text-transform:uppercase;margin:3px 0}
+.bk-champion{font-size:10px;font-weight:800;color:var(--oro,#f59e0b);margin-top:4px}
 body.dark .bk-match{background:rgba(255,255,255,.04)}
-body.dark .bk-team.winner{background:rgba(0,174,195,.18)}
+body.dark .bk-team.bk-win{background:rgba(0,174,195,.2)}
 .bracket-wrap{background:rgba(255,255,255,.9);border-radius:10px;border:1px solid var(--gray-border);padding:14px;margin-bottom:16px;backdrop-filter:blur(4px);overflow-x:auto}
 body.dark .bracket-wrap{background:rgba(18,28,36,.9)}
 /* Banner Sistema de puntaje en Eliminatorias - respeta dark mode */
@@ -3455,135 +3455,151 @@ async function eGuardar(pid,desc){
 
 // ══════ BRACKET FINAL ══════
 function rBracket(mc){
-  // Renderiza el bracket del Mundial 2026
-  // Estructura: 16avos → Octavos → Cuartos → Semis → Final
-  // Lado IZQ: P89,P90,P93,P94 → P97,P98 → P101
-  // Lado DER: P91,P92,P95,P96 → P99,P100 → P102
-  // Final: P104, 3er puesto: P103
 
-  function bkTeam(pid, side){
-    // side: 'local' o 'visita'
-    const p = ERONDAS.flatMap(r=>r.partidos).find(x=>x.id===pid);
-    if(!p) return {name:'?', isReal:false, flag:null};
-    const name = side==='local' ? (p.l||p.desc.split(' vs ')[0]) : (p.v||p.desc.split(' vs ')[1]);
-    const isReal = name && !name.includes('G.P') && !name.includes('°') && name.length>1;
-    return {name: name||'?', isReal, pid};
+  function getP(pid){
+    return ERONDAS.flatMap(r=>r.partidos).find(x=>x.id===pid)||null;
   }
 
-  function getWinner(pid){
-    return getGanadorPartido(pid);
+  function teamName(p, side){
+    if(!p) return '?';
+    const raw = side==='l' ? (p.l||p.desc.split(' vs ')[0]) : (p.v||p.desc.split(' vs ')[1]);
+    return raw||'?';
   }
 
-  function getLoser(pid){
-    const res = RESULTADOS[pid];
-    if(!res) return null;
-    const p = ERONDAS.flatMap(r=>r.partidos).find(x=>x.id===pid);
-    if(!p) return null;
-    const teamL = p.l||p.desc.split(' vs ')[0];
-    const teamV = p.v||p.desc.split(' vs ')[1];
-    if(res.ganador_extra){
-      return res.ganador_extra==='local' ? teamV : teamL;
-    }
-    if(res.gl>res.gv) return teamV;
-    if(res.gv>res.gl) return teamL;
+  function isReal(name){
+    return name && name!='?' && !name.startsWith('G.P') && !name.includes('°') && name.length>1;
+  }
+
+  function getWin(pid){ return getGanadorPartido(pid); }
+
+  function getLose(pid){
+    const res=RESULTADOS[pid]; if(!res) return null;
+    const p=getP(pid); if(!p) return null;
+    const tL=teamName(p,'l'), tV=teamName(p,'v');
+    if(res.ganador_extra) return res.ganador_extra==='local'?tV:tL;
+    if(res.gl>res.gv) return tV;
+    if(res.gv>res.gl) return tL;
     return null;
   }
 
-  function matchCard(pid, label){
-    const p = ERONDAS.flatMap(r=>r.partidos).find(x=>x.id===pid);
-    if(!p) return `<div class="bk-match"><div class="bk-pid">${label||pid}</div></div>`;
+  function teamRow(name, isWin, isLos){
+    const real=isReal(name);
+    let cls='bk-team';
+    if(RESULTADOS[name]!==undefined){/* no aplica */}
+    if(isWin) cls+=' bk-win';
+    else if(isLos) cls+=' bk-lose';
+    else if(!real && name!='?') cls+=' bk-pend';
+    const flag=real?fi(name,16,11):'<span style="font-size:10px;line-height:1">🌍</span>';
+    const label=real?fn(name):(name.startsWith('G.P')?'?':name);
+    return `<div class="${cls}">${flag}<span class="bk-name">${label}</span></div>`;
+  }
 
-    const teamL = p.l||p.desc.split(' vs ')[0];
-    const teamV = p.v||p.desc.split(' vs ')[1];
-    const isRealL = teamL && !teamL.includes('G.P') && !teamL.includes('°') && teamL.length>1;
-    const isRealV = teamV && !teamV.includes('G.P') && !teamV.includes('°') && teamV.length>1;
-    const res = RESULTADOS[pid];
-    const winner = getWinner(pid);
-    const loser = getLoser(pid);
-
-    function teamRow(team, isReal, isWinner, isLoser){
-      let cls = 'bk-team';
-      if(res){ cls += isWinner ? ' winner' : (isLoser ? ' loser' : ''); }
-      else if(!isReal){ cls += ' pending'; }
-      const flag = isReal ? `<img class="bk-flag" src="${fi(team,18,12).match(/src="([^"]+)"/)?.[1]||''}" onerror="this.style.display='none'">` : '<span style="font-size:11px">🌍</span>';
-      const nameStr = isReal ? fn(team) : (team && team.startsWith('G.P') ? '?' : (team||'?'));
-      return `<div class="${cls}">${isReal?fi(team,18,12):'<span style="font-size:11px">🌍</span>'} <span>${nameStr}</span></div>`;
-    }
-
-    const rowL = teamRow(teamL, isRealL, winner===teamL, loser===teamL);
-    const rowV = teamRow(teamV, isRealV, winner===teamV, loser===teamV);
-
+  function card(pid){
+    const p=getP(pid);
+    if(!p) return `<div class="bk-match"><div class="bk-pid">${pid}</div><div class="bk-team bk-pend">🌍 <span class="bk-name">?</span></div><div class="bk-sep"></div><div class="bk-team bk-pend">🌍 <span class="bk-name">?</span></div></div>`;
+    const tL=teamName(p,'l'), tV=teamName(p,'v');
+    const win=getWin(pid), lose=getLose(pid);
     return `<div class="bk-match" onclick="irAPartido('${pid}')">
       <div class="bk-pid">${pid}</div>
-      ${rowL}<div class="bk-sep"></div>${rowV}
+      ${teamRow(tL, win===tL, lose===tL)}
+      <div class="bk-sep"></div>
+      ${teamRow(tV, win===tV, lose===tV)}
     </div>`;
   }
 
-  // Estructura visual del bracket (7 columnas)
-  // COL1: 16avos izq superior (P89,P90)
-  // COL2: Octavos izq (P97)
-  // COL3: Cuartos izq (P101)
-  // COL4: Final + 3er puesto (centro)
-  // COL5: Cuartos der (P102)
-  // COL6: Octavos der (P99)
-  // COL7: 16avos der superior (P91,P92)
-  // + segunda fila para la mitad inferior
+  // Bracket layout con todos los 16avos
+  // Estructura de 9 columnas:
+  // C1: 16avos izq-arr (P89,P90) | C2: Octavos izq-arr (P97) | C3: Cuartos izq (P101)
+  // C4: Semis izq (parte de P101→P104) | C5: CENTRO Final+3er | C6: Semis der
+  // C7: Cuartos der (P102) | C8: Octavos der (P99) | C9: 16avos der-arr (P91,P92)
+  // + segunda mitad (P93,P94 | P98 | P101bottom) y (P95,P96 | P100 | P102bottom)
+  // + 16avos individuales: columnas extra izq y der con P73..P88
 
-  const w = getWinner('P104');
-  const w3 = getWinner('P103');
-  const nameW = w ? `<div style="font-size:11px;font-weight:800;color:var(--oro);margin-top:4px">${fn(w)} 🥇</div>` : '';
-  const name3 = w3 ? `<div style="font-size:10px;font-weight:700;color:var(--gray-dark);margin-top:4px">${fn(w3)} 🥉</div>` : '';
+  // Los 16avos de final con sus equipos reales:
+  // Lado IZQ superior: P89 ← (P74, P77), P90 ← (P73, P75)
+  // Lado IZQ inferior: P93 ← (P83, P84), P94 ← (P81, P82)
+  // Lado DER superior: P91 ← (P76, P78), P92 ← (P79, P80)
+  // Lado DER inferior: P95 ← (P86, P88), P96 ← (P85, P87)
 
-  mc.innerHTML = `<div class="bk-wrap">
+  const wFin=getWin('P104');
+  const w3=getWin('P103');
+
+  mc.innerHTML=`<div class="bk-wrap">
     <div class="bk-title">🏆 Bracket Final — Mundial 2026</div>
-    <div style="overflow-x:auto">
-    <table style="border-collapse:separate;border-spacing:6px;min-width:900px;margin:0 auto">
-    <tr>
-      <td style="vertical-align:middle">${matchCard('P89','P89')}</td>
-      <td style="vertical-align:middle" rowspan="2">${matchCard('P97','P97')}</td>
-      <td style="vertical-align:middle" rowspan="4">${matchCard('P101','P101')}</td>
-      <td rowspan="8" style="text-align:center;vertical-align:middle;min-width:90px">
-        <div class="bk-trophy">🏆</div>
-        <div class="bk-finals-lbl">Final</div>
-        ${matchCard('P104','P104')}
-        ${nameW}
-        <div style="height:16px"></div>
-        <div class="bk-finals-lbl">3er puesto</div>
-        ${matchCard('P103','P103')}
-        ${name3}
-      </td>
-      <td style="vertical-align:middle" rowspan="4">${matchCard('P102','P102')}</td>
-      <td style="vertical-align:middle" rowspan="2">${matchCard('P99','P99')}</td>
-      <td style="vertical-align:middle">${matchCard('P91','P91')}</td>
-    </tr>
-    <tr>
-      <td style="vertical-align:middle">${matchCard('P90','P90')}</td>
-      <td style="vertical-align:middle">${matchCard('P92','P92')}</td>
-    </tr>
-    <tr>
-      <td style="vertical-align:middle">${matchCard('P93','P93')}</td>
-      <td style="vertical-align:middle" rowspan="2">${matchCard('P98','P98')}</td>
-      <td style="vertical-align:middle" rowspan="2">${matchCard('P100','P100')}</td>
-      <td style="vertical-align:middle">${matchCard('P95','P95')}</td>
-    </tr>
-    <tr>
-      <td style="vertical-align:middle">${matchCard('P94','P94')}</td>
-      <td style="vertical-align:middle">${matchCard('P96','P96')}</td>
-    </tr>
+    <div style="overflow-x:auto;padding-bottom:8px">
+    <table class="bk-table">
+      <tr>
+        <td style="vertical-align:middle">${card('P74')}</td>
+        <td rowspan="2" style="vertical-align:middle">${card('P89')}</td>
+        <td rowspan="4" style="vertical-align:middle">${card('P97')}</td>
+        <td rowspan="8" style="vertical-align:middle">${card('P101')}</td>
+        <td rowspan="16" class="bk-trophy-cell">
+          <div class="bk-trophy">🏆</div>
+          <div class="bk-finals-lbl">Final</div>
+          ${card('P104')}
+          ${wFin?`<div class="bk-champion">${fi(wFin,18,12)} ${fn(wFin)} 🥇</div>`:''}
+          <div style="height:10px"></div>
+          <div class="bk-finals-lbl">3er puesto</div>
+          ${card('P103')}
+          ${w3?`<div class="bk-champion" style="color:var(--gray)">${fi(w3,18,12)} ${fn(w3)} 🥉</div>`:''}
+        </td>
+        <td rowspan="8" style="vertical-align:middle">${card('P102')}</td>
+        <td rowspan="4" style="vertical-align:middle">${card('P99')}</td>
+        <td rowspan="2" style="vertical-align:middle">${card('P91')}</td>
+        <td style="vertical-align:middle">${card('P76')}</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle">${card('P77')}</td>
+        <td style="vertical-align:middle">${card('P78')}</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle">${card('P73')}</td>
+        <td rowspan="2" style="vertical-align:middle">${card('P90')}</td>
+        <td rowspan="2" style="vertical-align:middle">${card('P92')}</td>
+        <td style="vertical-align:middle">${card('P79')}</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle">${card('P75')}</td>
+        <td style="vertical-align:middle">${card('P80')}</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle">${card('P83')}</td>
+        <td rowspan="2" style="vertical-align:middle">${card('P93')}</td>
+        <td rowspan="4" style="vertical-align:middle">${card('P98')}</td>
+        <td rowspan="4" style="vertical-align:middle">${card('P100')}</td>
+        <td rowspan="2" style="vertical-align:middle">${card('P95')}</td>
+        <td style="vertical-align:middle">${card('P86')}</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle">${card('P84')}</td>
+        <td style="vertical-align:middle">${card('P88')}</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle">${card('P81')}</td>
+        <td rowspan="2" style="vertical-align:middle">${card('P94')}</td>
+        <td rowspan="2" style="vertical-align:middle">${card('P96')}</td>
+        <td style="vertical-align:middle">${card('P85')}</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle">${card('P82')}</td>
+        <td style="vertical-align:middle">${card('P87')}</td>
+      </tr>
     </table>
     </div>
-    <p style="text-align:center;font-size:10px;color:var(--gray);margin-top:12px">Click en cualquier partido para ir a Eliminatorias</p>
+    <p style="text-align:center;font-size:10px;color:var(--gray);margin-top:10px">📌 Click en cualquier partido para ir a Eliminatorias y ver detalles</p>
   </div>`;
 }
 
 function irAPartido(pid){
   V('eliminatorias');
   setTimeout(()=>{
-    const el = document.querySelector('[data-pid="'+pid+'"]') ||
-                Array.from(document.querySelectorAll('.ec-header-pid')).find(e=>e.textContent.includes(pid))?.closest('.ec') ||
-                document.querySelector('#ecard_'+pid);
-    if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.style.outline='2px solid var(--aub)'; setTimeout(()=>el.style.outline='',2000); }
-  }, 400);
+    const el=document.getElementById('ecard_'+pid);
+    if(el){
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+      el.style.outline='2px solid var(--aub)';
+      setTimeout(()=>el.style.outline='',2000);
+    }
+  },450);
 }
 
 // ══════ CONTADOR CIERRE DE GRUPOS ══════
