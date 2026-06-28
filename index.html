@@ -553,8 +553,6 @@ html,body{height:100%;font-family:var(--fn);font-size:14px;overflow-x:hidden}
 .sb-item{display:flex;align-items:center;gap:7px;padding:8px 13px;cursor:pointer;color:rgba(255,255,255,.46);font-size:11px;font-weight:500;border-left:3px solid transparent;transition:all .15s}
 .sb-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.8)}
 .sb-item.active{background:rgba(0,174,195,.15);color:#fff;border-left-color:var(--aub)}
-.sb-elim-badge{margin:2px 10px 6px;padding:5px 10px;border-radius:7px;background:linear-gradient(90deg,rgba(0,174,195,.22),rgba(0,174,195,.10));border:1px solid rgba(0,174,195,.35);font-size:9px;font-weight:800;color:#00C8D8;letter-spacing:.4px;text-transform:uppercase;text-align:center;animation:sb-pulse 2.5s ease-in-out infinite}
-@keyframes sb-pulse{0%,100%{opacity:1}50%{opacity:.65}}
 .sb-ico{font-size:14px;width:17px;text-align:center;flex-shrink:0}
 .sb-user{padding:11px 13px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:7px}
 .sb-av{width:30px;height:30px;border-radius:50%;background:var(--aub);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;border:2px solid rgba(255,255,255,.13)}
@@ -1323,7 +1321,6 @@ body.dark .music-tog.on{
         <div class="sb-sec">Jugar</div>
         <div class="sb-item" id="nav-pronosticos" onclick="V('pronosticos')"><span class="sb-ico">🎯</span> Mis pronósticos</div>
         <div class="sb-item" id="nav-eliminatorias" onclick="V('eliminatorias')"><span class="sb-ico">⚔️</span> Eliminatorias</div>
-        <div class="sb-elim-badge">⚡ Fase eliminatoria abierta</div>
         <div class="sb-item" id="nav-bonus" onclick="V('bonus')"><span class="sb-ico">🌟</span> Bonus torneo</div>
         <div class="sb-item" id="nav-miprode" onclick="V('miprode')"><span class="sb-ico">📋</span> Mi historial</div>
         <div class="sb-sec">Ranking</div>
@@ -2856,11 +2853,12 @@ function eCard(p,color){
 
 function eCalcDisplay(pid){
   const ep=EPRONOS[pid]||{};
+  const esEmpate=ep.gL!==undefined&&ep.gL!==''&&ep.gV!==undefined&&ep.gV!==''&&parseInt(ep.gL)===parseInt(ep.gV);
   let p=0;
-  if(ep.alargue==='si')p+=1;
-  if(ep.penales==='si')p+=1;
-  if(ep.penales==='si'&&ep.penGana)p+=1;
-  if(ep.alargue==='si'&&ep.penales==='no'&&ep.alargGana)p+=1;
+  if(esEmpate&&ep.alargue==='si')p+=1;
+  if(esEmpate&&ep.penales==='si')p+=1;
+  if(esEmpate&&ep.penales==='si'&&ep.penGana)p+=1;
+  if(esEmpate&&ep.alargue==='si'&&ep.penales==='no'&&ep.alargGana)p+=1;
   return p>0?p+' pts extra':'0 pts';
 }
 
@@ -2907,11 +2905,33 @@ function eSetTgl(pid,tipo,val){
 function eUpdPts(pid){
   const ep=EPRONOS[pid]||{};
   // penGana y alargGana se actualizan via eSetWin directamente en EPRONOS
+  const gl=document.getElementById('egl_'+pid)?.value;
+  const gv=document.getElementById('egv_'+pid)?.value;
+  const esEmpate=gl!==''&&gv!==''&&gl!==undefined&&gv!==undefined&&parseInt(gl)===parseInt(gv);
+  // Si no hay empate, deshabilitar visualmente el toggle de alargue
+  const algrp=document.getElementById('algrp_'+pid);
+  if(algrp){
+    const btnSi=algrp.querySelectorAll('.etgl')[0];
+    if(btnSi){
+      btnSi.disabled=!esEmpate;
+      btnSi.style.opacity=esEmpate?'1':'0.35';
+      btnSi.title=esEmpate?"":"Solo disponible si hay empate al 90'";
+    }
+  }
+  // Si ya no hay empate y tenía alargue marcado, auto-resetear
+  if(!esEmpate&&ep.alargue==='si'){
+    ep.alargue=null;ep.penales=null;ep.penGana=null;ep.alargGana=null;
+    if(algrp)algrp.querySelectorAll('.etgl').forEach(b=>b.className='etgl no');
+    const pengrp=document.getElementById('pengrp_'+pid);
+    if(pengrp){pengrp.style.opacity='0';pengrp.style.pointerEvents='none';}
+    const ganalarg=document.getElementById('ganalarg_'+pid);if(ganalarg)ganalarg.classList.remove('vis');
+    const ganpen=document.getElementById('ganpen_'+pid);if(ganpen)ganpen.classList.remove('vis');
+  }
   let pts=0;
-  if(ep.alargue==='si')pts+=1;
-  if(ep.penales==='si')pts+=1;
-  if(ep.penales==='si'&&ep.penGana)pts+=1;
-  if(ep.alargue==='si'&&ep.penales==='no'&&ep.alargGana)pts+=1;
+  if(esEmpate&&ep.alargue==='si')pts+=1;
+  if(esEmpate&&ep.penales==='si')pts+=1;
+  if(esEmpate&&ep.penales==='si'&&ep.penGana)pts+=1;
+  if(esEmpate&&ep.alargue==='si'&&ep.penales==='no'&&ep.alargGana)pts+=1;
   const el=document.getElementById('eptval_'+pid);
   const prev=document.getElementById('eptprev_'+pid);
   if(el){el.textContent=pts>0?pts+' pts extra':'0 pts';el.style.color=pts>0?'var(--verde)':'var(--aub)';}
