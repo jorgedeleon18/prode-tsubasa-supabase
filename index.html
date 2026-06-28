@@ -862,7 +862,7 @@ body.dark .grupo-progress{background:rgba(18,28,36,.88);border-color:var(--gray-
 .pg-fecha-line{flex:1;width:2px;background:linear-gradient(to bottom,var(--aub),transparent);margin-top:5px;min-height:20px;border-radius:2px}
 .pg-fecha-content{flex:1;min-width:0}
 .pg-fecha-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray);margin-bottom:7px;padding-left:1px}
-.pg-fecha-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:984px}
+.pg-fecha-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;align-items:stretch}
 .pg-fecha-grid .pc{max-width:none;width:100%}
 .pg-fecha-single{display:flex;flex-direction:column;gap:12px}
 @media(max-width:768px){.pg-fecha-grid{grid-template-columns:1fr}}
@@ -944,7 +944,7 @@ body.dark .grupo-progress{background:rgba(18,28,36,.88);border-color:var(--gray-
 .elim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:6px}
 .elim-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:6px}
 .elim-grid-1{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:6px;max-width:340px}
-.ec{background:rgba(255,255,255,.93);border-radius:10px;border:1px solid var(--gray-border);overflow:hidden;transition:box-shadow .15s}
+.ec{background:rgba(255,255,255,.93);border-radius:10px;border:1px solid var(--gray-border);overflow:hidden;transition:box-shadow .15s;display:flex;flex-direction:column}
 body.dark .ec{background:rgba(18,28,36,.93)}
 .ec:hover{box-shadow:0 3px 14px rgba(0,0,0,.1)}
 .eph{display:flex;align-items:center;gap:7px;padding:6px 11px;font-size:9px;color:rgba(255,255,255,.75);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
@@ -964,7 +964,7 @@ body.dark .esb{background:#0a1520}
 .eest-c{background:var(--rojo-light);color:var(--rojo-dark)}
 .eest-p{background:var(--aub-light);color:var(--aub-darker)}
 .edivider{height:1px;background:var(--gray-border);margin:9px 11px 0}
-.eext{padding:8px 11px 11px}
+.eext{padding:8px 11px 11px;display:flex;flex-direction:column;flex:1}
 .eext-t{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray);margin-bottom:5px}
 .eext-row{display:flex;align-items:center;gap:7px;margin-bottom:4px}
 .etgl-grp{display:flex;gap:3px}
@@ -980,7 +980,7 @@ body.dark .etgl.no{background:#0a1520}
 .epen-sel{flex:1;height:23px;border-radius:5px;border:1px solid var(--gray-border);background:#fff;font-size:10px;font-family:var(--fn);color:var(--gray-dark);padding:0 5px;outline:none}
 body.dark .epen-sel{background:#0d1820;color:var(--gray-dark)}
 .epen-sel:focus{border-color:var(--aub)}
-.eept-prev{display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding:5px 9px;background:var(--aub-light);border-radius:6px;border:1px solid #b0e8f0}
+.eept-prev{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding:5px 9px;background:var(--aub-light);border-radius:6px;border:1px solid #b0e8f0}
 .eept-lbl{font-size:9px;color:var(--aub-darker);font-weight:600}
 .eept-val{font-size:14px;font-weight:800;color:var(--aub)}
 .eig{width:32px;height:25px;border-radius:5px;border:1.5px solid var(--gray-border);background:#fff;text-align:center;font-size:12px;font-weight:700;font-family:var(--fn);color:var(--gray-dark);outline:none;padding:0}
@@ -2694,17 +2694,17 @@ const ERONDAS=[
     {id:'P73',label:'P73',desc:'South Africa vs Canada',fecha:'2026-06-28',hora:'16:00',ciudad:'Los Ángeles'},
     {id:'P74',label:'P74',desc:'Germany vs Paraguay',fecha:'2026-06-29',hora:'17:30',ciudad:'Boston'},
     {id:'P75',label:'P75',desc:'Netherlands vs Morocco',fecha:'2026-06-29',hora:'22:00',ciudad:'Monterrey'},
-    {id:'P76',label:'P76',desc:'Brazil vs Japan',fecha:'2026-06-29',hora:'17:30',ciudad:'Houston'},
+    {id:'P76',label:'P76',desc:'Brazil vs Japan',fecha:'2026-06-29',hora:'14:00',ciudad:'Houston'},
     {id:'P77',label:'P77',desc:'France vs Sweden',fecha:'2026-06-30',hora:'18:00',ciudad:'NY/NJ'},
     {id:'P78',label:'P78',desc:"Côte d'Ivoire vs Norway",fecha:'2026-06-30',hora:'14:00',ciudad:'Dallas'},
     {id:'P79',label:'P79',desc:'Mexico vs Ecuador',fecha:'2026-06-30',hora:'22:00',ciudad:'Ciudad de México'},
     {id:'P80',label:'P80',desc:'England vs Congo DR',fecha:'2026-07-01',hora:'13:00',ciudad:'Atlanta'},
     {id:'P81',label:'P81',desc:'USA vs Bosnia and Herzegovina',fecha:'2026-07-01',hora:'21:00',ciudad:'San Francisco'},
     {id:'P82',label:'P82',desc:'Belgium vs Senegal',fecha:'2026-07-01',hora:'17:00',ciudad:'Seattle'},
-    {id:'P83',label:'P83',desc:'Portugal vs Croatia',fecha:'2026-07-02',hora:'14:00',ciudad:'Toronto'},
+    {id:'P83',label:'P83',desc:'Portugal vs Croatia',fecha:'2026-07-02',hora:'20:00',ciudad:'Toronto'},
     {id:'P84',label:'P84',desc:'Spain vs Austria',fecha:'2026-07-02',hora:'18:00',ciudad:'Los Ángeles'},
     {id:'P85',label:'P85',desc:'Switzerland vs Algeria',fecha:'2026-07-03',hora:'00:00',ciudad:'Vancouver'},
-    {id:'P86',label:'P86',desc:'Argentina vs Cabo Verde',fecha:'2026-07-03',hora:'15:00',ciudad:'Miami'},
+    {id:'P86',label:'P86',desc:'Argentina vs Cabo Verde',fecha:'2026-07-03',hora:'19:00',ciudad:'Miami'},
     {id:'P87',label:'P87',desc:'Colombia vs Ghana',fecha:'2026-07-03',hora:'22:30',ciudad:'Kansas City'},
     {id:'P88',label:'P88',desc:'Australia vs Egypt',fecha:'2026-07-03',hora:'15:00',ciudad:'Dallas'},
   ]},
@@ -2814,7 +2814,7 @@ function eCard(p,color){
         <span class="eept-lbl">Puntos posibles</span>
         <span class="eept-val" id="eptval_${p.id}">${eCalcDisplay(p.id)}</span>
       </div>
-      <div style="display:flex;gap:6px;margin-top:6px">
+      <div style="display:flex;gap:6px;margin-top:auto;padding-top:8px">
         <button style="padding:7px 10px;border-radius:7px;border:1px solid var(--gray-border);background:var(--gray-light);color:var(--gray);font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer;white-space:nowrap" onclick="eLimpiar('${p.id}')">🗑️ Limpiar</button>
         <button style="flex:1;padding:7px;border-radius:7px;border:none;background:var(--aub);color:#fff;font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer" onclick="eGuardar('${p.id}','${p.desc}')">💾 Guardar pronóstico</button>
       </div>
