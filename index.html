@@ -2176,18 +2176,24 @@ function rBonus(mc){
     <div class="bb">
       <div class="bi">
         <div class="bpts">+10<span>pts</span></div>
-        <div style="flex:1"><div class="blbl">🏆 Campeón del Mundial</div><div class="bdesc">¿Qué selección levantará la copa?</div>${locked?'<span class="blocked">🔒 Cerrado</span>':''}</div>
-        ${sel('bCam',BONUS.cam)}
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+          <div><div class="blbl">🏆 Campeón del Mundial</div><div class="bdesc">¿Qué selección levantará la copa?</div>${locked?'<span class="blocked">🔒 Cerrado</span>':''}</div>
+          ${sel('bCam',BONUS.cam)}
+        </div>
       </div>
       <div class="bi">
         <div class="bpts">+5<span>pts</span></div>
-        <div style="flex:1"><div class="blbl">🥈 Selección finalista</div><div class="bdesc">¿Quién llegará a la final pero no ganará?</div>${locked?'<span class="blocked">🔒 Cerrado</span>':''}</div>
-        ${sel('bFin',BONUS.fin)}
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+          <div><div class="blbl">🥈 Selección finalista</div><div class="bdesc">¿Quién llegará a la final pero no ganará?</div>${locked?'<span class="blocked">🔒 Cerrado</span>':''}</div>
+          ${sel('bFin',BONUS.fin)}
+        </div>
       </div>
       <div class="bi">
         <div class="bpts">+5<span>pts</span></div>
-        <div style="flex:1"><div class="blbl">⚽ Goleador del torneo</div><div class="bdesc">¿Quién marcará más goles en todo el Mundial?</div>${locked?'<span class="blocked">🔒 Cerrado</span>':''}</div>
-        ${golSel('bGol',BONUS.gol)}
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+          <div><div class="blbl">⚽ Goleador del torneo</div><div class="bdesc">¿Quién marcará más goles en todo el Mundial?</div>${locked?'<span class="blocked">🔒 Cerrado</span>':''}</div>
+          ${golSel('bGol',BONUS.gol)}
+        </div>
       </div>
       ${!locked?`<div style="margin-top:14px;display:flex;justify-content:flex-end"><button onclick="svBonus()" class="btn-sv">💾 Guardar predicciones bonus</button></div>`:''}
     </div>
