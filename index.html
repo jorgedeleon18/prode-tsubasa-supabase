@@ -1698,6 +1698,67 @@ function aplicarResultadoAlFixture(id,gl,gv){
   const p=TODOS.find(x=>x.id===id);if(!p)return;
   p.gl=gl;p.gv=gv;
   const gKey=id[0];if(G[gKey]){const gp=G[gKey].partidos.find(x=>x.id===id);if(gp){gp.gl=gl;gp.gv=gv;}}
+  // Resolver bracket de eliminatorias
+  resolverBracket();
+}
+
+function getGanadorPartido(pid){
+  // Para partidos de grupos: buscar en TODOS
+  const pg=TODOS.find(x=>x.id===pid);
+  if(pg&&pg.gl!==undefined&&pg.gl!==null&&pg.gl!==''){
+    if(pg.gl>pg.gv)return pg.l;
+    if(pg.gv>pg.gl)return pg.v;
+    return null; // empate en grupos no tiene ganador para bracket
+  }
+  // Para partidos de eliminatorias: buscar en RESULTADOS
+  const res=RESULTADOS[pid];
+  if(!res||res.gl===undefined||res.gl===null)return null;
+  // Si hay ganador por penales o alargue
+  if(res.ganador_extra){
+    // Obtener el partido de ERONDAS para saber quién es local/visita
+    let teamL=null,teamV=null;
+    ERONDAS.forEach(r=>{const p=r.partidos.find(x=>x.id===pid);if(p){teamL=p.l||p.desc.split(' vs ')[0];teamV=p.v||p.desc.split(' vs ')[1];}});
+    return res.ganador_extra==='local'?teamL:teamV;
+  }
+  // Ganador por resultado al 90'
+  let teamL=null,teamV=null;
+  ERONDAS.forEach(r=>{const p=r.partidos.find(x=>x.id===pid);if(p){teamL=p.l||p.desc.split(' vs ')[0];teamV=p.v||p.desc.split(' vs ')[1];}});
+  if(res.gl>res.gv)return teamL;
+  if(res.gv>res.gl)return teamV;
+  return null;
+}
+
+function resolverBracket(){
+  // Recorrer todos los partidos de ERONDAS que tienen G.Pxx en desc
+  ERONDAS.forEach(ronda=>{
+    ronda.partidos.forEach(p=>{
+      let desc=p.desc;
+      // Resolver cada G.Pxx en el desc
+      const refs=desc.match(/G\.P\d+/g);
+      if(!refs)return;
+      let l=null,v=null;
+      // desc es "G.Pxx vs G.Pyy"
+      const partes=desc.split(' vs ');
+      if(partes.length===2){
+        const refL=partes[0].trim();
+        const refV=partes[1].trim();
+        if(refL.startsWith('G.P')){
+          const pid=refL.replace('G.','');
+          l=getGanadorPartido(pid);
+        } else {
+          l=refL; // ya es un equipo real
+        }
+        if(refV.startsWith('G.P')){
+          const pid=refV.replace('G.','');
+          v=getGanadorPartido(pid);
+        } else {
+          v=refV;
+        }
+        if(l)p.l=l;
+        if(v)p.v=v;
+      }
+    });
+  });
 }
 
 // ══════ HELPERS ══════
@@ -3160,6 +3221,7 @@ async function cargarResultadosDB(){
     if(error)throw error;
     RESULTADOS={};
     (data||[]).forEach(r=>{RESULTADOS[r.partido_id]={gl:r.goles_local_real,gv:r.goles_visitante_real,alargue:r.alargue||false,penales:r.penales||false,ganador_extra:r.ganador_extra||null};aplicarResultadoAlFixture(r.partido_id,parseInt(r.goles_local_real),parseInt(r.goles_visitante_real));});
+    resolverBracket();
   }catch(e){console.warn('Error cargando resultados:',e);}
 }
 async function cargarApp(){
