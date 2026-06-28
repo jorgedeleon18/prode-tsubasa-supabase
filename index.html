@@ -2815,7 +2815,7 @@ function eCard(p,color){
       </div>
       <div style="display:flex;gap:6px;margin-top:auto;padding-top:8px;width:100%">
         <button style="padding:7px 10px;border-radius:7px;border:1px solid var(--gray-border);background:var(--gray-light);color:var(--gray);font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer;white-space:nowrap" onclick="eLimpiar('${p.id}')">🗑️ Limpiar</button>
-        <button style="flex:1;padding:7px;border-radius:7px;border:none;background:var(--aub);color:#fff;font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer" onclick="eGuardar('${p.id}','${p.desc}')">💾 Guardar pronóstico</button>
+        <button style="flex:1;padding:7px;border-radius:7px;border:none;background:var(--aub);color:#fff;font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer" onclick="eGuardar('${p.id}')">💾 Guardar pronóstico</button>
       </div>
     </div>`;
   }
@@ -2942,7 +2942,7 @@ function eLimpiar(pid){
   toast('🗑️ Pronóstico limpiado');
 }
 
-async function eGuardar(pid,desc){
+async function eGuardar(pid){
   const ep=EPRONOS[pid]||{};EPRONOS[pid]=ep;
   const gl=document.getElementById('egl_'+pid)?.value;
   const gv=document.getElementById('egv_'+pid)?.value;
@@ -2953,8 +2953,10 @@ async function eGuardar(pid,desc){
   const ganador_extra=ep.penGana||ep.alargGana||null;
   const {error}=await SB.from('pronosticos').upsert({usuario_id:USR.id,partido_id:pid,goles_local:parseInt(gl),goles_visitante:parseInt(gv),fase:'eliminatoria',puntos:0,alargue,penales,ganador_extra},{onConflict:'usuario_id,partido_id'});
   if(error){toast('Error guardando: '+error.message,'err');return;}
+  const btnG=document.querySelector(`[onclick="eGuardar('${pid}')"]`);
+  if(btnG){btnG.textContent='✓ Guardado';btnG.style.background='var(--gray)';btnG.disabled=true;}
   toast('✓ Pronóstico guardado');
-  rEliminatorias(document.getElementById('mc'));
+  setTimeout(()=>rEliminatorias(document.getElementById('mc')),700);
 }
 
 // ══════ RENDER ELIMINATORIAS ══════
@@ -3345,19 +3347,6 @@ async function svRes(id){
   await recalcPartido(id);
   EDITANDO[id]=false;toast('✓ Resultado guardado y puntos actualizados');rAdmin(document.getElementById('mc'));
 }
-async function eGuardar(pid,desc){
-  const ep=EPRONOS[pid]||{};EPRONOS[pid]=ep;
-  const gl=document.getElementById('egl_'+pid)?.value; const gv=document.getElementById('egv_'+pid)?.value;
-  if(gl===''||gv===''){toast("Ingresá el resultado al 90'","err");return;}
-  ep.gL=gl;ep.gV=gv;
-  const alargue=ep.alargue||null;
-  const penales=ep.penales||null;
-  const ganador_extra=ep.penGana||ep.alargGana||null;
-  const {error}=await SB.from('pronosticos').upsert({usuario_id:USR.id,partido_id:pid,goles_local:parseInt(gl),goles_visitante:parseInt(gv),fase:'eliminatoria',puntos:0,alargue,penales,ganador_extra},{onConflict:'usuario_id,partido_id'});
-  if(error){toast('Error guardando: '+error.message,'err');return;}
-  toast('✓ Pronóstico guardado'); rEliminatorias(document.getElementById('mc'));
-}
-
 // ══════ CONTADOR CIERRE DE GRUPOS ══════
 (function(){
   const CIERRES_GRUPOS = [
