@@ -993,6 +993,25 @@ body.dark .eig{background:#0d1820;border-color:var(--gray-border);color:var(--gr
 .bracket-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;border:1px solid var(--gray-border);background:rgba(255,255,255,.85);font-size:10px;font-weight:700;cursor:pointer;color:var(--gray-dark);margin-bottom:12px;font-family:var(--fn);transition:all .15s}
 body.dark .bracket-btn{background:rgba(18,28,36,.85)}
 .bracket-btn:hover{border-color:var(--aub);color:var(--aub)}
+/* ── BRACKET FINAL ── */
+.bk-wrap{padding:12px;overflow-x:auto;min-height:300px}
+.bk-title{font-size:14px;font-weight:800;color:var(--aub);margin-bottom:16px;text-align:center;letter-spacing:.5px;text-transform:uppercase}
+.bk-grid{display:grid;grid-template-columns:1fr 1fr 1fr 80px 1fr 1fr 1fr;gap:0;align-items:center;min-width:860px}
+.bk-col{display:flex;flex-direction:column;gap:6px;padding:4px}
+.bk-col-center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px}
+.bk-match{background:rgba(255,255,255,.08);border:1px solid var(--gray-border);border-radius:8px;cursor:pointer;transition:all .15s;overflow:hidden;min-width:100px}
+.bk-match:hover{border-color:var(--aub);box-shadow:0 2px 8px rgba(0,174,195,.2)}
+.bk-team{display:flex;align-items:center;gap:5px;padding:5px 7px;font-size:10px;font-weight:600;color:var(--gray-dark)}
+.bk-team.winner{background:rgba(0,174,195,.12);color:var(--aub-darker);font-weight:800}
+.bk-team.loser{opacity:.35;filter:grayscale(1)}
+.bk-team.pending{color:var(--gray)}
+.bk-flag{width:18px;height:12px;object-fit:cover;border-radius:2px;flex-shrink:0}
+.bk-sep{height:1px;background:var(--gray-border);margin:0}
+.bk-pid{font-size:8px;font-weight:700;color:var(--gray);text-align:center;padding:2px 0;background:rgba(0,0,0,.05);letter-spacing:.3px}
+.bk-trophy{font-size:32px;text-align:center;line-height:1}
+.bk-finals-lbl{font-size:8px;color:var(--gray);text-align:center;font-weight:600;letter-spacing:.3px;text-transform:uppercase;margin-top:2px}
+body.dark .bk-match{background:rgba(255,255,255,.04)}
+body.dark .bk-team.winner{background:rgba(0,174,195,.18)}
 .bracket-wrap{background:rgba(255,255,255,.9);border-radius:10px;border:1px solid var(--gray-border);padding:14px;margin-bottom:16px;backdrop-filter:blur(4px);overflow-x:auto}
 body.dark .bracket-wrap{background:rgba(18,28,36,.9)}
 /* Banner Sistema de puntaje en Eliminatorias - respeta dark mode */
@@ -1325,6 +1344,7 @@ body.dark .music-tog.on{
         <div class="sb-item" id="nav-pronosticos" onclick="V('pronosticos')"><span class="sb-ico">🎯</span> Mis pronósticos</div>
         <div class="sb-item" id="nav-eliminatorias" onclick="V('eliminatorias')"><span class="sb-ico">⚔️</span> Eliminatorias</div>
         <div class="sb-elim-badge">⚡ Fase eliminatoria abierta</div>
+        <div class="sb-item" id="nav-bracket" onclick="V('bracket')"><span class="sb-ico">🏆</span> Bracket Final</div>
         <div class="sb-item" id="nav-bonus" onclick="V('bonus')"><span class="sb-ico">🌟</span> Bonus torneo</div>
         <div class="sb-item" id="nav-miprode" onclick="V('miprode')"><span class="sb-ico">📋</span> Mi historial</div>
         <div class="sb-sec">Ranking</div>
@@ -1843,7 +1863,7 @@ function initCF(){
 
 // ══════ AUTH ══════
 // ══════ ROUTER ══════
-const VM={pronosticos:['Mis pronósticos','Cargá tu prode antes que empiece cada partido'],bonus:['Bonus del torneo','Predicciones especiales · No se pueden cambiar'],miprode:['Mi historial','Puntos obtenidos partido a partido'],posiciones:['Tabla general','Ranking del departamento'],fixture:['Fixture oficial','Todos los partidos — Mundial USA·CAN·MEX 2026'],eliminatorias:['Fase eliminatoria','16avos · Octavos · Cuartos · Semis · Final'],reglas:['Reglas y puntos','Sistema de puntaje oficial'],admin:['⚙️ Cargar resultados','Solo administradores'],usuarios:['👥 Gestión de usuarios','Dar o quitar acceso admin'],todosprono:['📊 Todos los pronósticos','Ver qué puso cada uno']};
+const VM={pronosticos:['Mis pronósticos','Cargá tu prode antes que empiece cada partido'],bracket:['🏆 Bracket Final','Cuadro del Mundial 2026 — resultados en tiempo real'],bonus:['Bonus del torneo','Predicciones especiales · No se pueden cambiar'],miprode:['Mi historial','Puntos obtenidos partido a partido'],posiciones:['Tabla general','Ranking del departamento'],fixture:['Fixture oficial','Todos los partidos — Mundial USA·CAN·MEX 2026'],eliminatorias:['Fase eliminatoria','16avos · Octavos · Cuartos · Semis · Final'],reglas:['Reglas y puntos','Sistema de puntaje oficial'],admin:['⚙️ Cargar resultados','Solo administradores'],usuarios:['👥 Gestión de usuarios','Dar o quitar acceso admin'],todosprono:['📊 Todos los pronósticos','Ver qué puso cada uno']};
 function V(v){
   closeSB();document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
@@ -1852,7 +1872,7 @@ function V(v){
   const mc=document.getElementById('mc');
   if(v==='pronosticos')rPronos(mc);else if(v==='bonus')rBonus(mc);else if(v==='miprode')rHistorial(mc);
   else if(v==='posiciones')rPosiciones(mc);else if(v==='fixture')rFixture(mc);
-  else if(v==='eliminatorias')rEliminatorias(mc);else if(v==='reglas')rReglas(mc);
+  else if(v==='eliminatorias')rEliminatorias(mc);else if(v==='bracket')rBracket(mc);else if(v==='reglas')rReglas(mc);
   else if(v==='admin'&&esAdm())rAdmin(mc);
   else if(v==='todosprono')rTodosPronos(mc);
   else if(v==='usuarios'&&esAdm())rUsuarios(mc);
@@ -2876,7 +2896,7 @@ function eCard(p,color){
   const nameL=esRealL?fn(teamL):teamL;
   const nameV=esRealV?fn(teamV):teamV;
 
-  return`<div class="ec">
+  return`<div class="ec" id="ecard_${p.id}" data-pid="${p.id}">
     <div class="eph" style="background:${color}">
       <span class="eph-n">${p.label}</span>
       <span style="color:rgba(255,255,255,.65);font-size:9px">${p.desc}</span>
@@ -3430,6 +3450,140 @@ async function eGuardar(pid,desc){
   const {error}=await SB.from('pronosticos').upsert({usuario_id:USR.id,partido_id:pid,goles_local:parseInt(gl),goles_visitante:parseInt(gv),fase:'eliminatoria',puntos:0,alargue,penales,ganador_extra},{onConflict:'usuario_id,partido_id'});
   if(error){toast('Error guardando: '+error.message,'err');return;}
   toast('✓ Pronóstico guardado'); rEliminatorias(document.getElementById('mc'));
+}
+
+
+// ══════ BRACKET FINAL ══════
+function rBracket(mc){
+  // Renderiza el bracket del Mundial 2026
+  // Estructura: 16avos → Octavos → Cuartos → Semis → Final
+  // Lado IZQ: P89,P90,P93,P94 → P97,P98 → P101
+  // Lado DER: P91,P92,P95,P96 → P99,P100 → P102
+  // Final: P104, 3er puesto: P103
+
+  function bkTeam(pid, side){
+    // side: 'local' o 'visita'
+    const p = ERONDAS.flatMap(r=>r.partidos).find(x=>x.id===pid);
+    if(!p) return {name:'?', isReal:false, flag:null};
+    const name = side==='local' ? (p.l||p.desc.split(' vs ')[0]) : (p.v||p.desc.split(' vs ')[1]);
+    const isReal = name && !name.includes('G.P') && !name.includes('°') && name.length>1;
+    return {name: name||'?', isReal, pid};
+  }
+
+  function getWinner(pid){
+    return getGanadorPartido(pid);
+  }
+
+  function getLoser(pid){
+    const res = RESULTADOS[pid];
+    if(!res) return null;
+    const p = ERONDAS.flatMap(r=>r.partidos).find(x=>x.id===pid);
+    if(!p) return null;
+    const teamL = p.l||p.desc.split(' vs ')[0];
+    const teamV = p.v||p.desc.split(' vs ')[1];
+    if(res.ganador_extra){
+      return res.ganador_extra==='local' ? teamV : teamL;
+    }
+    if(res.gl>res.gv) return teamV;
+    if(res.gv>res.gl) return teamL;
+    return null;
+  }
+
+  function matchCard(pid, label){
+    const p = ERONDAS.flatMap(r=>r.partidos).find(x=>x.id===pid);
+    if(!p) return `<div class="bk-match"><div class="bk-pid">${label||pid}</div></div>`;
+
+    const teamL = p.l||p.desc.split(' vs ')[0];
+    const teamV = p.v||p.desc.split(' vs ')[1];
+    const isRealL = teamL && !teamL.includes('G.P') && !teamL.includes('°') && teamL.length>1;
+    const isRealV = teamV && !teamV.includes('G.P') && !teamV.includes('°') && teamV.length>1;
+    const res = RESULTADOS[pid];
+    const winner = getWinner(pid);
+    const loser = getLoser(pid);
+
+    function teamRow(team, isReal, isWinner, isLoser){
+      let cls = 'bk-team';
+      if(res){ cls += isWinner ? ' winner' : (isLoser ? ' loser' : ''); }
+      else if(!isReal){ cls += ' pending'; }
+      const flag = isReal ? `<img class="bk-flag" src="${fi(team,18,12).match(/src="([^"]+)"/)?.[1]||''}" onerror="this.style.display='none'">` : '<span style="font-size:11px">🌍</span>';
+      const nameStr = isReal ? fn(team) : (team && team.startsWith('G.P') ? '?' : (team||'?'));
+      return `<div class="${cls}">${isReal?fi(team,18,12):'<span style="font-size:11px">🌍</span>'} <span>${nameStr}</span></div>`;
+    }
+
+    const rowL = teamRow(teamL, isRealL, winner===teamL, loser===teamL);
+    const rowV = teamRow(teamV, isRealV, winner===teamV, loser===teamV);
+
+    return `<div class="bk-match" onclick="irAPartido('${pid}')">
+      <div class="bk-pid">${pid}</div>
+      ${rowL}<div class="bk-sep"></div>${rowV}
+    </div>`;
+  }
+
+  // Estructura visual del bracket (7 columnas)
+  // COL1: 16avos izq superior (P89,P90)
+  // COL2: Octavos izq (P97)
+  // COL3: Cuartos izq (P101)
+  // COL4: Final + 3er puesto (centro)
+  // COL5: Cuartos der (P102)
+  // COL6: Octavos der (P99)
+  // COL7: 16avos der superior (P91,P92)
+  // + segunda fila para la mitad inferior
+
+  const w = getWinner('P104');
+  const w3 = getWinner('P103');
+  const nameW = w ? `<div style="font-size:11px;font-weight:800;color:var(--oro);margin-top:4px">${fn(w)} 🥇</div>` : '';
+  const name3 = w3 ? `<div style="font-size:10px;font-weight:700;color:var(--gray-dark);margin-top:4px">${fn(w3)} 🥉</div>` : '';
+
+  mc.innerHTML = `<div class="bk-wrap">
+    <div class="bk-title">🏆 Bracket Final — Mundial 2026</div>
+    <div style="overflow-x:auto">
+    <table style="border-collapse:separate;border-spacing:6px;min-width:900px;margin:0 auto">
+    <tr>
+      <td style="vertical-align:middle">${matchCard('P89','P89')}</td>
+      <td style="vertical-align:middle" rowspan="2">${matchCard('P97','P97')}</td>
+      <td style="vertical-align:middle" rowspan="4">${matchCard('P101','P101')}</td>
+      <td rowspan="8" style="text-align:center;vertical-align:middle;min-width:90px">
+        <div class="bk-trophy">🏆</div>
+        <div class="bk-finals-lbl">Final</div>
+        ${matchCard('P104','P104')}
+        ${nameW}
+        <div style="height:16px"></div>
+        <div class="bk-finals-lbl">3er puesto</div>
+        ${matchCard('P103','P103')}
+        ${name3}
+      </td>
+      <td style="vertical-align:middle" rowspan="4">${matchCard('P102','P102')}</td>
+      <td style="vertical-align:middle" rowspan="2">${matchCard('P99','P99')}</td>
+      <td style="vertical-align:middle">${matchCard('P91','P91')}</td>
+    </tr>
+    <tr>
+      <td style="vertical-align:middle">${matchCard('P90','P90')}</td>
+      <td style="vertical-align:middle">${matchCard('P92','P92')}</td>
+    </tr>
+    <tr>
+      <td style="vertical-align:middle">${matchCard('P93','P93')}</td>
+      <td style="vertical-align:middle" rowspan="2">${matchCard('P98','P98')}</td>
+      <td style="vertical-align:middle" rowspan="2">${matchCard('P100','P100')}</td>
+      <td style="vertical-align:middle">${matchCard('P95','P95')}</td>
+    </tr>
+    <tr>
+      <td style="vertical-align:middle">${matchCard('P94','P94')}</td>
+      <td style="vertical-align:middle">${matchCard('P96','P96')}</td>
+    </tr>
+    </table>
+    </div>
+    <p style="text-align:center;font-size:10px;color:var(--gray);margin-top:12px">Click en cualquier partido para ir a Eliminatorias</p>
+  </div>`;
+}
+
+function irAPartido(pid){
+  V('eliminatorias');
+  setTimeout(()=>{
+    const el = document.querySelector('[data-pid="'+pid+'"]') ||
+                Array.from(document.querySelectorAll('.ec-header-pid')).find(e=>e.textContent.includes(pid))?.closest('.ec') ||
+                document.querySelector('#ecard_'+pid);
+    if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.style.outline='2px solid var(--aub)'; setTimeout(()=>el.style.outline='',2000); }
+  }, 400);
 }
 
 // ══════ CONTADOR CIERRE DE GRUPOS ══════
