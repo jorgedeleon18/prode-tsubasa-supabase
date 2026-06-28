@@ -2782,6 +2782,7 @@ function eCard(p,color){
       ${res.alargue?'<div style="text-align:center;font-size:9px;color:var(--aub);font-weight:700;margin-bottom:4px">⏱️ Fue a alargue'+(res.penales?' · 🎲 Penales':'')+'</div>':''}
       ${tieneProno?`<div style="text-align:center;font-size:10px;font-weight:700;color:#166534;background:#dcfce7;border-radius:5px;padding:4px 8px;margin:4px 0">Tu prode: ${userGL}–${userGV}</div>`:'<div style="text-align:center;font-size:9px;color:var(--gray);margin:4px 0">Sin pronóstico</div>'}
       ${tieneProno&&(alargueStr||ganStr)?`<div style="text-align:center;font-size:9px;color:var(--gray-dark);margin-top:2px">${[alargueStr,ganStr].filter(Boolean).join(' · ')}</div>`:''}
+      <div style="text-align:center;margin-top:6px"><span style="display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:800;${(ep.pts||0)>0?'background:var(--verde-light);color:var(--verde-dark)':'background:var(--gray-light);color:var(--gray)'}">${(ep.pts||0)>0?'+'+ep.pts+' pts':'0 pts'}</span></div>
     </div>`;
   } else if(cerrado){
     if(ep.gL!==undefined&&ep.gL!==''&&ep.gV!==undefined&&ep.gV!==''){
