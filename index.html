@@ -964,9 +964,9 @@ body.dark .esb{background:#0a1520}
 .eest-c{background:var(--rojo-light);color:var(--rojo-dark)}
 .eest-p{background:var(--aub-light);color:var(--aub-darker)}
 .edivider{height:1px;background:var(--gray-border);margin:9px 11px 0}
-.eext{padding:8px 11px 11px;display:flex;flex-direction:column;flex:1}
-.eext-t{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray);margin-bottom:5px}
-.eext-row{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.eext{padding:8px 11px 11px;display:flex;flex-direction:column;flex:1;display:flex;flex-direction:column;flex:1;align-items:center}
+.eext-t{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray);margin-bottom:5px;text-align:center;width:100%}
+.eext-row{display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:4px}
 .etgl-grp{display:flex;gap:3px}
 .etgl{padding:3px 8px;border-radius:12px;border:1px solid var(--gray-border);background:rgba(255,255,255,.9);font-size:9px;font-weight:700;cursor:pointer;color:var(--gray);transition:all .15s;font-family:var(--fn)}
 body.dark .etgl{background:#0a1520;color:var(--gray)}
@@ -976,11 +976,11 @@ body.dark .etgl{background:#0a1520;color:var(--gray)}
 .etgl.no{background:var(--gray-light);color:var(--gray)}
 body.dark .etgl.no{background:#0a1520}
 .epen-row{display:none;align-items:center;gap:6px;margin-top:4px;padding-top:4px;border-top:1px dashed var(--gray-border)}
-.epen-row.vis{display:flex}
+.epen-row.vis{display:flex;justify-content:center}
 .epen-sel{flex:1;height:23px;border-radius:5px;border:1px solid var(--gray-border);background:#fff;font-size:10px;font-family:var(--fn);color:var(--gray-dark);padding:0 5px;outline:none}
 body.dark .epen-sel{background:#0d1820;color:var(--gray-dark)}
 .epen-sel:focus{border-color:var(--aub)}
-.eept-prev{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding:5px 9px;background:var(--aub-light);border-radius:6px;border:1px solid #b0e8f0}
+.eept-prev{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding:5px 9px;background:var(--aub-light);border-radius:6px;border:1px solid #b0e8f0;width:100%}
 .eept-lbl{font-size:9px;color:var(--aub-darker);font-weight:600}
 .eept-val{font-size:14px;font-weight:800;color:var(--aub)}
 .eig{width:32px;height:25px;border-radius:5px;border:1.5px solid var(--gray-border);background:#fff;text-align:center;font-size:12px;font-weight:700;font-family:var(--fn);color:var(--gray-dark);outline:none;padding:0}
@@ -2762,13 +2762,12 @@ function eCard(p,color){
     const hasnopen=ep.alargue==='si'&&ep.penales==='no';
     body=`<div class="eext">
       <div class="eext-t">Resultado al 90'</div>
-      <div class="eext-row">
+      <div class="eext-row" style="flex-direction:column;gap:4px">
         <div style="display:flex;align-items:center;gap:3px">
           <input type="number" min="0" max="20" class="eig" id="egl_${p.id}" value="${ep.gL??''}" placeholder="–" oninput="eUpdPts('${p.id}')">
           <span style="font-size:12px;font-weight:800;color:var(--gray)">–</span>
           <input type="number" min="0" max="20" class="eig" id="egv_${p.id}" value="${ep.gV??''}" placeholder="–" oninput="eUpdPts('${p.id}')">
         </div>
-        <div style="flex:1"></div>
         <span class="eort">hasta 5 pts</span>
       </div>
       <div class="eext-t" style="margin-top:5px">¿Va a alargue?</div>
@@ -2785,9 +2784,9 @@ function eCard(p,color){
         </div>
       </div>
       <div id="ganalarg_${p.id}" class="epen-row ${hasnopen?'vis':''}">
-        <div style="display:flex;align-items:center;gap:6px;width:100%">
-          <span style="font-size:10px;color:var(--gray-dark);font-weight:600;white-space:nowrap">Gana en alargue <strong style="color:var(--aub)">+1</strong>:</span>
-          <div class="etgl-grp" id="alargbtns_${p.id}" style="flex:1;justify-content:flex-end">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100%">
+          <span style="font-size:10px;color:var(--gray-dark);font-weight:600;white-space:nowrap">Gana en alargue <strong style="color:var(--aub)">+1</strong></span>
+          <div class="etgl-grp" id="alargbtns_${p.id}" style="justify-content:center">
             <button class="etgl ewin-btn ${ep.alargGana==='local'?'on':'no'}" onclick="eSetWin('${p.id}','alarg','local')">
               ${esRealL?`<span style="display:inline-flex;align-items:center;gap:3px">${fi(teamL,16,16)} ${fn(teamL)}</span>`:teamL}
             </button>
@@ -2798,9 +2797,9 @@ function eCard(p,color){
         </div>
       </div>
       <div id="ganpen_${p.id}" class="epen-row ${haspen?'vis':''}">
-        <div style="display:flex;align-items:center;gap:6px;width:100%">
-          <span style="font-size:10px;color:var(--gray-dark);font-weight:600;white-space:nowrap">Gana en penales <strong style="color:var(--aub)">+1</strong>:</span>
-          <div class="etgl-grp" id="penbtns2_${p.id}" style="flex:1;justify-content:flex-end">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100%">
+          <span style="font-size:10px;color:var(--gray-dark);font-weight:600;white-space:nowrap">Gana en penales <strong style="color:var(--aub)">+1</strong></span>
+          <div class="etgl-grp" id="penbtns2_${p.id}" style="justify-content:center">
             <button class="etgl ewin-btn ${ep.penGana==='local'?'on':'no'}" onclick="eSetWin('${p.id}','pen','local')">
               ${esRealL?`<span style="display:inline-flex;align-items:center;gap:3px">${fi(teamL,16,16)} ${fn(teamL)}</span>`:teamL}
             </button>
@@ -2814,7 +2813,7 @@ function eCard(p,color){
         <span class="eept-lbl">Puntos posibles</span>
         <span class="eept-val" id="eptval_${p.id}">${eCalcDisplay(p.id)}</span>
       </div>
-      <div style="display:flex;gap:6px;margin-top:auto;padding-top:8px">
+      <div style="display:flex;gap:6px;margin-top:auto;padding-top:8px;width:100%">
         <button style="padding:7px 10px;border-radius:7px;border:1px solid var(--gray-border);background:var(--gray-light);color:var(--gray);font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer;white-space:nowrap" onclick="eLimpiar('${p.id}')">🗑️ Limpiar</button>
         <button style="flex:1;padding:7px;border-radius:7px;border:none;background:var(--aub);color:#fff;font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer" onclick="eGuardar('${p.id}','${p.desc}')">💾 Guardar pronóstico</button>
       </div>
@@ -2847,6 +2846,7 @@ function eCard(p,color){
       </div>
     </div>
     <div class="edivider"></div>
+    ${ep.gL!==undefined&&ep.gL!==''&&!cerrado?`<div style="text-align:center;padding:4px 8px;font-size:9px;font-weight:700;color:#166534;background:#dcfce7;border-bottom:1px solid #bbf7d0;letter-spacing:.3px">✓ Pronóstico guardado: ${ep.gL}–${ep.gV}</div>`:''}
     ${body}
   </div>`;
 }
