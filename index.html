@@ -975,8 +975,8 @@ body.dark .etgl{background:#0a1520;color:var(--gray)}
 .etgl.on{background:var(--aub);border-color:var(--aub);color:#fff}
 .etgl.no{background:var(--gray-light);color:var(--gray)}
 body.dark .etgl.no{background:#0a1520}
-.epen-row{display:flex;align-items:center;gap:6px;margin-top:4px;padding-top:4px;border-top:1px dashed var(--gray-border);opacity:0;pointer-events:none;transition:opacity .2s}
-.epen-row.vis{opacity:1;pointer-events:all}
+.epen-row{display:none;align-items:center;gap:6px;margin-top:4px;padding-top:4px;border-top:1px dashed var(--gray-border)}
+.epen-row.vis{display:flex}
 .epen-sel{flex:1;height:23px;border-radius:5px;border:1px solid var(--gray-border);background:#fff;font-size:10px;font-family:var(--fn);color:var(--gray-dark);padding:0 5px;outline:none}
 body.dark .epen-sel{background:#0d1820;color:var(--gray-dark)}
 .epen-sel:focus{border-color:var(--aub)}
@@ -2635,15 +2635,15 @@ const ERONDAS=[
     {id:'P75',label:'P75',desc:'Netherlands vs Morocco',fecha:'2026-06-29',hora:'22:00',ciudad:'Monterrey'},
     {id:'P76',label:'P76',desc:'Brazil vs Japan',fecha:'2026-06-29',hora:'17:30',ciudad:'Houston'},
     {id:'P77',label:'P77',desc:'France vs Sweden',fecha:'2026-06-30',hora:'18:00',ciudad:'NY/NJ'},
-    {id:'P78',label:'P78',desc:'Ivory Coast vs Norway',fecha:'2026-06-30',hora:'14:00',ciudad:'Dallas'},
+    {id:'P78',label:'P78',desc:"Côte d'Ivoire vs Norway",fecha:'2026-06-30',hora:'14:00',ciudad:'Dallas'},
     {id:'P79',label:'P79',desc:'Mexico vs Ecuador',fecha:'2026-06-30',hora:'22:00',ciudad:'Ciudad de México'},
     {id:'P80',label:'P80',desc:'England vs Congo DR',fecha:'2026-07-01',hora:'13:00',ciudad:'Atlanta'},
-    {id:'P81',label:'P81',desc:'USA vs Bosnia',fecha:'2026-07-01',hora:'21:00',ciudad:'San Francisco'},
+    {id:'P81',label:'P81',desc:'USA vs Bosnia and Herzegovina',fecha:'2026-07-01',hora:'21:00',ciudad:'San Francisco'},
     {id:'P82',label:'P82',desc:'Belgium vs Senegal',fecha:'2026-07-01',hora:'17:00',ciudad:'Seattle'},
     {id:'P83',label:'P83',desc:'Portugal vs Croatia',fecha:'2026-07-02',hora:'14:00',ciudad:'Toronto'},
     {id:'P84',label:'P84',desc:'Spain vs Austria',fecha:'2026-07-02',hora:'18:00',ciudad:'Los Ángeles'},
     {id:'P85',label:'P85',desc:'Switzerland vs Algeria',fecha:'2026-07-03',hora:'00:00',ciudad:'Vancouver'},
-    {id:'P86',label:'P86',desc:'Argentina vs Cape Verde',fecha:'2026-07-03',hora:'15:00',ciudad:'Miami'},
+    {id:'P86',label:'P86',desc:'Argentina vs Cabo Verde',fecha:'2026-07-03',hora:'15:00',ciudad:'Miami'},
     {id:'P87',label:'P87',desc:'Colombia vs Ghana',fecha:'2026-07-03',hora:'22:30',ciudad:'Kansas City'},
     {id:'P88',label:'P88',desc:'Australia vs Egypt',fecha:'2026-07-03',hora:'15:00',ciudad:'Dallas'},
   ]},
