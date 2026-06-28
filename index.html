@@ -965,6 +965,7 @@ body.dark .esb{background:#0a1520}
 .eest-a{background:var(--amber-light);color:var(--amber-dark)}
 .eest-c{background:var(--rojo-light);color:var(--rojo-dark)}
 .eest-p{background:var(--aub-light);color:var(--aub-darker)}
+.eest-f{background:#dcfce7;color:#166534}
 .edivider{height:1px;background:var(--gray-border);margin:9px 11px 0}
 .eext{padding:8px 11px 11px;display:flex;flex-direction:column;flex:1;display:flex;flex-direction:column;flex:1;align-items:center}
 .eext-t{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray);margin-bottom:5px;text-align:center;width:100%}
@@ -2752,10 +2753,11 @@ function abiertoE(p){return new Date()<cierreDate(p);}
 function eCard(p,color){
   const ep=EPRONOS[p.id]||{};
   const ab=abiertoE(p);
-  const fin=ep.gl!==undefined&&ep.gl!==null&&ep.gl!=='';
+  const res=RESULTADOS[p.id];
+  const fin=res!==undefined&&res.gl!==undefined&&res.gl!==null&&res.gl!=='';
   const cerrado=!ab&&!fin;
 
-  const eest=fin?`<span class="eest eest-p">✓ Pronóstico cargado</span>`:cerrado?`<span class="eest eest-c">⛔ Cerrado</span>`:`<span class="eest eest-a">⏳ Abierto</span>`;
+  const eest=fin?`<span class="eest eest-f">✓ Finalizado</span>`:cerrado?`<span class="eest eest-c">⛔ Cerrado</span>`:`<span class="eest eest-a">⏳ Abierto</span>`;
 
   const teamL=ep.teamL||p.desc.split(' vs ')[0];
   const teamV=ep.teamV||p.desc.split(' vs ')[1];
@@ -2763,18 +2765,33 @@ function eCard(p,color){
   const esRealV=!teamV.includes('°')&&!teamV.includes('G.P')&&teamV.length>1;
 
   let body='';
-  if(cerrado){
+  if(fin){
+    // Partido finalizado — mostrar resultado real y pronóstico del usuario
+    const resGL=res.gl;const resGV=res.gv;
+    const userGL=ep.gL;const userGV=ep.gV;
+    const tieneProno=userGL!==undefined&&userGL!==''&&userGV!==undefined&&userGV!=='';
+    const alargueStr=ep.alargue==='si'?'⏱️ Alargue: Sí':(ep.alargue==='no'?'⏱️ Alargue: No':'');
+    const ganExtra=ep.penGana||ep.alargGana;
+    const ganStr=ganExtra?(ep.penales==='si'?`🏆 Gan. penales: ${ganExtra==='local'?fn(p.l||teamL):fn(p.v||teamV)}`:`🏆 Gan. alargue: ${ganExtra==='local'?fn(p.l||teamL):fn(p.v||teamV)}`):'' ;
+    body=`<div class="eext" style="padding:8px 11px 10px">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 0">
+        <span style="font-size:22px;font-weight:800;color:var(--gray-dark)">${resGL}</span>
+        <span style="font-size:14px;color:var(--gray)">–</span>
+        <span style="font-size:22px;font-weight:800;color:var(--gray-dark)">${resGV}</span>
+      </div>
+      ${res.alargue?'<div style="text-align:center;font-size:9px;color:var(--aub);font-weight:700;margin-bottom:4px">⏱️ Fue a alargue'+(res.penales?' · 🎲 Penales':'')+'</div>':''}
+      ${tieneProno?`<div style="text-align:center;font-size:10px;font-weight:700;color:#166534;background:#dcfce7;border-radius:5px;padding:4px 8px;margin:4px 0">Tu prode: ${userGL}–${userGV}</div>`:'<div style="text-align:center;font-size:9px;color:var(--gray);margin:4px 0">Sin pronóstico</div>'}
+      ${tieneProno&&(alargueStr||ganStr)?`<div style="text-align:center;font-size:9px;color:var(--gray-dark);margin-top:2px">${[alargueStr,ganStr].filter(Boolean).join(' · ')}</div>`:''}
+    </div>`;
+  } else if(cerrado){
     if(ep.gL!==undefined&&ep.gL!==''&&ep.gV!==undefined&&ep.gV!==''){
-      // Tiene pronóstico guardado — mostrar resumen de lo que eligió
       const alargueStr=ep.alargue==='si'?'⏱️ Alargue: Sí':(ep.alargue==='no'?'⏱️ Alargue: No':'');
-      const penalesStr=ep.penales==='si'?'🎲 Penales: Sí':(ep.penales==='no'?'🎲 Penales: No':'');
       const ganExtra=ep.penGana||ep.alargGana;
-      const ganStr=ganExtra?(ep.penales==='si'?`🏆 Gan. penales: ${ganExtra==='local'?fn(p.l||teamL):fn(p.v||teamV)}`:`🏆 Gan. alargue: ${ganExtra==='local'?fn(p.l||teamL):fn(p.v||teamV)}`):'';
+      const ganStr=ganExtra?(ep.penales==='si'?`🏆 Gan. penales: ${ganExtra==='local'?fn(p.l||teamL):fn(p.v||teamV)}`:`🏆 Gan. alargue: ${ganExtra==='local'?fn(p.l||teamL):fn(p.v||teamV)}`):'' ;
       body=`
         <div style="text-align:center;padding:4px 8px;font-size:9px;font-weight:700;color:#166534;background:#dcfce7;border-radius:6px 6px 0 0;letter-spacing:.3px">✓ Pronóstico guardado: ${ep.gL}–${ep.gV}</div>
         <div style="padding:8px 11px 10px;display:flex;flex-direction:column;gap:4px">
           ${alargueStr?`<div style="font-size:10px;color:var(--gray-dark)">${alargueStr}</div>`:''}
-          ${penalesStr?`<div style="font-size:10px;color:var(--gray-dark)">${penalesStr}</div>`:''}
           ${ganStr?`<div style="font-size:10px;color:var(--gray-dark)">${ganStr}</div>`:''}
           <div style="font-size:9px;color:var(--rojo-dark);font-weight:600;margin-top:2px">🔒 Cerrado — sin modificación</div>
         </div>`;
