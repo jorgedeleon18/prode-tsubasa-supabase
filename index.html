@@ -2574,16 +2574,20 @@ async function svResElim(id){
     // Guardar en RESULTADOS local con extras
     RESULTADOS[id]={...RESULTADOS[id],gl:parseInt(gL),gv:parseInt(gV),alargue,penales,ganador_extra:ganador};
     const {error}=await SB.from('resultados').upsert({partido_id:id,goles_local_real:parseInt(gL),goles_visitante_real:parseInt(gV),fase:'eliminatoria',alargue,penales,ganador_extra:ganador},{onConflict:'partido_id'});
-    if(error){toast('Error guardando resultado: '+error.message,'err');}
+    if(error){toast('Error guardando resultado: '+error.message,'err');btn.disabled=false;EDITANDO[id]=false;rAdmin(document.getElementById('mc'));}
     else{
       await recalcPartido(id);
+      if(btn){btn.textContent='✓ Guardado';btn.style.background='var(--gray)';btn.disabled=true;}
       toast('✓ Resultado guardado y puntos actualizados');
+      delete ADRES_EXTRA[id];
+      EDITANDO[id]=false;rAdmin(document.getElementById('mc'));
     }
-    delete ADRES_EXTRA[id];
   } else if(l||v){
     toast('✓ Equipos actualizados');
+    btn.disabled=false;EDITANDO[id]=false;rAdmin(document.getElementById('mc'));
+  } else {
+    btn.disabled=false;EDITANDO[id]=false;rAdmin(document.getElementById('mc'));
   }
-  btn.disabled=false;EDITANDO[id]=false;rAdmin(document.getElementById('mc'));
 }
 // ══ SUPER-ADMIN: email hardcodeado, nunca puede perder su rol ══
 const SUPER_ADMIN='jorge_dl18@hotmail.com';
