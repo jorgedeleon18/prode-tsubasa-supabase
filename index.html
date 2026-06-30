@@ -3378,7 +3378,7 @@ async function rPosiciones(mc){
   mc.innerHTML='<div class="loading">Cargando ranking</div>';
   try{
     const {data:users,error:uerr}=await SB.from('usuarios').select('*'); if(uerr)throw uerr;
-    const {data:prs,error:perr}=await SB.from('pronosticos').select('*'); if(perr)throw perr;
+    const {data:prs,error:perr}=await SB.from('pronosticos').select('usuario_id,puntos').limit(5000); if(perr)throw perr;
     RANK=(users||[]).map(u=>{const ups=(prs||[]).filter(p=>p.usuario_id===u.id);const puntos=ups.reduce((a,p)=>a+(p.puntos||0),0);const exactos=ups.filter(p=>(p.puntos||0)===5).length;return {Email:u.email,Nombre:u.nombre,Sector:u.equipo||u.sector||'',Puntos:puntos,Exactos:exactos,Avatar:u.avatar,id:u.id,tipo:u.tipo||'amigo',federacion:u.federacion||''};}).sort((a,b)=>(b.Puntos||0)-(a.Puntos||0)||(b.Exactos||0)-(a.Exactos||0));
   }catch(e){mc.innerHTML=`<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-txt">No se pudo cargar ranking: ${e.message}</div></div>`;return;}
   const md=['🥇','🥈','🥉'];
