@@ -1778,8 +1778,8 @@ function resolverBracket(){
         } else {
           v=refV;
         }
-        if(l)p.l=l;
-        if(v)p.v=v;
+        if(l){p.l=l;if(!EQUIPOS_ELIM[p.id])EQUIPOS_ELIM[p.id]={};EQUIPOS_ELIM[p.id].l=l;}
+        if(v){p.v=v;if(!EQUIPOS_ELIM[p.id])EQUIPOS_ELIM[p.id]={};EQUIPOS_ELIM[p.id].v=v;}
       }
     });
   });
